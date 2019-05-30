@@ -5,6 +5,7 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using WoA.Lib;
 using WoA.Lib.Blizzard;
@@ -46,7 +47,7 @@ namespace WorldOfAuctions
                 string line;
                 do
                 {
-                    _console.WriteLine("Waiting for a command... [flip|see|spy|chrealm|stop]");
+                    _console.WriteLine("Waiting for a command... [flip|see|spy|chrealm|stop|top|whatis]");
                     line = Console.ReadLine();
                     if (line.StartsWith("flip "))
                     {
@@ -64,6 +65,16 @@ namespace WorldOfAuctions
                     {
                         string owner = line.Split(' ')[1];
                         _auctionViewer.SeeAuctionsOwnedBy(tsm, auctions, owner);
+                    }
+                    else if (line.StartsWith("top"))
+                    {
+                        _auctionViewer.SeeTopSellers(tsm, auctions);
+                    }
+                    else if (line.StartsWith("whatis"))
+                    {
+                        int itemId = _auctionViewer.GetItemId(tsm, line);
+                        _console.WriteLine("Opening wowhead's article on item");
+                        Process.Start("https://www.wowhead.com/item=" + itemId);
                     }
                     else if (line.StartsWith("chrealm"))
                     {

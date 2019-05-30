@@ -89,9 +89,6 @@ namespace WoA.Lib.TSM
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
 
-            Trace.WriteLine("Received response from TSM:");
-            Trace.WriteLine(response.Content);
-
             return JsonConvert.DeserializeObject<T>(response.Content);
         }
 

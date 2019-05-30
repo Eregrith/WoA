@@ -76,10 +76,20 @@ namespace WoA.Lib
             _console.WriteLine($"{tsmItem.Name} is sold at a rate of {tsmItem.RegionSaleRate} in region, for around {tsmItem.RegionSaleAvg} items per day");
         }
 
-        public void ShowAuctionsForMultiItems(TsmClient tsm, IEnumerable<Auction> auctions)
+        public void SeeTopSellers(TsmClient tsm, List<Auction> auctions)
+        {
+            var topSellers = auctions.GroupBy(a => a.owner).OrderByDescending(a => a.Sum(i => i.buyout)).Take(10);
+            _console.WriteLine(String.Format("{0,20}{1,20}{2,10}{3,45}", "Seller", "Quantity", "(auctions)", "Buyout total"));
+            foreach (var seller in topSellers)
+            {
+                _console.WriteLine(String.Format("{0,20}{1,20}{2,10}{3,45}", seller.Key, seller.Sum(i => i.quantity), "(" + seller.Count() + ")", seller.Sum(i => i.buyout).ToGoldString()));
+            }
+        }
+
+        private void ShowAuctionsForMultiItems(TsmClient tsm, IEnumerable<Auction> auctions)
         {
             _console.WriteLine(String.Format("{4,45}{0,20}{1,12}{2,20}{3,20}", "Price per item", "Quantity", "Buyout total", "Seller", "Item name"));
-            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item }).OrderBy(a => a.Key.item).ThenBy(g => g.Key.PricePerItem))
+            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
                 TsmItem tsmItem = tsm.GetItem(auctionGroup.First().item, _realm);
                 _console.WriteLine(String.Format("{5,45}{0,20}{1,7}x {2,3}{3,20}{4,20}"
