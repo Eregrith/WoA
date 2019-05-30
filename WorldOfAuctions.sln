@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldOfAuctions", "WorldOfAuctions\WorldOfAuctions.csproj", "{72A3C6A2-4BA5-499C-9B50-12974B5B888D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoA.Lib", "WoA.Lib\WoA.Lib.csproj", "{AA8DDEC2-2570-4977-88BF-FEDCF12E142B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72A3C6A2-4BA5-499C-9B50-12974B5B888D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72A3C6A2-4BA5-499C-9B50-12974B5B888D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72A3C6A2-4BA5-499C-9B50-12974B5B888D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72A3C6A2-4BA5-499C-9B50-12974B5B888D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA8DDEC2-2570-4977-88BF-FEDCF12E142B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA8DDEC2-2570-4977-88BF-FEDCF12E142B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA8DDEC2-2570-4977-88BF-FEDCF12E142B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA8DDEC2-2570-4977-88BF-FEDCF12E142B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {04A3EE56-6363-4994-A150-1C176F1B9F71}
+	EndGlobalSection
+EndGlobal
