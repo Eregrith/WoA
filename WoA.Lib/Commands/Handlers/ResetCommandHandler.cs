@@ -18,7 +18,7 @@ namespace WoA.Lib.Commands.Handlers
         {
             int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
             if (itemId != 0)
-                _auctionViewer.SimulateResettingItem(itemId,90,110);
+                _auctionViewer.SimulateResettingItem(itemId,notification.MaxBuyPercent,notification.SellPricePercent);
             return Task.CompletedTask;
         }
     }
