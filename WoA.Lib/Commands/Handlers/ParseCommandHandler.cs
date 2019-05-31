@@ -19,6 +19,30 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(ParseCommand notification, CancellationToken cancellationToken)
         {
+            if (notification.UserInput.StartsWith("flip "))
+            {
+                _mediator.Publish(new FlipCommand { UserInput = notification.UserInput });
+            }
+            else if (notification.UserInput.StartsWith("see "))
+            {
+                _mediator.Publish(new SeeAuctionsCommand { UserInput = notification.UserInput });
+            }
+            else if (notification.UserInput.StartsWith("spy "))
+            {
+                _mediator.Publish(new SpySellerCommand { UserInput = notification.UserInput });
+            }
+            else if (notification.UserInput.StartsWith("top "))
+            {
+                _mediator.Publish(new ShowTopSellersCommand());
+            }
+            else if (notification.UserInput.StartsWith("whatis "))
+            {
+                _mediator.Publish(new WhatIsItemCommand { UserInput = notification.UserInput });
+            }
+            else if (notification.UserInput.StartsWith("chrealm "))
+            {
+                _mediator.Publish(new ChangeRealmCommand { UserInput = notification.UserInput });
+            }
             return Task.CompletedTask;
         }
     }
