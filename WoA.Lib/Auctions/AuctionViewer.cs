@@ -64,20 +64,27 @@ namespace WoA.Lib
                 ShowAuctions(tsmItem, cheapAuctions);
 
                 long sumSelloutFlippingWithGoblinTaxe = (long)Math.Round(cheapAuctions.Sum(a => a.quantity) * tsmItem.MarketValue * sellingPercentage * 0.95);
+                long goblinTax = (long)Math.Round(cheapAuctions.Sum(a => a.quantity) * tsmItem.MarketValue * sellingPercentage * 0.05);
                 long profit = sumSelloutFlippingWithGoblinTaxe - sumBuyoutCheapAuctions;
 
                 double percentProfit = Math.Round(((double)sumSelloutFlippingWithGoblinTaxe / sumBuyoutCheapAuctions - 1) * 100, 2);
-                _console.WriteLine($"Buying them and reselling them at {sellingPercentageValue}% would net you {profit.ToGoldString()} (you gain {percentProfit}% of your invested money)");
+                _console.WriteLine($"Buying them and reselling them at {sellingPercentageValue}% would net you {profit.ToGoldString()} (AH cut accounted for. You gain {percentProfit}% of your invested money)");
+                _console.WriteLine($"(In the meantime those pesky AH Goblins have taken out {goblinTax.ToGoldString()} with the 5% AH cut)");
             }
         }
 
         public void SeeAuctionsFor(int itemId)
         {
             TsmItem tsmItem = _tsm.GetItem(itemId);
+            if (tsmItem == null)
+            {
+                _console.WriteLine("No item found in TSM data with this id");
+                return;
+            }
             _console.WriteLine($"Looking at auctions for item:");
             _console.WriteAscii(tsmItem.Name);
             var itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
-            _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem?.Name} auctions");
+            _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem.Name} auctions");
             _console.WriteLine($"Tsm Item : {tsmItem}");
 
             ShowAuctions(tsmItem, itemAuctions);
