@@ -5,6 +5,6 @@ namespace WorldOfAuctions
     public interface IStylizedConsole
     {
         void WriteLine(string line);
-        void WriteAscii(string v);
+        void WriteAscii(string line);
     }
 }

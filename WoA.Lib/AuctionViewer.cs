@@ -9,7 +9,7 @@ namespace WoA.Lib
 {
     public class AuctionViewer
     {
-        private IStylizedConsole _console;
+        private readonly IStylizedConsole _console;
         private string _realm;
 
         public AuctionViewer(IStylizedConsole console, string realm)
