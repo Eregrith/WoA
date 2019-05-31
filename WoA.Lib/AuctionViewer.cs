@@ -135,7 +135,7 @@ namespace WoA.Lib
 
             _console.WriteLine(String.Format("{0,20}{1,12}{1,20}{2,20}", "Grand total per seller", "", "Average %MarketValue"));
 
-            foreach (var auctionGroup in auctions.GroupBy(a => a.owner).OrderByDescending(g => g.Sum(a => a.buyout)))
+            foreach (var auctionGroup in auctions.GroupBy(a => a.owner).OrderByDescending(g => g.Sum(a => a.quantity)))
             {
                 double avgMarketValue = Math.Round(auctionGroup.Average(a => (a.PricePerItem * 100.0) / tsmItem.MarketValue), 2);
                 _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,20:0.00} %"
