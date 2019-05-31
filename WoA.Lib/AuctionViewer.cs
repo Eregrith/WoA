@@ -52,12 +52,17 @@ namespace WoA.Lib
             _console.WriteLine($"{cheapAuctions.Count()} of which are under {maxBuy.ToGoldString()} per (80% MarketValue)");
             if (cheapAuctions.Any())
             {
-                _console.WriteLine($"For a total of {cheapAuctions.Sum(a => a.buyout).ToGoldString()} for {cheapAuctions.Sum(a => a.quantity)} items at an average of {((long)cheapAuctions.Average(a => a.PricePerItem)).ToGoldString()} per");
+                long sumBuyoutCheapAuctions = cheapAuctions.Sum(a => a.buyout);
+
+                _console.WriteLine($"For a total of {sumBuyoutCheapAuctions.ToGoldString()} for {cheapAuctions.Sum(a => a.quantity)} items at an average of {((long)cheapAuctions.Average(a => a.PricePerItem)).ToGoldString()} per");
 
                 ShowAuctions(tsmItem, cheapAuctions);
 
-                long profit = (cheapAuctions.Sum(a => a.quantity) * tsmItem.MarketValue) - cheapAuctions.Sum(a => a.buyout);
-                _console.WriteLine($"Buying them and reselling them at MarketValue would net you {profit.ToGoldString()} profit");
+                long sumSelloutFlippingWithGoblinTaxe = (long)Math.Round(cheapAuctions.Sum(a => a.quantity) * tsmItem.MarketValue * 0.95);
+                long profit = sumSelloutFlippingWithGoblinTaxe - sumBuyoutCheapAuctions;
+
+                double percentProfit = Math.Round(((double)sumSelloutFlippingWithGoblinTaxe / sumBuyoutCheapAuctions - 1) * 100, 2);
+                _console.WriteLine($"Buying them and reselling them at MarketValue would net you {profit.ToGoldString()} (you gain {percentProfit}% of your invested money)");
             }
         }
 
