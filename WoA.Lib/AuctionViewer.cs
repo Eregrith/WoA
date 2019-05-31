@@ -73,7 +73,7 @@ namespace WoA.Lib
 
             ShowAuctions(tsmItem, itemAuctions);
 
-            _console.WriteLine($"{tsmItem.Name} is sold at a rate of {tsmItem.RegionSaleRate} in region, for around {tsmItem.RegionSaleAvg} items per day");
+            _console.WriteLine($"{tsmItem.Name} is sold at a rate of {tsmItem.RegionSaleRate} in region, for around {tsmItem.RegionAvgDailySold} items per day");
         }
 
         public void SeeTopSellers(TsmClient tsm, List<Auction> auctions)
@@ -137,14 +137,16 @@ namespace WoA.Lib
                 , auctions.Sum(a => a.quantity)
                 , auctions.Sum(a => a.buyout).ToGoldString()));
 
-            _console.WriteLine(String.Format("{0,20}", "Grand total per seller"));
+            _console.WriteLine(String.Format("{0,20}{1,12}{1,20}{2,20}", "Grand total per seller", "", "Average %MarketValue"));
 
             foreach (var auctionGroup in auctions.GroupBy(a => a.owner).OrderByDescending(g => g.Sum(a => a.buyout)))
             {
-                _console.WriteLine(String.Format("{0,20}{1,12}{2,20}"
+                double avgMarketValue = Math.Round(auctionGroup.Average(a => (a.PricePerItem * 100.0) / tsmItem.MarketValue), 2);
+                _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,20:0.00} %"
                     , auctionGroup.Key
                     , auctionGroup.Sum(a => a.quantity)
-                    , auctionGroup.Sum(a => a.buyout).ToGoldString()));
+                    , auctionGroup.Sum(a => a.buyout).ToGoldString()
+                    , avgMarketValue));
             }
         }
     }

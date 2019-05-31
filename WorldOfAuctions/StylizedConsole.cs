@@ -10,7 +10,7 @@ namespace WorldOfAuctions
         public StylizedConsole()
         {
             _stylesheet = new StyleSheet(System.Drawing.Color.White);
-            _stylesheet.AddStyle("[,0-9]+g", System.Drawing.Color.Gold);
+            _stylesheet.AddStyle("[\xa0,0-9]+g", System.Drawing.Color.Gold);
             _stylesheet.AddStyle("[0-9]+s", System.Drawing.Color.Silver);
             _stylesheet.AddStyle("[0-9]+c", System.Drawing.Color.Brown);
         }
