@@ -10,5 +10,6 @@ namespace WoA.Lib
         void SeeAuctionsOwnedBy(string owner);
         void SeeTopSellers();
         void SimulateFlippingItem(int itemId);
+        void SimulateResettingItem(int itemId, int buyingPercentageValue, int sellingPercentageValue);
     }
 }

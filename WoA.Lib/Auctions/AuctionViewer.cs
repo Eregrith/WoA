@@ -39,15 +39,22 @@ namespace WoA.Lib
 
         public void SimulateFlippingItem(int itemId)
         {
+            SimulateResettingItem(itemId, 80, 100);
+        }
+
+        public void SimulateResettingItem(int itemId, int buyingPercentageValue, int sellingPercentageValue)
+        {
+            float buyingPercentage = (float)buyingPercentageValue / 100;
+            float sellingPercentage = (float)sellingPercentageValue / 100;
             TsmItem tsmItem = _tsm.GetItem(itemId);
             _console.WriteLine($"Looking at flips for item:");
             _console.WriteAscii(tsmItem.Name);
             var itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
             _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem?.Name} auctions");
-            long maxBuy = (long)(tsmItem?.MarketValue * 0.8);
+            long maxBuy = (long)(tsmItem?.MarketValue * buyingPercentage);
             _console.WriteLine($"Tsm Item : {tsmItem}");
             var cheapAuctions = itemAuctions.Where(a => a.PricePerItem <= maxBuy && a.buyout != 0);
-            _console.WriteLine($"{cheapAuctions.Count()} of which are under {maxBuy.ToGoldString()} per (80% MarketValue)");
+            _console.WriteLine($"{cheapAuctions.Count()} of which are under {maxBuy.ToGoldString()} per ({buyingPercentageValue}% MarketValue)");
             if (cheapAuctions.Any())
             {
                 long sumBuyoutCheapAuctions = cheapAuctions.Sum(a => a.buyout);
@@ -56,11 +63,11 @@ namespace WoA.Lib
 
                 ShowAuctions(tsmItem, cheapAuctions);
 
-                long sumSelloutFlippingWithGoblinTaxe = (long)Math.Round(cheapAuctions.Sum(a => a.quantity) * tsmItem.MarketValue * 0.95);
+                long sumSelloutFlippingWithGoblinTaxe = (long)Math.Round(cheapAuctions.Sum(a => a.quantity) * tsmItem.MarketValue * sellingPercentage * 0.95);
                 long profit = sumSelloutFlippingWithGoblinTaxe - sumBuyoutCheapAuctions;
 
                 double percentProfit = Math.Round(((double)sumSelloutFlippingWithGoblinTaxe / sumBuyoutCheapAuctions - 1) * 100, 2);
-                _console.WriteLine($"Buying them and reselling them at MarketValue would net you {profit.ToGoldString()} (you gain {percentProfit}% of your invested money)");
+                _console.WriteLine($"Buying them and reselling them at {sellingPercentageValue}% would net you {profit.ToGoldString()} (you gain {percentProfit}% of your invested money)");
             }
         }
 
