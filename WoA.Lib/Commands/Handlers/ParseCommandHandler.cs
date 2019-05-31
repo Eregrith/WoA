@@ -1,9 +1,13 @@
 ﻿using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using WoA.Lib.Commands.Attributes;
 using WoA.Lib.Commands.QueryObjects;
 
 namespace WoA.Lib.Commands.Handlers
@@ -19,6 +23,18 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(ParseCommand notification, CancellationToken cancellationToken)
         {
+            var woaCommands = this.GetType().Assembly.GetTypes().Where(t => t.GetCustomAttribute<WoACommandAttribute>() != null);
+            foreach (var woaCommand in woaCommands)
+            {
+                string regex = woaCommand.GetCustomAttribute<WoACommandAttribute>().RegexToMatch;
+                Regex r = new Regex(regex);
+                Match m = r.Match(notification.UserInput);
+                if (m.Success)
+                {
+                    var command = Activator.CreateInstance(woaCommand, m);
+                    _mediator.Publish(command);
+                }
+            }
             if (notification.UserInput.StartsWith("flip "))
             {
                 _mediator.Publish(new FlipCommand { UserInput = notification.UserInput });
@@ -26,10 +42,6 @@ namespace WoA.Lib.Commands.Handlers
             else if (notification.UserInput.StartsWith("see "))
             {
                 _mediator.Publish(new SeeAuctionsCommand { UserInput = notification.UserInput });
-            }
-            else if (notification.UserInput.StartsWith("spy "))
-            {
-                _mediator.Publish(new SpySellerCommand { UserInput = notification.UserInput });
             }
             else if (notification.UserInput.StartsWith("top "))
             {

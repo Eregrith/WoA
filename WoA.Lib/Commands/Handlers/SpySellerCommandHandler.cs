@@ -19,8 +19,7 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(SpySellerCommand notification, CancellationToken cancellationToken)
         {
-            string owner = notification.UserInput.Split(' ')[1];
-            _auctionViewer.SeeAuctionsOwnedBy(owner);
+            _auctionViewer.SeeAuctionsOwnedBy(notification.SellerName);
             return Task.CompletedTask;
         }
     }
