@@ -35,53 +35,36 @@ namespace WorldOfAuctions
             try
             {
                 _tsm.RefreshTsmItemsInRepository();
-                string token = _blizzard.GetAccessToken();
-
-                string fileUrl = _blizzard.GetAuctionFileUrl(token);
-
-                List<Auction> auctions = _blizzard.GetAuctions(fileUrl);
-                _console.WriteLine($"Got {auctions.Count} auctions from the file for realm " + _config.CurrentRealm);
+                _blizzard.LoadAuctions();
 
                 string line;
                 do
                 {
-                    _console.WriteLine("Waiting for a command... [flip|see|spy|chrealm|stop|top|whatis]");
+                    _console.WriteLine("Waiting for a command... [flip|see|spy|chrealm|top|whatis|stop]");
                     line = Console.ReadLine();
                     if (line.StartsWith("flip "))
                     {
-                        int itemId = _auctionViewer.GetItemId(line);
-                        if (itemId != 0)
-                            _auctionViewer.SimulateFlippingItem(auctions, itemId);
+                        Flip(line);
                     }
                     else if (line.StartsWith("see "))
                     {
-                        int itemId = _auctionViewer.GetItemId(line);
-                        if (itemId != 0)
-                            _auctionViewer.SeeAuctionsFor(auctions, itemId);
+                        See(line);
                     }
                     else if (line.StartsWith("spy"))
                     {
-                        string owner = line.Split(' ')[1];
-                        _auctionViewer.SeeAuctionsOwnedBy(auctions, owner);
+                        Spy(line);
                     }
                     else if (line.StartsWith("top"))
                     {
-                        _auctionViewer.SeeTopSellers(auctions);
+                        Top();
                     }
                     else if (line.StartsWith("whatis"))
                     {
-                        int itemId = _auctionViewer.GetItemId(line);
-                        _console.WriteLine("Opening wowhead's article on item");
-                        Process.Start("https://www.wowhead.com/item=" + itemId);
+                        WhatIs(line);
                     }
                     else if (line.StartsWith("chrealm"))
                     {
-                        string realm = line.Split(' ')[1];
-                        _config.CurrentRealm = realm;
-                        _tsm.RefreshTsmItemsInRepository();
-                        fileUrl = _blizzard.GetAuctionFileUrl(token);
-                        auctions = _blizzard.GetAuctions(fileUrl);
-                        _console.WriteLine($"Got {auctions.Count} auctions from the file for realm " + _config.CurrentRealm);
+                        ChangeRealm(line);
                     }
                 } while (line != "stop");
             }
@@ -90,6 +73,46 @@ namespace WorldOfAuctions
                 Console.WriteLine(e);
                 Console.ReadLine();
             }
+        }
+
+        private void ChangeRealm(string line)
+        {
+            string realm = line.Split(' ')[1];
+            _config.CurrentRealm = realm;
+            _tsm.RefreshTsmItemsInRepository();
+            _blizzard.LoadAuctions();
+        }
+
+        private void WhatIs(string line)
+        {
+            int itemId = _auctionViewer.GetItemId(line);
+            _console.WriteLine("Opening wowhead's article on item");
+            Process.Start("https://www.wowhead.com/item=" + itemId);
+        }
+
+        private void Top()
+        {
+            _auctionViewer.SeeTopSellers();
+        }
+
+        private void Spy(string line)
+        {
+            string owner = line.Split(' ')[1];
+            _auctionViewer.SeeAuctionsOwnedBy(owner);
+        }
+
+        private void See(string line)
+        {
+            int itemId = _auctionViewer.GetItemId(line);
+            if (itemId != 0)
+                _auctionViewer.SeeAuctionsFor(itemId);
+        }
+
+        private void Flip(string line)
+        {
+            int itemId = _auctionViewer.GetItemId(line);
+            if (itemId != 0)
+                _auctionViewer.SimulateFlippingItem(itemId);
         }
     }
 }

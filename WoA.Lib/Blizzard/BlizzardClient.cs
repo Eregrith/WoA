@@ -12,6 +12,8 @@ namespace WoA.Lib.Blizzard
         private string oauthTokenUrl => "https://eu.battle.net/oauth/token";
         private readonly IConfiguration _config;
         private readonly IStylizedConsole _console;
+        private List<Auction> _auctions;
+        public List<Auction> Auctions { get => _auctions; }
 
         public BlizzardClient(IConfiguration config, IStylizedConsole console)
         {
@@ -19,7 +21,20 @@ namespace WoA.Lib.Blizzard
             _console = console;
         }
 
-        public List<Auction> GetAuctions(string fileUrl)
+        public void LoadAuctions()
+        {
+            _console.WriteLine($"BLI > Loading auctions for realm " + _config.CurrentRealm);
+
+            string token = GetAccessToken();
+
+            string fileUrl = GetAuctionFileUrl(token);
+
+            _auctions = GetAuctions(fileUrl);
+
+            _console.WriteLine($"BLI > Got {_auctions.Count} auctions from the file for realm " + _config.CurrentRealm);
+        }
+
+        private List<Auction> GetAuctions(string fileUrl)
         {
             var client = new RestClient(fileUrl);
             var request = new RestRequest(Method.GET);
@@ -28,9 +43,8 @@ namespace WoA.Lib.Blizzard
             return JsonConvert.DeserializeObject<AuctionFileContents>(response.Content).auctions;
         }
 
-        public string GetAuctionFileUrl(string token)
+        private string GetAuctionFileUrl(string token)
         {
-            _console.WriteLine("Getting auctions file for realm " + _config.CurrentRealm);
             string fileUrl;
             var client = new RestClient("https://eu.api.blizzard.com/wow/auction/data/" + _config.CurrentRealm);
             var request = new RestRequest(Method.GET);
@@ -44,7 +58,7 @@ namespace WoA.Lib.Blizzard
             return fileUrl;
         }
 
-        public string GetAccessToken()
+        private string GetAccessToken()
         {
             var client = new RestClient(oauthTokenUrl);
             var request = new RestRequest(Method.POST);

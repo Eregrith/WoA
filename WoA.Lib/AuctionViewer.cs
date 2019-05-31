@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using WoA.Lib.Blizzard;
 using WoA.Lib.TSM;
 
 namespace WoA.Lib
@@ -9,11 +10,13 @@ namespace WoA.Lib
     {
         private readonly IStylizedConsole _console;
         private readonly ITsmClient _tsm;
+        private readonly IBlizzardClient _blizzard;
 
-        public AuctionViewer(IStylizedConsole console, ITsmClient tsm)
+        public AuctionViewer(IStylizedConsole console, ITsmClient tsm, IBlizzardClient blizzard)
         {
             _console = console;
             _tsm = tsm;
+            _blizzard = blizzard;
         }
 
         public int GetItemId(string line)
@@ -27,21 +30,21 @@ namespace WoA.Lib
             return _tsm.GetItemIdFromName(item);
         }
 
-        public void SeeAuctionsOwnedBy(List<Auction> auctions, string owner)
+        public void SeeAuctionsOwnedBy(string owner)
         {
             _console.WriteLine($"Looking at auctions from owner {owner}");
-            var itemAuctions = auctions.Where(a => a.owner == owner);
+            var itemAuctions = _blizzard.Auctions.Where(a => a.owner == owner);
             _console.WriteLine($"There are {itemAuctions.Count()} auctions for {owner}");
 
             ShowAuctionsForMultiItems(itemAuctions);
         }
 
-        public void SimulateFlippingItem(List<Auction> auctions, int itemId)
+        public void SimulateFlippingItem(int itemId)
         {
             TsmItem tsmItem = _tsm.GetItem(itemId);
             _console.WriteLine($"Looking at flips for item:");
             _console.WriteAscii(tsmItem.Name);
-            var itemAuctions = auctions.Where(a => a.item == itemId);
+            var itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
             _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem?.Name} auctions");
             long maxBuy = (long)(tsmItem?.MarketValue * 0.8);
             _console.WriteLine($"Tsm Item : {tsmItem}");
@@ -58,12 +61,12 @@ namespace WoA.Lib
             }
         }
 
-        public void SeeAuctionsFor(List<Auction> auctions, int itemId)
+        public void SeeAuctionsFor(int itemId)
         {
             TsmItem tsmItem = _tsm.GetItem(itemId);
             _console.WriteLine($"Looking at auctions for item:");
             _console.WriteAscii(tsmItem.Name);
-            var itemAuctions = auctions.Where(a => a.item == itemId);
+            var itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
             _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem?.Name} auctions");
             _console.WriteLine($"Tsm Item : {tsmItem}");
 
@@ -72,9 +75,9 @@ namespace WoA.Lib
             _console.WriteLine($"{tsmItem.Name} is sold at a rate of {tsmItem.RegionSaleRate} in region, for around {tsmItem.RegionAvgDailySold} items per day");
         }
 
-        public void SeeTopSellers(List<Auction> auctions)
+        public void SeeTopSellers()
         {
-            var topSellers = auctions.GroupBy(a => a.owner).OrderByDescending(a => a.Sum(i => i.buyout)).Take(10);
+            var topSellers = _blizzard.Auctions.GroupBy(a => a.owner).OrderByDescending(a => a.Sum(i => i.buyout)).Take(10);
             _console.WriteLine(String.Format("{0,20}{1,20}{2,10}{3,45}", "Seller", "Quantity", "(auctions)", "Buyout total"));
             foreach (var seller in topSellers)
             {
