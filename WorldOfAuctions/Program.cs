@@ -1,4 +1,5 @@
-﻿using MongoRepository;
+﻿using Autofac;
+using MongoRepository;
 using System;
 using WoA.Lib;
 using WoA.Lib.Blizzard;
@@ -10,17 +11,37 @@ namespace WorldOfAuctions
     {
         static void Main(string[] args)
         {
-            IConfiguration config = new Configuration();
-            IStylizedConsole console = new StylizedConsole();
-            string tsmApiKey = config.TsmApiKey;
-            if (String.IsNullOrEmpty(tsmApiKey))
-                throw new InvalidOperationException("Please provide a TSM_ApiKey in the configuration");
-            ITsmClient tsm = new TsmClient(tsmApiKey, new MongoRepository<TsmItem>(config.MongoUrl), new MongoRepository<TsmRealmData>(config.MongoUrl));
-            IBlizzardClient blizzard = new BlizzardClient(config.Blizzard_ClientId, config.Blizzard_ClientSecret, config.CurrentRealm);
-            var auctionViewer = new AuctionViewer(console, config.CurrentRealm);
-
-            WoA woa = new WoA(config, tsm, blizzard, console, auctionViewer);
+            IContainer container = DependencyConfig();
+            WoA woa = container.Resolve<WoA>();
             woa.Run();
+        }
+
+        private static IContainer DependencyConfig()
+        {
+            ContainerBuilder builder = new ContainerBuilder();
+
+            builder.RegisterType<Configuration>().As<IConfiguration>();
+            builder.RegisterType<StylizedConsole>().As<IStylizedConsole>();
+            builder.Register(c => new TsmClient(
+                c.Resolve<IConfiguration>().TsmApiKey,
+                new MongoRepository<TsmItem>(c.Resolve<IConfiguration>().MongoUrl),
+                new MongoRepository<TsmRealmData>(c.Resolve<IConfiguration>().MongoUrl)
+                )
+            ).As<ITsmClient>();
+            builder.Register(c => new BlizzardClient(
+                c.Resolve<IConfiguration>().Blizzard_ClientId,
+                c.Resolve<IConfiguration>().Blizzard_ClientSecret,
+                c.Resolve<IConfiguration>().CurrentRealm
+                )
+            ).As<IBlizzardClient>();
+            builder.Register(c => new AuctionViewer(
+                c.Resolve<IStylizedConsole>(),
+                c.Resolve<IConfiguration>().CurrentRealm
+                )
+            ).As<IAuctionViewer>();
+            builder.RegisterType<WoA>().AsSelf();
+
+            return builder.Build();
         }
     }
 }
