@@ -1,14 +1,9 @@
-﻿using MongoDB.Driver;
-using MongoRepository;
+﻿using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WoA.Lib;
 using WoA.Lib.Blizzard;
+using WoA.Lib.Commands.QueryObjects;
 using WoA.Lib.TSM;
 
 namespace WorldOfAuctions
@@ -20,14 +15,16 @@ namespace WorldOfAuctions
         private readonly ITsmClient _tsm;
         private readonly IConfiguration _config;
         private readonly IAuctionViewer _auctionViewer;
+        private readonly IMediator _mediator;
 
-        public WoA(IConfiguration config, ITsmClient tsm, IBlizzardClient blizzard, IStylizedConsole console, IAuctionViewer auctionViewer)
+        public WoA(IConfiguration config, ITsmClient tsm, IBlizzardClient blizzard, IStylizedConsole console, IAuctionViewer auctionViewer, IMediator mediator)
         {
             _config = config;
             _tsm = tsm;
             _blizzard = blizzard;
             _console = console;
             _auctionViewer = auctionViewer;
+            _mediator = mediator;
         }
 
         public void Run()
@@ -77,42 +74,32 @@ namespace WorldOfAuctions
 
         private void ChangeRealm(string line)
         {
-            string realm = line.Split(' ')[1];
-            _config.CurrentRealm = realm;
-            _tsm.RefreshTsmItemsInRepository();
-            _blizzard.LoadAuctions();
+            _mediator.Publish(new ChangeRealmCommand { UserInput = line });
         }
 
         private void WhatIs(string line)
         {
-            int itemId = _auctionViewer.GetItemId(line);
-            _console.WriteLine("Opening wowhead's article on item");
-            Process.Start("https://www.wowhead.com/item=" + itemId);
+            _mediator.Publish(new WhatIsItemCommand { UserInput = line });
         }
 
         private void Top()
         {
-            _auctionViewer.SeeTopSellers();
+            _mediator.Publish(new ShowTopSellersCommand());
         }
 
         private void Spy(string line)
         {
-            string owner = line.Split(' ')[1];
-            _auctionViewer.SeeAuctionsOwnedBy(owner);
+            _mediator.Publish(new SpySellerCommand { UserInput = line });
         }
 
         private void See(string line)
         {
-            int itemId = _auctionViewer.GetItemId(line);
-            if (itemId != 0)
-                _auctionViewer.SeeAuctionsFor(itemId);
+            _mediator.Publish(new SeeAuctionsCommand { UserInput = line });
         }
 
         private void Flip(string line)
         {
-            int itemId = _auctionViewer.GetItemId(line);
-            if (itemId != 0)
-                _auctionViewer.SimulateFlippingItem(itemId);
+            _mediator.Publish(new FlipCommand { UserInput = line });
         }
     }
 }

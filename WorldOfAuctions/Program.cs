@@ -1,8 +1,11 @@
 ﻿using Autofac;
+using MediatR;
 using MongoRepository;
 using System;
+using System.Reflection;
 using WoA.Lib;
 using WoA.Lib.Blizzard;
+using WoA.Lib.Commands.QueryObjects;
 using WoA.Lib.TSM;
 
 namespace WorldOfAuctions
@@ -27,6 +30,17 @@ namespace WorldOfAuctions
             builder.RegisterType<TsmClient>().As<ITsmClient>().SingleInstance();
             builder.RegisterType<BlizzardClient>().As<IBlizzardClient>().SingleInstance();
             builder.RegisterType<AuctionViewer>().As<IAuctionViewer>().SingleInstance();
+            builder.RegisterType<Mediator>()
+                .As<IMediator>()
+                .SingleInstance();
+            builder.Register<ServiceFactory>(context =>
+            {
+                var c = context.Resolve<IComponentContext>();
+                return t => c.Resolve(t);
+            });
+            builder.RegisterAssemblyTypes(typeof(FlipCommand).GetTypeInfo().Assembly)
+                .AsImplementedInterfaces()
+                .SingleInstance();
             builder.RegisterType<WoA>().AsSelf().SingleInstance();
 
             return builder.Build();
