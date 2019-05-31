@@ -41,27 +41,27 @@ namespace WorldOfAuctions
                     line = Console.ReadLine();
                     if (line.StartsWith("flip "))
                     {
-                        Flip(line);
+                        _mediator.Publish(new FlipCommand { UserInput = line });
                     }
                     else if (line.StartsWith("see "))
                     {
-                        See(line);
+                        _mediator.Publish(new SeeAuctionsCommand { UserInput = line });
                     }
-                    else if (line.StartsWith("spy"))
+                    else if (line.StartsWith("spy "))
                     {
-                        Spy(line);
+                        _mediator.Publish(new SpySellerCommand { UserInput = line });
                     }
-                    else if (line.StartsWith("top"))
+                    else if (line.StartsWith("top "))
                     {
-                        Top();
+                        _mediator.Publish(new ShowTopSellersCommand());
                     }
-                    else if (line.StartsWith("whatis"))
+                    else if (line.StartsWith("whatis "))
                     {
-                        WhatIs(line);
+                        _mediator.Publish(new WhatIsItemCommand { UserInput = line });
                     }
-                    else if (line.StartsWith("chrealm"))
+                    else if (line.StartsWith("chrealm "))
                     {
-                        ChangeRealm(line);
+                        _mediator.Publish(new ChangeRealmCommand { UserInput = line });
                     }
                 } while (line != "stop");
             }
@@ -70,36 +70,6 @@ namespace WorldOfAuctions
                 Console.WriteLine(e);
                 Console.ReadLine();
             }
-        }
-
-        private void ChangeRealm(string line)
-        {
-            _mediator.Publish(new ChangeRealmCommand { UserInput = line });
-        }
-
-        private void WhatIs(string line)
-        {
-            _mediator.Publish(new WhatIsItemCommand { UserInput = line });
-        }
-
-        private void Top()
-        {
-            _mediator.Publish(new ShowTopSellersCommand());
-        }
-
-        private void Spy(string line)
-        {
-            _mediator.Publish(new SpySellerCommand { UserInput = line });
-        }
-
-        private void See(string line)
-        {
-            _mediator.Publish(new SeeAuctionsCommand { UserInput = line });
-        }
-
-        private void Flip(string line)
-        {
-            _mediator.Publish(new FlipCommand { UserInput = line });
         }
     }
 }
