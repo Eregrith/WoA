@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using WoA.Lib.TSM;
-using WorldOfAuctions;
 
 namespace WoA.Lib
 {
     public class AuctionViewer : IAuctionViewer
     {
         private readonly IStylizedConsole _console;
-        private string _realm;
+        private readonly ITsmClient _tsm;
 
-        public AuctionViewer(IStylizedConsole console, string realm)
+        public AuctionViewer(IStylizedConsole console, ITsmClient tsm)
         {
             _console = console;
-            _realm = realm;
+            _tsm = tsm;
         }
 
-        public void ChangeRealm(string realm) => _realm = realm;
-
-        public int GetItemId(ITsmClient tsm, string line)
+        public int GetItemId(string line)
         {
             string item = String.Join(" ", line.Split(' ').Skip(1));
 
@@ -28,21 +24,21 @@ namespace WoA.Lib
             {
                 return id;
             }
-            return tsm.GetItemIdFromName(item);
+            return _tsm.GetItemIdFromName(item);
         }
 
-        public void SeeAuctionsOwnedBy(ITsmClient tsm, List<Auction> auctions, string owner)
+        public void SeeAuctionsOwnedBy(List<Auction> auctions, string owner)
         {
             _console.WriteLine($"Looking at auctions from owner {owner}");
             var itemAuctions = auctions.Where(a => a.owner == owner);
             _console.WriteLine($"There are {itemAuctions.Count()} auctions for {owner}");
 
-            ShowAuctionsForMultiItems(tsm, itemAuctions);
+            ShowAuctionsForMultiItems(itemAuctions);
         }
 
-        public void SimulateFlippingItem(ITsmClient tsm, List<Auction> auctions, int itemId)
+        public void SimulateFlippingItem(List<Auction> auctions, int itemId)
         {
-            TsmItem tsmItem = tsm.GetItem(itemId, _realm);
+            TsmItem tsmItem = _tsm.GetItem(itemId);
             _console.WriteLine($"Looking at flips for item:");
             _console.WriteAscii(tsmItem.Name);
             var itemAuctions = auctions.Where(a => a.item == itemId);
@@ -62,9 +58,9 @@ namespace WoA.Lib
             }
         }
 
-        public void SeeAuctionsFor(ITsmClient tsm, List<Auction> auctions, int itemId)
+        public void SeeAuctionsFor(List<Auction> auctions, int itemId)
         {
-            TsmItem tsmItem = tsm.GetItem(itemId, _realm);
+            TsmItem tsmItem = _tsm.GetItem(itemId);
             _console.WriteLine($"Looking at auctions for item:");
             _console.WriteAscii(tsmItem.Name);
             var itemAuctions = auctions.Where(a => a.item == itemId);
@@ -76,7 +72,7 @@ namespace WoA.Lib
             _console.WriteLine($"{tsmItem.Name} is sold at a rate of {tsmItem.RegionSaleRate} in region, for around {tsmItem.RegionAvgDailySold} items per day");
         }
 
-        public void SeeTopSellers(ITsmClient tsm, List<Auction> auctions)
+        public void SeeTopSellers(List<Auction> auctions)
         {
             var topSellers = auctions.GroupBy(a => a.owner).OrderByDescending(a => a.Sum(i => i.buyout)).Take(10);
             _console.WriteLine(String.Format("{0,20}{1,20}{2,10}{3,45}", "Seller", "Quantity", "(auctions)", "Buyout total"));
@@ -86,12 +82,12 @@ namespace WoA.Lib
             }
         }
 
-        private void ShowAuctionsForMultiItems(ITsmClient tsm, IEnumerable<Auction> auctions)
+        private void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions)
         {
             _console.WriteLine(String.Format("{4,45}{0,20}{1,12}{2,20}{3,20}", "Price per item", "Quantity", "Buyout total", "Seller", "Item name"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
-                TsmItem tsmItem = tsm.GetItem(auctionGroup.First().item, _realm);
+                TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
                 _console.WriteLine(String.Format("{5,45}{0,20}{1,7}x {2,3}{3,20}{4,20}"
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
@@ -110,7 +106,7 @@ namespace WoA.Lib
 
             foreach (var auctionGroup in auctions.GroupBy(a => a.item).OrderByDescending(g => g.Sum(a => a.buyout)))
             {
-                TsmItem tsmItem = tsm.GetItem(auctionGroup.First().item, _realm);
+                TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
                 _console.WriteLine(String.Format("{0,45}{1,12}{2,20}"
                     , tsmItem?.Name
                     , auctionGroup.Sum(a => a.quantity)
@@ -118,7 +114,7 @@ namespace WoA.Lib
             }
         }
 
-        public void ShowAuctions(TsmItem tsmItem, IEnumerable<Auction> auctions)
+        private void ShowAuctions(TsmItem tsmItem, IEnumerable<Auction> auctions)
         {
             _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,20}{4,14}", "Price per item", "Quantity", "Buyout total", "Seller", "% MarketValue"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner }).OrderBy(g => g.Key.PricePerItem))

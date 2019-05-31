@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WorldOfAuctions
+namespace WoA.Lib
 {
     public interface IStylizedConsole
     {

@@ -2,8 +2,8 @@
 {
     public interface ITsmClient
     {
-        TsmItem GetItem(int id, string realm);
+        TsmItem GetItem(int id);
         int GetItemIdFromName(string itemName);
-        void RefreshTsmItemsInRepository(string realm);
+        void RefreshTsmItemsInRepository();
     }
 }

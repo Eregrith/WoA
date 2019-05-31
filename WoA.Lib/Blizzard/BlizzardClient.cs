@@ -10,15 +10,13 @@ namespace WoA.Lib.Blizzard
     public class BlizzardClient : IBlizzardClient
     {
         private string oauthTokenUrl => "https://eu.battle.net/oauth/token";
-        private string _realm;
-        private readonly string _clientId;
-        private readonly string _clientSecret;
+        private readonly IConfiguration _config;
+        private readonly IStylizedConsole _console;
 
-        public BlizzardClient(string clientId, string clientSecret, string realm)
+        public BlizzardClient(IConfiguration config, IStylizedConsole console)
         {
-            _clientId  = clientId;
-            _clientSecret = clientSecret;
-            _realm = realm;
+            _config = config;
+            _console = console;
         }
 
         public List<Auction> GetAuctions(string fileUrl)
@@ -32,9 +30,9 @@ namespace WoA.Lib.Blizzard
 
         public string GetAuctionFileUrl(string token)
         {
-            Console.WriteLine("Getting auctions file for realm " + _realm);
+            _console.WriteLine("Getting auctions file for realm " + _config.CurrentRealm);
             string fileUrl;
-            var client = new RestClient("https://eu.api.blizzard.com/wow/auction/data/" + _realm);
+            var client = new RestClient("https://eu.api.blizzard.com/wow/auction/data/" + _config.CurrentRealm);
             var request = new RestRequest(Method.GET);
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
@@ -52,17 +50,12 @@ namespace WoA.Lib.Blizzard
             var request = new RestRequest(Method.POST);
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddParameter("application/x-www-form-urlencoded", $"grant_type=client_credentials&client_id={_clientId}&client_secret={_clientSecret}", ParameterType.RequestBody);
+            request.AddParameter("application/x-www-form-urlencoded", $"grant_type=client_credentials&client_id={_config.Blizzard_ClientId}&client_secret={_config.Blizzard_ClientSecret}", ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
 
             var tokenResponse = JsonConvert.DeserializeObject<AccessTokenResponse>(response.Content);
 
             return tokenResponse.access_token;
-        }
-
-        public void ChangeRealm(string realm)
-        {
-            _realm = realm;
         }
     }
 }

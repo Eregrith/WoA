@@ -10,8 +10,6 @@ namespace WoA.Lib
         string TsmApiKey { get; }
         string Blizzard_ClientId { get; }
         string Blizzard_ClientSecret { get; }
-        string MongoUserName { get; }
-        string MongoPassword { get; }
 
         string CurrentRealm { get; set; }
         MongoUrl MongoUrl { get; }

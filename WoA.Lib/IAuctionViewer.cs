@@ -5,12 +5,10 @@ namespace WoA.Lib
 {
     public interface IAuctionViewer
     {
-        void ChangeRealm(string realm);
-        int GetItemId(ITsmClient tsm, string line);
-        void SeeAuctionsFor(ITsmClient tsm, List<Auction> auctions, int itemId);
-        void SeeAuctionsOwnedBy(ITsmClient tsm, List<Auction> auctions, string owner);
-        void SeeTopSellers(ITsmClient tsm, List<Auction> auctions);
-        void ShowAuctions(TsmItem tsmItem, IEnumerable<Auction> auctions);
-        void SimulateFlippingItem(ITsmClient tsm, List<Auction> auctions, int itemId);
+        int GetItemId(string line);
+        void SeeAuctionsFor(List<Auction> auctions, int itemId);
+        void SeeAuctionsOwnedBy(List<Auction> auctions, string owner);
+        void SeeTopSellers(List<Auction> auctions);
+        void SimulateFlippingItem(List<Auction> auctions, int itemId);
     }
 }

@@ -15,9 +15,9 @@ namespace WorldOfAuctions
 
         public string Blizzard_ClientSecret => ConfigurationManager.AppSettings["Blizzard_ClientSecret"];
 
-        public string MongoUserName => ConfigurationManager.AppSettings["MongoUsername"];
+        private string MongoUserName => ConfigurationManager.AppSettings["MongoUsername"];
 
-        public string MongoPassword => ConfigurationManager.AppSettings["MongoPassword"];
+        private string MongoPassword => ConfigurationManager.AppSettings["MongoPassword"];
 
         public string CurrentRealm { get; set; } = ConfigurationManager.AppSettings["DefaultRealm"];
 

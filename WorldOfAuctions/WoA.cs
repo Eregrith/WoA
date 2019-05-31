@@ -34,7 +34,7 @@ namespace WorldOfAuctions
         {
             try
             {
-                _tsm.RefreshTsmItemsInRepository(_config.CurrentRealm);
+                _tsm.RefreshTsmItemsInRepository();
                 string token = _blizzard.GetAccessToken();
 
                 string fileUrl = _blizzard.GetAuctionFileUrl(token);
@@ -49,28 +49,28 @@ namespace WorldOfAuctions
                     line = Console.ReadLine();
                     if (line.StartsWith("flip "))
                     {
-                        int itemId = _auctionViewer.GetItemId(_tsm, line);
+                        int itemId = _auctionViewer.GetItemId(line);
                         if (itemId != 0)
-                            _auctionViewer.SimulateFlippingItem(_tsm, auctions, itemId);
+                            _auctionViewer.SimulateFlippingItem(auctions, itemId);
                     }
                     else if (line.StartsWith("see "))
                     {
-                        int itemId = _auctionViewer.GetItemId(_tsm, line);
+                        int itemId = _auctionViewer.GetItemId(line);
                         if (itemId != 0)
-                            _auctionViewer.SeeAuctionsFor(_tsm, auctions, itemId);
+                            _auctionViewer.SeeAuctionsFor(auctions, itemId);
                     }
                     else if (line.StartsWith("spy"))
                     {
                         string owner = line.Split(' ')[1];
-                        _auctionViewer.SeeAuctionsOwnedBy(_tsm, auctions, owner);
+                        _auctionViewer.SeeAuctionsOwnedBy(auctions, owner);
                     }
                     else if (line.StartsWith("top"))
                     {
-                        _auctionViewer.SeeTopSellers(_tsm, auctions);
+                        _auctionViewer.SeeTopSellers(auctions);
                     }
                     else if (line.StartsWith("whatis"))
                     {
-                        int itemId = _auctionViewer.GetItemId(_tsm, line);
+                        int itemId = _auctionViewer.GetItemId(line);
                         _console.WriteLine("Opening wowhead's article on item");
                         Process.Start("https://www.wowhead.com/item=" + itemId);
                     }
@@ -78,9 +78,7 @@ namespace WorldOfAuctions
                     {
                         string realm = line.Split(' ')[1];
                         _config.CurrentRealm = realm;
-                        _blizzard.ChangeRealm(_config.CurrentRealm);
-                        _auctionViewer.ChangeRealm(_config.CurrentRealm);
-                        _tsm.RefreshTsmItemsInRepository(realm);
+                        _tsm.RefreshTsmItemsInRepository();
                         fileUrl = _blizzard.GetAuctionFileUrl(token);
                         auctions = _blizzard.GetAuctions(fileUrl);
                         _console.WriteLine($"Got {auctions.Count} auctions from the file for realm " + _config.CurrentRealm);
