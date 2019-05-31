@@ -7,7 +7,7 @@ using System.Text;
 
 namespace WoA.Lib.Blizzard
 {
-    public class BlizzardClient
+    public class BlizzardClient : IBlizzardClient
     {
         private string oauthTokenUrl => "https://eu.battle.net/oauth/token";
         private string _realm;

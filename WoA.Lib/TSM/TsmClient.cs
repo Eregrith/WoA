@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace WoA.Lib.TSM
 {
-    public class TsmClient
+    public class TsmClient : ITsmClient
     {
         private readonly string _apiKey;
         private string _baseUrl => "http://api.tradeskillmaster.com/v1/";
