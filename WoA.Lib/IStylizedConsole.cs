@@ -6,5 +6,6 @@ namespace WoA.Lib
     {
         void WriteLine(string line);
         void WriteAscii(string line);
+        void Write(string msg);
     }
 }

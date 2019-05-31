@@ -1,12 +1,17 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Text.RegularExpressions;
+using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
+    [WoACommand(RegexToMatch = "chrealm (?<realm>[a-z]+)")]
     public class ChangeRealmCommand : INotification
     {
-        public string UserInput { get; set; }
+        public string Realm { get; set; }
+
+        public ChangeRealmCommand(Match m)
+        {
+            Realm = m.Groups["realm"].Value;
+        }
     }
 }

@@ -24,5 +24,10 @@ namespace WorldOfAuctions
         {
             Console.WriteAscii(line);
         }
+
+        public void Write(string msg)
+        {
+            Console.Write(msg, _stylesheet);
+        }
     }
 }

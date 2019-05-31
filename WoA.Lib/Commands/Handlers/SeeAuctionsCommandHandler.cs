@@ -1,7 +1,4 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WoA.Lib.Commands.QueryObjects;
@@ -19,7 +16,7 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(SeeAuctionsCommand notification, CancellationToken cancellationToken)
         {
-            int itemId = _auctionViewer.GetItemId(notification.UserInput);
+            int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
             if (itemId != 0)
                 _auctionViewer.SeeAuctionsFor(itemId);
             return Task.CompletedTask;

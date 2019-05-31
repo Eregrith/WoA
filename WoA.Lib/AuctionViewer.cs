@@ -21,13 +21,11 @@ namespace WoA.Lib
 
         public int GetItemId(string line)
         {
-            string item = String.Join(" ", line.Split(' ').Skip(1));
-
-            if (int.TryParse(item, out int id))
+            if (int.TryParse(line, out int id))
             {
                 return id;
             }
-            return _tsm.GetItemIdFromName(item);
+            return _tsm.GetItemIdFromName(line);
         }
 
         public void SeeAuctionsOwnedBy(string owner)

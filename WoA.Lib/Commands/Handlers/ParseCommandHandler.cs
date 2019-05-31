@@ -1,9 +1,7 @@
 ﻿using MediatR;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,15 +13,18 @@ namespace WoA.Lib.Commands.Handlers
     public class ParseCommandHandler : INotificationHandler<ParseCommand>
     {
         private readonly IMediator _mediator;
+        private readonly IStylizedConsole _console;
 
-        public ParseCommandHandler(IMediator mediator)
+        public ParseCommandHandler(IMediator mediator, IStylizedConsole console)
         {
             _mediator = mediator;
+            _console = console;
         }
 
         public Task Handle(ParseCommand notification, CancellationToken cancellationToken)
         {
             var woaCommands = this.GetType().Assembly.GetTypes().Where(t => t.GetCustomAttribute<WoACommandAttribute>() != null);
+            bool matched = false;
             foreach (var woaCommand in woaCommands)
             {
                 string regex = woaCommand.GetCustomAttribute<WoACommandAttribute>().RegexToMatch;
@@ -33,28 +34,11 @@ namespace WoA.Lib.Commands.Handlers
                 {
                     var command = Activator.CreateInstance(woaCommand, m);
                     _mediator.Publish(command);
+                    matched = true;
                 }
             }
-            if (notification.UserInput.StartsWith("flip "))
-            {
-                _mediator.Publish(new FlipCommand { UserInput = notification.UserInput });
-            }
-            else if (notification.UserInput.StartsWith("see "))
-            {
-                _mediator.Publish(new SeeAuctionsCommand { UserInput = notification.UserInput });
-            }
-            else if (notification.UserInput.StartsWith("top "))
-            {
-                _mediator.Publish(new ShowTopSellersCommand());
-            }
-            else if (notification.UserInput.StartsWith("whatis "))
-            {
-                _mediator.Publish(new WhatIsItemCommand { UserInput = notification.UserInput });
-            }
-            else if (notification.UserInput.StartsWith("chrealm "))
-            {
-                _mediator.Publish(new ChangeRealmCommand { UserInput = notification.UserInput });
-            }
+            if (!matched)
+                _console.WriteLine("No command matched your input. To see a list of commands type: help");
             return Task.CompletedTask;
         }
     }

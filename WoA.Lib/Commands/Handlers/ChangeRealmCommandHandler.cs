@@ -25,8 +25,7 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(ChangeRealmCommand notification, CancellationToken cancellationToken)
         {
-            string realm = notification.UserInput.Split(' ')[1];
-            _config.CurrentRealm = realm;
+            _config.CurrentRealm = notification.Realm;
             _tsm.RefreshTsmItemsInRepository();
             _blizzard.LoadAuctions();
             return Task.CompletedTask;

@@ -4,12 +4,12 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = "top")]
-    public class ShowTopSellersCommand : INotification
+    [WoACommand(RegexToMatch = "help")]
+    public class HelpCommand : INotification
     {
-        public ShowTopSellersCommand(Match m)
+        public HelpCommand(Match m)
         {
-            //nothing to do
+            //Nothing to do
         }
     }
 }

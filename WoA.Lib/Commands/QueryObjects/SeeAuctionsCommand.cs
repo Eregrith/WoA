@@ -1,12 +1,17 @@
 ﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Text.RegularExpressions;
+using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
+    [WoACommand(RegexToMatch = "see (?<itemDesc>.*)")]
     public class SeeAuctionsCommand : INotification
     {
-        public string UserInput { get; set; }
+        public string ItemDescription { get; set; }
+
+        public SeeAuctionsCommand(Match m)
+        {
+            ItemDescription = m.Groups["itemDesc"].Value;
+        }
     }
 }
