@@ -16,7 +16,7 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(ResetCommand notification, CancellationToken cancellationToken)
         {
-            int itemId = _auctionViewer.GetItemId(notification.UserInput);
+            int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
             if (itemId != 0)
                 _auctionViewer.SimulateResettingItem(itemId,90,110);
             return Task.CompletedTask;
