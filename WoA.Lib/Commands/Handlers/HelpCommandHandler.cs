@@ -26,8 +26,10 @@ namespace WoA.Lib.Commands.Handlers
             var woaCommands = this.GetType().Assembly.GetTypes().Where(t => t.GetCustomAttribute<WoACommandAttribute>() != null);
             foreach (var woaCommand in woaCommands)
             {
-                string regex = woaCommand.GetCustomAttribute<WoACommandAttribute>().RegexToMatch;
-                _console.WriteLine(regex);
+                var attr = woaCommand.GetCustomAttribute<WoACommandAttribute>();
+                string regex = attr.RegexToMatch;
+                string desc = attr.Description;
+                _console.WriteLine(String.Format("{0,-40} : {1}", regex, desc));
             }
             return Task.CompletedTask;
         }
