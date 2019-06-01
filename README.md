@@ -16,7 +16,7 @@ Hello fellow goblins ! This is a console application, called World of Auctions, 
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<appSettings file="secrets.config">
+<appSettings>
   <add key="Blizzard_ClientId" value="{The ClientId of your blizzard client}" />
   <add key="Blizzard_ClientSecret" value="{The ClientSecret of your blizzard client" />
   <add key="TSM_ApiKey" value="{The TSM API Key located in your TSM 'My Account' page}" />
