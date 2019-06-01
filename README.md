@@ -14,7 +14,7 @@ Hello fellow goblins ! This is a console application, called World of Auctions, 
 1. Clone the repository
 2. Add a secrets.config file inside src/WorldOfAuctions/ looking like this :
 
-```
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <appSettings file="secrets.config">
   <add key="Blizzard_ClientId" value="{The ClientId of your blizzard client}" />
