@@ -29,7 +29,7 @@ namespace WoA.Lib.SQLite
 
         public void AddAll<T>(List<T> models)
         {
-            models.ForEach(m => Add(m));
+            _context.InsertAll(models);
         }
 
         public T Update<T>(T model)
