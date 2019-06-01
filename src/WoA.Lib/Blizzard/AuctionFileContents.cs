@@ -25,6 +25,7 @@ namespace WoA.Lib
         public long bid { get; set; }
         public long buyout { get; set; }
         public int quantity { get; set; }
+        public string timeLeft { get; set; }
         public long PricePerItem => buyout / quantity;
     }
 }

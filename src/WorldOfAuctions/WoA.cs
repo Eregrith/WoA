@@ -25,9 +25,11 @@ namespace WorldOfAuctions
                 string line;
                 do
                 {
-                    _console.Write("> ");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    _console.Write("> ", System.Drawing.Color.White);
                     line = Console.ReadLine();
-                    _mediator.Publish(new ParseCommand { UserInput = line });
+                    if (!String.IsNullOrEmpty(line) && line != "exit")
+                        _mediator.Publish(new ParseCommand { UserInput = line });
                 } while (line != "exit");
             }
             catch (Exception e)

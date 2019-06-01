@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace WoA.Lib
 {
@@ -7,5 +8,6 @@ namespace WoA.Lib
         void WriteLine(string line);
         void WriteAscii(string line);
         void Write(string msg);
+        void Write(string msg, Color white);
     }
 }

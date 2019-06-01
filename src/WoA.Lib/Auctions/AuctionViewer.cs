@@ -136,16 +136,17 @@ namespace WoA.Lib
 
         private void ShowAuctions(TsmItem tsmItem, IEnumerable<Auction> auctions)
         {
-            _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,20}{4,14}", "Price per item", "Quantity", "Buyout total", "Seller", "% MarketValue"));
-            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner }).OrderBy(g => g.Key.PricePerItem))
+            _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{5,10}{3,20}{4,14}", "Price per item", "Quantity", "Buyout total", "Seller", "% MarketValue", "Time left"));
+            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.timeLeft }).OrderBy(g => g.Key.PricePerItem))
             {
-                _console.WriteLine(String.Format("{0,20}{1,7}x {2,3}{3,20}{4,20}{5,12} %"
+                _console.WriteLine(String.Format("{0,20}{1,7}x {2,3}{3,20}{6,10}{4,20}{5,12} %"
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).ToGoldString()
                     , auctionGroup.Key.owner
-                    , Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)));
+                    , Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)
+                    , auctionGroup.Key.timeLeft.ToAuctionTimeString()));
             }
 
             _console.WriteLine(String.Format("{0,20}{1,12}{2,20}"

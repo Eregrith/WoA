@@ -8,6 +8,23 @@ namespace WoA.Lib
 {
     public static class Extensions
     {
+        public static string ToAuctionTimeString(this string auctionTimeLeft)
+        {
+            switch (auctionTimeLeft)
+            {
+                case "VERY_LONG":
+                    return "48h";
+                case "LONG":
+                    return "12h";
+                case "MEDIUM":
+                    return " 2h";
+                case "SHORT":
+                    return "30m";
+                default:
+                    return auctionTimeLeft;
+            }
+        }
+
         public static string ToGoldString(this long value)
         {
             StringBuilder goldString = new StringBuilder();
