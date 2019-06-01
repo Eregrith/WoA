@@ -14,11 +14,13 @@ namespace WoA.Lib.Commands.Handlers
     {
         private readonly ITsmClient _tsm;
         private readonly IBlizzardClient _blizzard;
+        private readonly IConfiguration _config;
 
-        public StartupCommandHandler(ITsmClient tsm, IBlizzardClient blizzard)
+        public StartupCommandHandler(ITsmClient tsm, IBlizzardClient blizzard, IConfiguration config)
         {
             _tsm = tsm;
             _blizzard = blizzard;
+            _config = config;
         }
 
         public Task Handle(StartupCommand notification, CancellationToken cancellationToken)

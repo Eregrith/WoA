@@ -5,7 +5,12 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldOfAuctions", "WorldOfAuctions\WorldOfAuctions.csproj", "{72A3C6A2-4BA5-499C-9B50-12974B5B888D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoA.Lib", "WoA.Lib\WoA.Lib.csproj", "{AA8DDEC2-2570-4977-88BF-FEDCF12E142B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WoA.Lib", "WoA.Lib\WoA.Lib.csproj", "{AA8DDEC2-2570-4977-88BF-FEDCF12E142B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{41AEC882-842B-4867-B8B7-6C307CD75E60}"
+	ProjectSection(SolutionItems) = preProject
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

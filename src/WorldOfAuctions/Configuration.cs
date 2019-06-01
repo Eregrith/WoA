@@ -1,8 +1,4 @@
-﻿using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Text;
+﻿using System.Configuration;
 using WoA.Lib;
 
 namespace WorldOfAuctions
@@ -21,6 +17,6 @@ namespace WorldOfAuctions
 
         public string CurrentRealm { get; set; } = ConfigurationManager.AppSettings["DefaultRealm"];
 
-        public MongoUrl MongoUrl => new MongoUrlBuilder { DatabaseName = "WoA", Server = new MongoServerAddress("localhost"), Username = MongoUserName, Password = MongoPassword }.ToMongoUrl();
+        public string DatabasePath => ConfigurationManager.AppSettings["DatabasePath"];
     }
 }

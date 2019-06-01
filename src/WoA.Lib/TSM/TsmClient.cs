@@ -1,15 +1,9 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver.Builders;
-using MongoRepository;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using WoA.Lib.SQLite;
 
 namespace WoA.Lib.TSM
 {
@@ -18,16 +12,14 @@ namespace WoA.Lib.TSM
         private readonly IConfiguration _config;
         private string _baseUrl => "http://api.tradeskillmaster.com/v1/";
         private string getUrlFor(string subUrl) => _baseUrl + $"{subUrl}?format=json&apiKey=" + _config.TsmApiKey;
-        private readonly IRepository<TsmItem> _items;
-        private readonly IRepository<TsmRealmData> _realms;
         private readonly IStylizedConsole _console;
+        private readonly IGenericRepository _repo;
 
-        public TsmClient(IConfiguration config, IRepository<TsmItem> items, IRepository<TsmRealmData> realms, IStylizedConsole console)
+        public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console)
         {
             _config = config;
-            _items = items;
-            _realms = realms;
             _console = console;
+            _repo = repo;
         }
 
         public void RefreshTsmItemsInRepository()
@@ -48,19 +40,20 @@ namespace WoA.Lib.TSM
 
         private void MarkRealmUpdated()
         {
-            TsmRealmData realmData = _realms.FirstOrDefault(r => r.Realm == _config.CurrentRealm);
+            TsmRealmData realmData = _repo.GetById<TsmRealmData>(_config.CurrentRealm);
             if (realmData == null)
             {
                 realmData = new TsmRealmData { Realm = _config.CurrentRealm };
-                _realms.Add(realmData);
+                _repo.Add(realmData);
             }
             realmData.LastUpdate = DateTime.UtcNow;
-            _realms.Update(realmData);
+
+            _repo.Update(realmData);
         }
 
         private bool LastUpdateIsOlderThanOneHour()
         {
-            TsmRealmData realmData = _realms.FirstOrDefault(r => r.Realm == _config.CurrentRealm);
+            TsmRealmData realmData = _repo.GetById<TsmRealmData>(_config.CurrentRealm);
             if (realmData == null) return true;
 
             return (DateTime.UtcNow - realmData.LastUpdate) > TimeSpan.FromHours(1);
@@ -76,13 +69,13 @@ namespace WoA.Lib.TSM
 
         private void ReplaceItems(List<TsmItem> items)
         {
-            _items.Collection.Remove(Query.EQ("Realm", _config.CurrentRealm));
-            _items.Add(items);
+            _repo.GetAll<TsmItem>().Where(i => i.Realm == _config.CurrentRealm).ToList().ForEach(i => _repo.Delete(i));
+            _repo.AddAll(items);
         }
 
         public TsmItem GetItem(int id)
         {
-            return _items.FirstOrDefault(i => i.Id == _config.CurrentRealm + "-" + id);
+            return _repo.GetById<TsmItem>(_config.CurrentRealm + "-" + id);
         }
 
         private T CallTsmApi<T>(string url)
@@ -96,10 +89,11 @@ namespace WoA.Lib.TSM
 
         public int GetItemIdFromName(string itemName)
         {
-            var potential = _items.Where(i => i.Name.ToLower().Contains(itemName.ToLower()))
-                                        .AsEnumerable()
-                                        .GroupBy(i => new { i.ItemId, i.Name })
-                                        .ToList();
+            var potential = _repo.GetAll<TsmItem>()
+                                .Where(i => i.Name.ToLower().Contains(itemName.ToLower()))
+                                .AsEnumerable()
+                                .GroupBy(i => new { i.ItemId, i.Name })
+                                .ToList();
 
             if (potential.Any(i => i.Key.Name.ToLower() == itemName.ToLower()))
                 return potential.First(i => i.Key.Name.ToLower() == itemName.ToLower()).Key.ItemId;
@@ -111,7 +105,7 @@ namespace WoA.Lib.TSM
             }
             if (potential.Count() == 1)
                 return potential.First().Key.ItemId;
-            if (potential.Count() < 5)
+            if (potential.Count() < 10)
             {
                 _console.WriteLine("Multiple items found with that name. Which one do you want ?");
                 int i = 0;

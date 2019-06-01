@@ -1,14 +1,11 @@
-﻿using MongoRepository;
+﻿using SQLite;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WoA.Lib.TSM
 {
-    public class TsmItem : IEntity<string>
+    public class TsmItem
     {
+        [PrimaryKey]
         public string Id { get; set; }
         public string Realm { get; set; }
         public string Name { get; set; }
@@ -29,9 +26,8 @@ namespace WoA.Lib.TSM
         public double RegionSaleAvg { get; set; }
         public double RegionAvgDailySold { get; set; }
         public double RegionSaleRate { get; set; }
-        public string URL { get; set; }
-        public int LastModified { get; set; }
-        public int ItemId { get; internal set; }
+        public DateTime LastModified { get; set; }
+        public int ItemId { get; set; }
 
         public override string ToString()
         {

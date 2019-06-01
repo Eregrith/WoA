@@ -6,8 +6,6 @@ Hello fellow goblins ! This is a console application, called World of Auctions, 
 
 1. You need a Blizzard API Client. You can create one there : https://develop.battle.net/
 2. You need a [tradeskillmaster](https://www.tradeskillmaster.com/) account
-3. You need access to a [MongoDB somewhere (local server is free and works good)](https://www.mongodb.com/download-center/community)
-4. You need to create a database named WoA inside Mongo and add a user (default admin:admin) with rights to read from and write to that database
 
 ## Installation
 
@@ -23,7 +21,8 @@ Hello fellow goblins ! This is a console application, called World of Auctions, 
   <add key="DefaultRealm" value="{Your realm}" />
 </appSettings>
 ```
-(If you created a user different from admin:admin, you can also add values for MongoUsername and MongoPassword, copy the lines from App.config over to secrets.config and set the value)
+
+By default the databse (SQLite) will be located in `C:\temp\woa.db`. If you want you can set it elsewhere by adding `<add key="DatabasePath" value="{elsewhere}" />` in secrets.config
 
 3. Profit !
 
@@ -32,7 +31,7 @@ Hello fellow goblins ! This is a console application, called World of Auctions, 
 ### The APIs
 
 #### TSM
-The application will query TradeSkillMaster API with your given API KEY to get all items data for your realm and store it inside the MongoDb database.
+The application will query TradeSkillMaster API with your given API KEY to get all items data for your realm and store it inside the database.
 This can happen at most once per hour for each realm. Keep in mind the TSM API is limited to 25 of these calls per day, so if you have many realms and switch between them multiple times during the day, it might end up limited by quota.
 There is room for improvement on the handling of the TSM API quotas.
 

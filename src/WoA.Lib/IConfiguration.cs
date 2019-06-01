@@ -1,5 +1,4 @@
-﻿using MongoDB.Driver;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,6 +11,6 @@ namespace WoA.Lib
         string Blizzard_ClientSecret { get; }
 
         string CurrentRealm { get; set; }
-        MongoUrl MongoUrl { get; }
+        string DatabasePath { get; }
     }
 }
