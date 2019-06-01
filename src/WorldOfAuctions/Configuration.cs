@@ -15,6 +15,7 @@ namespace WorldOfAuctions
 
         private string MongoPassword => ConfigurationManager.AppSettings["MongoPassword"];
 
+        public string CurrentRegion { get; set; } = ConfigurationManager.AppSettings["DefaultRegion"];
         public string CurrentRealm { get; set; } = ConfigurationManager.AppSettings["DefaultRealm"];
 
         public string DatabasePath => ConfigurationManager.AppSettings["DatabasePath"];

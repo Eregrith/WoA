@@ -10,6 +10,7 @@ namespace WoA.Lib
         string Blizzard_ClientId { get; }
         string Blizzard_ClientSecret { get; }
 
+        string CurrentRegion { get; set; }
         string CurrentRealm { get; set; }
         string DatabasePath { get; }
     }

@@ -9,7 +9,6 @@ namespace WoA.Lib.Blizzard
 {
     public class BlizzardClient : IBlizzardClient
     {
-        private string oauthTokenUrl => "https://eu.battle.net/oauth/token";
         private readonly IConfiguration _config;
         private readonly IStylizedConsole _console;
         private List<Auction> _auctions;
@@ -46,7 +45,7 @@ namespace WoA.Lib.Blizzard
         private string GetAuctionFileUrl(string token)
         {
             string fileUrl;
-            var client = new RestClient("https://eu.api.blizzard.com/wow/auction/data/" + _config.CurrentRealm);
+            var client = new RestClient("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/auction/data/" + _config.CurrentRealm);
             var request = new RestRequest(Method.GET);
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
@@ -60,7 +59,7 @@ namespace WoA.Lib.Blizzard
 
         private string GetAccessToken()
         {
-            var client = new RestClient(oauthTokenUrl);
+            var client = new RestClient("https://" + _config.CurrentRegion + ".battle.net/oauth/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("content-type", "application/x-www-form-urlencoded");

@@ -61,7 +61,7 @@ namespace WoA.Lib.TSM
 
         private List<TsmItem> GetItemsForRealm()
         {
-            string url = getUrlFor("item/EU/" + _config.CurrentRealm);
+            string url = getUrlFor("item/"+_config.CurrentRegion+"/" + _config.CurrentRealm);
             var items = CallTsmApi<List<TsmItem>>(url);
             items.ForEach(i => { i.ItemId = int.Parse(i.Id);  i.Realm = _config.CurrentRealm; i.Id = _config.CurrentRealm + "-" + i.Id; });
             return items;
