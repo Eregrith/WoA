@@ -30,7 +30,7 @@ namespace WoA.Lib
 
         public void SeeAuctionsOwnedBy(string owner)
         {
-            _console.WriteLine($"Looking at auctions from owner {owner}");
+            _console.WriteAscii(owner);
             var itemAuctions = _blizzard.Auctions.Where(a => a.owner == owner);
             _console.WriteLine($"There are {itemAuctions.Count()} auctions for {owner}");
 
@@ -102,19 +102,20 @@ namespace WoA.Lib
             }
         }
 
-        private void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions)
+        public void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions)
         {
-            _console.WriteLine(String.Format("{4,45}{0,20}{1,12}{2,20}{3,20}", "Price per item", "Quantity", "Buyout total", "Seller", "Item name"));
-            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
+            _console.WriteLine(String.Format("{4,45}{0,20}{1,12}{5,10}{2,20}{3,20}", "Price per item", "Quantity", "Buyout total", "Seller", "Item name", "Time Left"));
+            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item, a.timeLeft }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
                 TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
-                _console.WriteLine(String.Format("{5,45}{0,20}{1,7}x {2,3}{3,20}{4,20}"
+                _console.WriteLine(String.Format("{5,45}{0,20}{1,7}x {2,3}{6,10}{3,20}{4,20}"
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).ToGoldString()
                     , auctionGroup.Key.owner
-                    , tsmItem?.Name));
+                    , tsmItem?.Name
+                    , auctionGroup.Key.timeLeft.ToAuctionTimeString()));
             }
 
             _console.WriteLine(String.Format("{0,20}{1,12}{2,20}"
