@@ -2,6 +2,7 @@
 using MediatR;
 using System.Reflection;
 using WoA.Lib;
+using WoA.Lib.Auctions;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Commands.QueryObjects;
 using WoA.Lib.SQLite;
@@ -28,6 +29,7 @@ namespace WorldOfAuctions
             builder.RegisterType<BlizzardClient>().As<IBlizzardClient>().SingleInstance();
             builder.RegisterType<AuctionViewer>().As<IAuctionViewer>().SingleInstance();
             builder.RegisterType<GenericRepository>().As<IGenericRepository>().SingleInstance();
+            builder.RegisterType<ItemBundler>().As<IItemsBundler>();
             builder.RegisterType<Mediator>()
                 .As<IMediator>()
                 .SingleInstance();
