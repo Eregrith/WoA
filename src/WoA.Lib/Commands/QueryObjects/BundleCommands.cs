@@ -23,6 +23,28 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
+    [WoACommand(RegexToMatch = "bundle save (?<bundleName>.*)", Description = "Save the current bundle")]
+    public class BundleSaveCommand : INotification
+    {
+        public string BundleName { get; set; }
+
+        public BundleSaveCommand(Match m)
+        {
+            BundleName = m.Groups["bundleName"].Value;
+        }
+    }
+
+    [WoACommand(RegexToMatch = "bundle load (?<bundleName>.*)", Description = "Load the selected bundle")]
+    public class BundleLoadCommand : INotification
+    {
+        public string BundleName { get; set; }
+
+        public BundleLoadCommand(Match m)
+        {
+            BundleName = m.Groups["bundleName"].Value;
+        }
+    }
+
     [WoACommand(RegexToMatch = "bundle list", Description = "Shows the bundle's contents and price")]
     public class BundleListCommand : INotification
     {

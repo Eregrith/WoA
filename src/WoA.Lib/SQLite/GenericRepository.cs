@@ -4,6 +4,7 @@ using System.Linq;
 using WoA.Lib.TSM;
 using System.Collections.Generic;
 using System.IO;
+using WoA.Lib.Auctions;
 
 namespace WoA.Lib.SQLite
 {
@@ -19,6 +20,7 @@ namespace WoA.Lib.SQLite
             _context = new SQLiteConnection(config.DatabasePath);
             _context.CreateTable<TsmItem>();
             _context.CreateTable<TsmRealmData>();
+            _context.CreateTable<ItemBundle>();
         }
 
         public T Add<T>(T model)

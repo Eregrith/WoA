@@ -34,7 +34,7 @@ namespace WoA.Lib.TSM
             }
             else
             {
-                _console.WriteLine("TSM > No Update done for "+ _config.CurrentRealm + ", last update is too recent.");
+                _console.WriteLine("TSM > No Update done for " + _config.CurrentRealm + ", last update is too recent.");
             }
         }
 
@@ -61,9 +61,9 @@ namespace WoA.Lib.TSM
 
         private List<TsmItem> GetItemsForRealm()
         {
-            string url = getUrlFor("item/"+_config.CurrentRegion+"/" + _config.CurrentRealm);
+            string url = getUrlFor("item/" + _config.CurrentRegion + "/" + _config.CurrentRealm);
             var items = CallTsmApi<List<TsmItem>>(url);
-            items.ForEach(i => { i.ItemId = int.Parse(i.Id);  i.Realm = _config.CurrentRealm; i.Id = _config.CurrentRealm + "-" + i.Id; });
+            items.ForEach(i => { i.ItemId = int.Parse(i.Id); i.Realm = _config.CurrentRealm; i.Id = _config.CurrentRealm + "-" + i.Id; });
             return items;
         }
 
@@ -115,7 +115,7 @@ namespace WoA.Lib.TSM
                 string line = Console.ReadLine();
                 return potential[int.Parse(line)].Key.ItemId;
             }
-            _console.WriteLine("Too many items ("+potential.Count+") found with a name like " + itemName + ". Please specify the name further");
+            _console.WriteLine("Too many items (" + potential.Count + ") found with a name like " + itemName + ". Please specify the name further");
             return 0;
         }
     }
