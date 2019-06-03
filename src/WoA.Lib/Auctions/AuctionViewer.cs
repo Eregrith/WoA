@@ -129,7 +129,7 @@ namespace WoA.Lib
 
         public void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions)
         {
-            _console.WriteLine(String.Format("{4,45}{0,20}{1,12}{5,10}{2,20}{3,20}", "Price per item", "Quantity", "Buyout total", "Seller", "Item name", "Time Left"));
+            _console.WriteLine(String.Format("{0,45}{1,20}{2,12}{3,10}{4,20}{5,20}", "Item name", "Price per item", "Quantity", "Time Left", "Buyout total", "Seller"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item, a.timeLeft }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
                 TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
@@ -162,17 +162,17 @@ namespace WoA.Lib
 
         private void ShowAuctions(TsmItem tsmItem, IEnumerable<Auction> auctions)
         {
-            _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{5,10}{3,20}{4,14}", "Price per item", "Quantity", "Buyout total", "Seller", "% MarketValue", "Time left"));
+            _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,10}{4,20}{5,14}", "Price per item", "Quantity", "Buyout total", "Time left", "Seller", "% MarketValue"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.timeLeft }).OrderBy(g => g.Key.PricePerItem))
             {
-                _console.WriteLine(String.Format("{0,20}{1,7}x {2,3}{3,20}{6,10}{4,20}{5,12} %"
+                _console.WriteLine(String.Format("{0,20}{1,7}x {2,3}{3,20}{4,10}{5,20}{6,12} %"
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).ToGoldString()
+                    , auctionGroup.Key.timeLeft.ToAuctionTimeString()
                     , auctionGroup.Key.owner
-                    , Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)
-                    , auctionGroup.Key.timeLeft.ToAuctionTimeString()));
+                    , Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)));
             }
 
             _console.WriteLine(String.Format("{0,20}{1,12}{2,20}"
