@@ -7,6 +7,8 @@ namespace WorldOfAuctions
     public class StylizedConsole : IStylizedConsole
     {
         private readonly StyleSheet _stylesheet;
+        private ColorAlternator _currentAlternator;
+        private Color _savedBackground;
 
         public StylizedConsole()
         {
@@ -38,6 +40,26 @@ namespace WorldOfAuctions
         public void Write(string msg, Color color)
         {
             Console.Write(msg, color);
+        }
+
+        public void StartAlternating()
+        {
+            ColorAlternatorFactory factory = new ColorAlternatorFactory();
+            _currentAlternator = factory.GetAlternator(1, Color.DarkSlateGray, Color.Black);
+            _savedBackground = Console.BackgroundColor;
+        }
+
+        public void WriteLineWithAlternatingBackground(string line)
+        {
+            if (_currentAlternator != null)
+                Console.BackgroundColor = _currentAlternator.GetNextColor(line);
+            Console.WriteLineStyled(line, _stylesheet);
+        }
+
+        public void StopAlternating()
+        {
+            Console.BackgroundColor = _savedBackground;
+            _currentAlternator = null;
         }
     }
 }

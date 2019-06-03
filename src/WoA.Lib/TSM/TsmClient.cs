@@ -109,7 +109,9 @@ namespace WoA.Lib.TSM
             {
                 _console.WriteLine("Multiple items found with that name. Which one do you want ?");
                 int i = 0;
-                potential.ForEach(p => _console.WriteLine(String.Format("[ {0} ] : {1}", i++, p.First())));
+                _console.StartAlternating();
+                potential.ForEach(p => _console.WriteLineWithAlternatingBackground(String.Format("[ {0} ] : {1}", i++, p.First())));
+                _console.StopAlternating();
                 string line = Console.ReadLine();
                 return potential[int.Parse(line)].Key.ItemId;
             }

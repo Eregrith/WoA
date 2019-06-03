@@ -30,7 +30,7 @@ namespace WoA.Lib.TSM
 
         public override string ToString()
         {
-            return $"{Name}({Id}) : MkPrice({MarketValue.ToGoldString()})";
+            return String.Format("({1, 6}) {0,-45}: MkPrice({2, 20})", Name, ItemId, MarketValue.ToGoldString());
         }
     }
 }
