@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using WoA.Lib;
 using WoA.Lib.Commands.QueryObjects;
+using System.Diagnostics;
 
 namespace WorldOfAuctions
 {
@@ -21,7 +22,7 @@ namespace WorldOfAuctions
         {
             try
             {
-                _mediator.Publish(new StartupCommand { CurrentVersion = (string)Assembly.GetExecutingAssembly().GetType("GitVersionInformation").GetField("InformationalVersion").GetValue(null) });
+                _mediator.Publish(new StartupCommand { CurrentVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion });
 
                 string line;
                 do

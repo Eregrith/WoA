@@ -1,5 +1,1 @@
 assembly-informational-format: '{MajorMinorPatch}-{CommitsSinceVersionSourcePadded}'
-branches: {}
-ignore:
-  sha: []
-merge-message-formats: {}
