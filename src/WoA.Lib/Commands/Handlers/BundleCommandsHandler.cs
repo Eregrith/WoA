@@ -31,9 +31,16 @@ namespace WoA.Lib.Commands.Handlers
         public Task Handle(BundleAddCommand notification, CancellationToken cancellationToken)
         {
             int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
-            _itemsBundler.Add(itemId, notification.ItemQuantity);
-            TsmItem tsmItem = _tsm.GetItem(itemId);
-            _console.WriteLine(notification.ItemQuantity + " x " +  tsmItem.Name + " added to bundle");
+            if (itemId > 0)
+            {
+                _itemsBundler.Add(itemId, notification.ItemQuantity);
+                TsmItem tsmItem = _tsm.GetItem(itemId);
+                _console.WriteLine(notification.ItemQuantity + " x " + tsmItem.Name + " added to bundle");
+            }
+            else
+            {
+                _console.WriteLine("No item found called " + notification.ItemDescription);
+            }
             return Task.CompletedTask;
         }
 
