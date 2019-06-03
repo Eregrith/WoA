@@ -32,7 +32,8 @@ namespace WoA.Lib.Commands.Handlers
         {
             int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
             _itemsBundler.Add(itemId, notification.ItemQuantity);
-            _console.WriteLine(notification.ItemQuantity + " x " +  notification.ItemDescription + " added to bundle");
+            TsmItem tsmItem = _tsm.GetItem(itemId);
+            _console.WriteLine(notification.ItemQuantity + " x " +  tsmItem.Name + " added to bundle");
             return Task.CompletedTask;
         }
 

@@ -16,7 +16,10 @@ namespace WoA.Lib.Commands.QueryObjects
         public BundleAddCommand(Match m)
         {
             ItemDescription = m.Groups["itemDesc"].Value;
-            ItemQuantity = int.Parse(m.Groups["itemQuantity"].Value);
+            if (!String.IsNullOrEmpty(m.Groups["itemQuantity"].Value))
+                ItemQuantity = int.Parse(m.Groups["itemQuantity"].Value);
+            else
+                ItemQuantity = 1;
         }
     }
 
