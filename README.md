@@ -19,6 +19,7 @@ Hello fellow goblins ! This is a console application, called World of Auctions, 
   <add key="Blizzard_ClientSecret" value="{The ClientSecret of your blizzard client" />
   <add key="TSM_ApiKey" value="{The TSM API Key located in your TSM 'My Account' page}" />
   <add key="DefaultRealm" value="{Your realm}" />
+  <add key="PlayerToons" value="{Your toon names separated by ;}" />
 </appSettings>
 ```
 
