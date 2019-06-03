@@ -10,9 +10,5 @@ namespace WoA.Lib.Commands.QueryObjects
     [WoACommand(RegexToMatch = "bid")]
     public class BidSniperCommand : INotification
     {
-        public BidSniperCommand(Match m)
-        {
-            
-        }
     }
 }

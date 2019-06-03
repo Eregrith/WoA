@@ -26,22 +26,10 @@ namespace WoA.Lib.Commands.QueryObjects
     [WoACommand(RegexToMatch = "bundle list", Description = "Shows the bundle's contents and price")]
     public class BundleListCommand : INotification
     {
-        public string ItemDescription { get; set; }
-
-        public BundleListCommand(Match m)
-        {
-            //Nothing to do
-        }
     }
 
     [WoACommand(RegexToMatch = "bundle clear", Description = "Clears the bundle of any item")]
     public class BundleClearCommand : INotification
     {
-        public string ItemDescription { get; set; }
-
-        public BundleClearCommand(Match m)
-        {
-            //Nothing to do
-        }
     }
 }

@@ -32,7 +32,11 @@ namespace WoA.Lib.Commands.Handlers
                 Match m = r.Match(notification.UserInput);
                 if (m.Success)
                 {
-                    var command = Activator.CreateInstance(woaCommand, m);
+                    object command;
+                    if (m.Groups.Count > 1)
+                        command = Activator.CreateInstance(woaCommand, m);
+                    else
+                        command = Activator.CreateInstance(woaCommand);
                     _mediator.Publish(command);
                     matched = true;
                 }
