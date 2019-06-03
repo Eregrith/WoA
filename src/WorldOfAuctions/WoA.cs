@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using System;
+using System.Reflection;
 using WoA.Lib;
 using WoA.Lib.Commands.QueryObjects;
 
@@ -20,7 +21,7 @@ namespace WorldOfAuctions
         {
             try
             {
-                _mediator.Publish(new StartupCommand());
+                _mediator.Publish(new StartupCommand { CurrentVersion = Assembly.GetExecutingAssembly().GetName().Version });
 
                 string line;
                 do

@@ -14,17 +14,18 @@ namespace WoA.Lib.Commands.Handlers
     {
         private readonly ITsmClient _tsm;
         private readonly IBlizzardClient _blizzard;
-        private readonly IConfiguration _config;
+        private readonly IStylizedConsole _console;
 
-        public StartupCommandHandler(ITsmClient tsm, IBlizzardClient blizzard, IConfiguration config)
+        public StartupCommandHandler(ITsmClient tsm, IBlizzardClient blizzard, IStylizedConsole console)
         {
             _tsm = tsm;
             _blizzard = blizzard;
-            _config = config;
+            _console = console;
         }
 
         public Task Handle(StartupCommand notification, CancellationToken cancellationToken)
         {
+            _console.WriteLine($"World of Auctions v{notification.CurrentVersion} started");
             _tsm.RefreshTsmItemsInRepository();
             _blizzard.LoadAuctions();
             return Task.CompletedTask;
