@@ -42,6 +42,31 @@ namespace WoA.Lib
             SimulateResettingItem(itemId, 80, 100);
         }
 
+        public ItemFlipResult SimulateFlippingItemShortVersion(int itemId)
+        {
+            TsmItem tsmItem = _tsm.GetItem(itemId);
+            IEnumerable<Auction> itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
+            long maxBuy = (long)(tsmItem?.MarketValue * 0.8);
+            IEnumerable<Auction> cheapAuctions = itemAuctions.Where(a => a.PricePerItem <= maxBuy && a.buyout != 0);
+            long sumBuyoutCheapAuctions = 0;
+            long profit = 0;
+            double percentProfit = 0;
+            int totalQuantity = 0;
+            if (cheapAuctions.Any())
+            {
+                sumBuyoutCheapAuctions = cheapAuctions.Sum(a => a.buyout);
+                totalQuantity += cheapAuctions.Sum(x => x.quantity);
+
+                long sumSelloutFlippingWithGoblinTaxe = (long)Math.Round(cheapAuctions.Sum(a => a.quantity) * tsmItem.MarketValue * 0.95);
+                long goblinTax = (long)Math.Round(cheapAuctions.Sum(a => a.quantity) * tsmItem.MarketValue * 0.05);
+                profit = sumSelloutFlippingWithGoblinTaxe - sumBuyoutCheapAuctions;
+
+                percentProfit = Math.Round(((double)sumSelloutFlippingWithGoblinTaxe / sumBuyoutCheapAuctions - 1) * 100, 2);
+            }
+            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}", tsmItem.Name, tsmItem.MarketValue.ToGoldString(), totalQuantity, sumBuyoutCheapAuctions.ToGoldString(), profit.ToGoldString(), percentProfit.ToString()+"%"));
+            return new ItemFlipResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions, NetProfit = profit, PercentProfit = percentProfit };
+        }
+
         public void SimulateResettingItem(int itemId, int buyingPercentageValue, int sellingPercentageValue)
         {
             float buyingPercentage = (float)buyingPercentageValue / 100;

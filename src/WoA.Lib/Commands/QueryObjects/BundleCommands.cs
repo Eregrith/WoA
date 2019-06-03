@@ -32,4 +32,9 @@ namespace WoA.Lib.Commands.QueryObjects
     public class BundleClearCommand : INotification
     {
     }
+
+    [WoACommand(RegexToMatch = "bundle flip", Description = "Look at potential flipping for the current bundle")]
+    public class BundleFlipCommand : INotification
+    {
+    }
 }

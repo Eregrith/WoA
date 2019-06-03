@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace WoA.Lib.Commands.Handlers
         : INotificationHandler<BundleAddCommand>
         , INotificationHandler<BundleListCommand>
         , INotificationHandler<BundleClearCommand>
+        , INotificationHandler<BundleFlipCommand>
     {
         private readonly IItemsBundler _itemsBundler;
         private readonly IAuctionViewer _auctionViewer;
@@ -65,6 +67,26 @@ namespace WoA.Lib.Commands.Handlers
         {
             _itemsBundler.Clear();
             _console.WriteLine("Bundle cleared");
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(BundleFlipCommand notification, CancellationToken cancellationToken)
+        {
+            Dictionary<int, int> bundle = _itemsBundler.GetItems();
+            List<ItemFlipResult> itemFlipResults = new List<ItemFlipResult>();
+
+            _console.WriteLine("Flipping current bundle will result:");
+            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}", "Item", "Market Price", "Qty available", "Total buyout", "Net profit", "Percent profit"));
+            foreach (KeyValuePair<int, int> item in bundle)
+            {
+                itemFlipResults.Add(_auctionViewer.SimulateFlippingItemShortVersion(item.Key));
+            }
+
+            _console.WriteLine(" "); 
+            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}",
+                "Total", " ", itemFlipResults.Sum(x=>x.Quantity), itemFlipResults.Sum(x => x.TotalBuyout).ToGoldString(), 
+                itemFlipResults.Sum(x => x.NetProfit).ToGoldString(), 
+                Math.Round(((double)itemFlipResults.Sum(x => x.NetProfit) / itemFlipResults.Sum(x => x.TotalBuyout)) * 100, 2) + "%"));
             return Task.CompletedTask;
         }
     }
