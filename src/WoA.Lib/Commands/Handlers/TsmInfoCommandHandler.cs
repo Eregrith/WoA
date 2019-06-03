@@ -50,7 +50,7 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine("RegionMinBuyoutAvg : " + item.RegionMinBuyoutAvg.ToGoldString());
             _console.WriteLine("RegionQuantity : " + item.RegionQuantity);
             _console.WriteLine("RegionHistoricalPrice : " + item.RegionHistoricalPrice.ToGoldString());
-            _console.WriteLine("RegionSaleAvg : " + item.RegionSaleAvg);
+            _console.WriteLine("RegionSaleAvg : " + item.RegionSaleAvg.ToGoldString());
             _console.WriteLine("RegionAvgDailySold : " + item.RegionAvgDailySold);
             _console.WriteLine("RegionSaleRate : " + item.RegionSaleRate);
 

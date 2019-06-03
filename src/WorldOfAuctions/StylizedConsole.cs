@@ -10,7 +10,7 @@ namespace WorldOfAuctions
         private ColorAlternator _currentAlternator;
         private Color _savedBackground;
 
-        public StylizedConsole()
+        public StylizedConsole(IConfiguration config)
         {
             _stylesheet = new StyleSheet(Color.White);
             _stylesheet.AddStyle("[\xa0,0-9]+g", Color.Gold);
@@ -20,6 +20,7 @@ namespace WorldOfAuctions
             _stylesheet.AddStyle("48h", Color.Green);
             _stylesheet.AddStyle(" 2h", Color.Red);
             _stylesheet.AddStyle("30m", Color.Red);
+            _stylesheet.AddStyle("(" + string.Join("|", config.PlayerToons) + ")", Color.SteelBlue);
         }
 
         public void WriteLine(string line)

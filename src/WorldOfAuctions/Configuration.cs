@@ -1,4 +1,7 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using WoA.Lib;
 
 namespace WorldOfAuctions
@@ -19,5 +22,7 @@ namespace WorldOfAuctions
         public string CurrentRealm { get; set; } = ConfigurationManager.AppSettings["DefaultRealm"];
 
         public string DatabasePath => ConfigurationManager.AppSettings["DatabasePath"];
+
+        public List<string> PlayerToons => ConfigurationManager.AppSettings["PlayerToons"].Split(';').ToList();
     }
 }

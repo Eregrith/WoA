@@ -23,7 +23,7 @@ namespace WoA.Lib.TSM
         public long RegionMinBuyoutAvg { get; set; }
         public long RegionQuantity { get; set; }
         public long RegionHistoricalPrice { get; set; }
-        public double RegionSaleAvg { get; set; }
+        public long RegionSaleAvg { get; set; }
         public double RegionAvgDailySold { get; set; }
         public double RegionSaleRate { get; set; }
         public int ItemId { get; set; }
