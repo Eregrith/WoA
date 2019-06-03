@@ -7,6 +7,6 @@ namespace WoA.Lib.Commands.QueryObjects
 {
     public class StartupCommand : INotification
     {
-        public Version CurrentVersion { get; set; }
+        public string CurrentVersion { get; set; }
     }
 }

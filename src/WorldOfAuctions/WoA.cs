@@ -21,7 +21,7 @@ namespace WorldOfAuctions
         {
             try
             {
-                _mediator.Publish(new StartupCommand { CurrentVersion = Assembly.GetExecutingAssembly().GetName().Version });
+                _mediator.Publish(new StartupCommand { CurrentVersion = (string)Assembly.GetExecutingAssembly().GetType("GitVersionInformation").GetField("InformationalVersion").GetValue(null) });
 
                 string line;
                 do
