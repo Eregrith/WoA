@@ -129,11 +129,11 @@ namespace WoA.Lib
 
         public void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions)
         {
-            _console.WriteLine(String.Format("{0,40}{1,20}{2,12}{3,10}{4,20}{5,20}", "Item name", "Price per item", "Quantity", "Time Left", "Buyout total", "Seller"));
+            _console.WriteLine(String.Format("{0,40}{1,20}{2,12}{3,10}{4,20}{5,15}", "Item name", "Price per item", "Quantity", "Time Left", "Buyout total", "Seller"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item, a.timeLeft }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
                 TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
-                _console.WriteLine(String.Format("{5,40}{0,20}{1,7}x {2,3}{6,10}{3,20}{4,20}"
+                _console.WriteLine(String.Format("{5,40}{0,20}{1,7}x {2,3}{6,10}{3,20}{4,15}"
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
