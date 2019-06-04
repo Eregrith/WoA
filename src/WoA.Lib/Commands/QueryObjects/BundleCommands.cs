@@ -23,7 +23,7 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
-    [WoACommand(RegexToMatch = "bundle save (?<bundleName>.*)", Description = "Save the current bundle")]
+    [WoACommand(RegexToMatch = "bundle save (?<bundleName>.+)", Description = "Save the current bundle")]
     public class BundleSaveCommand : INotification
     {
         public string BundleName { get; set; }
@@ -34,7 +34,7 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
-    [WoACommand(RegexToMatch = "bundle load (?<bundleName>.*)", Description = "Load the selected bundle")]
+    [WoACommand(RegexToMatch = "bundle load (?<bundleName>.+)", Description = "Load the selected bundle")]
     public class BundleLoadCommand : INotification
     {
         public string BundleName { get; set; }

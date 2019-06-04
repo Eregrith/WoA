@@ -5,7 +5,7 @@ using WoA.Lib.Commands.Attributes;
 namespace WoA.Lib.Commands.QueryObjects
 {
     [WoACommand(
-        RegexToMatch = @"flip (?<itemDesc>.*)",
+        RegexToMatch = @"flip (?<itemDesc>.+)",
         Description = "Look at potential flipping for given item (buy all items up to 80% dbmarket and sell them all at 100% dbmarket)"
     )]
     public class FlipCommand : INotification
