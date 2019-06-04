@@ -23,3 +23,5 @@ using System.Runtime.InteropServices;
 [assembly: Guid("72a3c6a2-4ba5-499c-9b50-12974b5b888d")]
 
 //Assembly Info handled by GitVersion Task
+
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]

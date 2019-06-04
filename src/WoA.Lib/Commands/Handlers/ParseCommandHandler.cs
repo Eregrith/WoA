@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using log4net;
+using MediatR;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -14,11 +16,13 @@ namespace WoA.Lib.Commands.Handlers
     {
         private readonly IMediator _mediator;
         private readonly IStylizedConsole _console;
+        private readonly ILog _logger;
 
-        public ParseCommandHandler(IMediator mediator, IStylizedConsole console)
+        public ParseCommandHandler(IMediator mediator, IStylizedConsole console, ILog logger)
         {
             _mediator = mediator;
             _console = console;
+            _logger = logger;
         }
 
         public Task Handle(ParseCommand notification, CancellationToken cancellationToken)
@@ -37,6 +41,10 @@ namespace WoA.Lib.Commands.Handlers
                         command = Activator.CreateInstance(woaCommand, m);
                     else
                         command = Activator.CreateInstance(woaCommand);
+
+                    _logger.Info($"Publishing command object {command.GetType().Name} from line:");
+                    _logger.Info(notification.UserInput);
+                    _logger.Debug(command.GetType().Name + Environment.NewLine + JsonConvert.SerializeObject(command, Formatting.Indented));
                     _mediator.Publish(command);
                     matched = true;
                 }

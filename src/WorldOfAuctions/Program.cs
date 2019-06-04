@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using log4net;
+using log4net.Config;
 using MediatR;
 using System.Reflection;
 using WoA.Lib;
@@ -38,6 +40,7 @@ namespace WorldOfAuctions
                 var c = context.Resolve<IComponentContext>();
                 return t => c.Resolve(t);
             });
+            builder.Register(c => LogManager.GetLogger("Commands")).As<ILog>();
             builder.RegisterAssemblyTypes(typeof(FlipCommand).GetTypeInfo().Assembly)
                 .AsImplementedInterfaces()
                 .SingleInstance();
