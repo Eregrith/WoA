@@ -50,7 +50,11 @@ namespace WoA.Lib.Commands.Handlers
                 }
             }
             if (!matched)
+            {
                 _console.WriteLine("No command matched your input. To see a list of commands type: help");
+                _logger.Debug("User input failed to match any command");
+                _logger.Debug(notification.UserInput);
+            }
             return Task.CompletedTask;
         }
     }
