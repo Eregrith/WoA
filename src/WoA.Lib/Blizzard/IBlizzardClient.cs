@@ -6,5 +6,7 @@ namespace WoA.Lib.Blizzard
     {
         void LoadAuctions();
         List<Auction> Auctions { get; }
+
+        CharacterProfile GetInfosOnCharacter(string characterName, string realm);
     }
 }

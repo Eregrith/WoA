@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,6 +66,20 @@ namespace WoA.Lib
         public static string ToGoldString(this int value)
         {
             return ToGoldString((long)value);
+        }
+
+        public static string GetDisplayName(this Enum item)
+        {
+            var type = item.GetType();
+            var member = type.GetMember(item.ToString());
+            DisplayAttribute displayName = (DisplayAttribute)member[0].GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault();
+
+            if (displayName != null)
+            {
+                return displayName.Name;
+            }
+
+            return item.ToString();
         }
     }
 }

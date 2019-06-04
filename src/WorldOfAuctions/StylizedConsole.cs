@@ -1,5 +1,7 @@
 ﻿using Colorful;
 using System.Drawing;
+using System.Globalization;
+using System.Text;
 using WoA.Lib;
 
 namespace WorldOfAuctions
@@ -30,7 +32,23 @@ namespace WorldOfAuctions
         
         public void WriteAscii(string line)
         {
-            Console.WriteAscii(line, Color.White);
+            Console.WriteAscii(RemoveDiacritics(line), Color.White);
+        }
+        private string RemoveDiacritics(string text)
+        {
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
 
         public void Write(string msg)

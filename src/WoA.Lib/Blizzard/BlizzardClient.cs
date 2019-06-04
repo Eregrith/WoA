@@ -12,6 +12,7 @@ namespace WoA.Lib.Blizzard
         private readonly IConfiguration _config;
         private readonly IStylizedConsole _console;
         private List<Auction> _auctions;
+        private string _token;
         public List<Auction> Auctions { get => _auctions; }
 
         public BlizzardClient(IConfiguration config, IStylizedConsole console)
@@ -24,9 +25,9 @@ namespace WoA.Lib.Blizzard
         {
             _console.WriteLine($"BLI > Loading auctions for realm " + _config.CurrentRealm);
 
-            string token = GetAccessToken();
+            _token = GetAccessToken();
 
-            string fileUrl = GetAuctionFileUrl(token);
+            string fileUrl = GetAuctionFileUrl();
 
             _auctions = GetAuctions(fileUrl);
 
@@ -42,19 +43,25 @@ namespace WoA.Lib.Blizzard
             return JsonConvert.DeserializeObject<AuctionFileContents>(response.Content).auctions;
         }
 
-        private string GetAuctionFileUrl(string token)
+        private string GetAuctionFileUrl()
         {
             string fileUrl;
-            var client = new RestClient("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/auction/data/" + _config.CurrentRealm);
-            var request = new RestRequest(Method.GET);
-            request.AddHeader("cache-control", "no-cache");
-            request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddHeader("authorization", $"Bearer {token}");
-            IRestResponse response = client.Execute(request);
+            IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/auction/data/" + _config.CurrentRealm);
 
             var auctionApiResponse = JsonConvert.DeserializeObject<AuctionApiResponse>(response.Content);
             fileUrl = auctionApiResponse.files.First().url;
             return fileUrl;
+        }
+
+        private IRestResponse CallBlizzardAPI(string url)
+        {
+            var client = new RestClient(url);
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("cache-control", "no-cache");
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddHeader("authorization", $"Bearer {_token}");
+            IRestResponse response = client.Execute(request);
+            return response;
         }
 
         private string GetAccessToken()
@@ -69,6 +76,13 @@ namespace WoA.Lib.Blizzard
             var tokenResponse = JsonConvert.DeserializeObject<AccessTokenResponse>(response.Content);
 
             return tokenResponse.access_token;
+        }
+
+        public CharacterProfile GetInfosOnCharacter(string characterName, string realm)
+        {
+            IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/character/" + realm.ToLower() + "/" + characterName);
+
+            return JsonConvert.DeserializeObject<CharacterProfile>(response.Content);
         }
     }
 }

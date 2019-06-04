@@ -22,6 +22,7 @@ namespace WoA.Lib
     {
         public int item { get; set; }
         public string owner { get; set; }
+        public string ownerRealm { get; set; }
         public long bid { get; set; }
         public long buyout { get; set; }
         public int quantity { get; set; }
