@@ -2,6 +2,7 @@
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -23,6 +24,8 @@ namespace WoA.Lib.Blizzard
 
         public void LoadAuctions()
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             _console.WriteLine($"BLI > Loading auctions for realm " + _config.CurrentRealm);
 
             _token = GetAccessToken();
@@ -31,7 +34,8 @@ namespace WoA.Lib.Blizzard
 
             _auctions = GetAuctions(fileUrl);
 
-            _console.WriteLine($"BLI > Got {_auctions.Count} auctions from the file for realm " + _config.CurrentRealm);
+            stopwatch.Stop();
+            _console.WriteLine($"BLI > Got {_auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + " ms");
         }
 
         private List<Auction> GetAuctions(string fileUrl)

@@ -2,6 +2,7 @@
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using WoA.Lib.SQLite;
 
@@ -26,11 +27,14 @@ namespace WoA.Lib.TSM
         {
             if (LastUpdateIsOlderThanOneHour())
             {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
                 _console.WriteLine("TSM > Updating data for " + _config.CurrentRealm);
                 List<TsmItem> items = GetItemsForRealm();
                 MarkRealmUpdated();
                 ReplaceItems(items);
-                _console.WriteLine("TSM > Data updated for " + _config.CurrentRealm);
+                stopwatch.Stop();
+                _console.WriteLine("TSM > Data updated for " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
             }
             else
             {
