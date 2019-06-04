@@ -64,4 +64,9 @@ namespace WoA.Lib.Commands.QueryObjects
     public class BundleFlipCommand : INotification
     {
     }
+
+    [WoACommand(RegexToMatch = "bundle export tsm", Description = "Copies to clipboard the TSM import string for current bundle")]
+    public class BundleExportCommand : INotification
+    {
+    }
 }

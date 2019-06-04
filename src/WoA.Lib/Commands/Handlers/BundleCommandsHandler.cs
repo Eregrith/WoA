@@ -20,20 +20,30 @@ namespace WoA.Lib.Commands.Handlers
         , INotificationHandler<BundleListCommand>
         , INotificationHandler<BundleClearCommand>
         , INotificationHandler<BundleFlipCommand>
+        , INotificationHandler<BundleExportCommand>
     {
         private readonly IItemsBundler _itemsBundler;
         private readonly IAuctionViewer _auctionViewer;
         private readonly IStylizedConsole _console;
         private readonly ITsmClient _tsm;
         private readonly IGenericRepository _repo;
+        private readonly IClipboardManager _clipboard;
 
-        public BundleCommandsHandler(IItemsBundler itemsBundler, IAuctionViewer auctionViewer, IStylizedConsole console, ITsmClient tsm, IGenericRepository repo)
+        public BundleCommandsHandler(
+            IItemsBundler itemsBundler,
+            IAuctionViewer auctionViewer,
+            IStylizedConsole console,
+            ITsmClient tsm,
+            IGenericRepository repo,
+            IClipboardManager clipboard
+        )
         {
             _itemsBundler = itemsBundler;
             _auctionViewer = auctionViewer;
             _console = console;
             _tsm = tsm;
             _repo = repo;
+            _clipboard = clipboard;
         }
 
         public Task Handle(BundleAddCommand notification, CancellationToken cancellationToken)
@@ -175,6 +185,15 @@ namespace WoA.Lib.Commands.Handlers
                 "Total", " ", itemFlipResults.Sum(x => x.Quantity), itemFlipResults.Sum(x => x.TotalBuyout).ToGoldString(),
                 itemFlipResults.Sum(x => x.NetProfit).ToGoldString(),
                 Math.Round(((double)itemFlipResults.Sum(x => x.NetProfit) / itemFlipResults.Sum(x => x.TotalBuyout)) * 100, 2) + "%"));
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(BundleExportCommand notification, CancellationToken cancellationToken)
+        {
+            var items = _itemsBundler.GetItems();
+            string tsmExportString = String.Join(",", items.Keys.Select(k => "i:" + k));
+            _clipboard.SetText(tsmExportString);
+            _console.WriteLine("TSM Export string for current bundle has been copied to clipboard");
             return Task.CompletedTask;
         }
     }

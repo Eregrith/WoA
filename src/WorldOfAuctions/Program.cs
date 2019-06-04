@@ -2,6 +2,7 @@
 using log4net;
 using log4net.Config;
 using MediatR;
+using System;
 using System.Reflection;
 using WoA.Lib;
 using WoA.Lib.Auctions;
@@ -14,6 +15,7 @@ namespace WorldOfAuctions
 {
     static class Program
     {
+        [STAThread]
         static void Main(string[] args)
         {
             IContainer container = DependencyConfig();
@@ -32,6 +34,7 @@ namespace WorldOfAuctions
             builder.RegisterType<AuctionViewer>().As<IAuctionViewer>().SingleInstance();
             builder.RegisterType<GenericRepository>().As<IGenericRepository>().SingleInstance();
             builder.RegisterType<ItemBundler>().As<IItemsBundler>();
+            builder.RegisterType<ClipboardManager>().As<IClipboardManager>();
             builder.RegisterType<Mediator>()
                 .As<IMediator>()
                 .SingleInstance();
