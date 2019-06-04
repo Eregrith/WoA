@@ -16,6 +16,7 @@ namespace WoA.Lib.Commands.Handlers
         : INotificationHandler<BundleAddCommand>
         , INotificationHandler<BundleSaveCommand>
         , INotificationHandler<BundleLoadCommand>
+        , INotificationHandler<BundleShowSavedCommand>
         , INotificationHandler<BundleListCommand>
         , INotificationHandler<BundleClearCommand>
         , INotificationHandler<BundleFlipCommand>
@@ -108,6 +109,26 @@ namespace WoA.Lib.Commands.Handlers
             else
             {
                 _console.WriteLine($"No bundle found with name : {notification.BundleName}");
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(BundleShowSavedCommand notification, CancellationToken cancellationToken)
+        {
+            ItemBundle[] itemBundles = _repo.GetAll<ItemBundle>();
+            if (itemBundles != null && itemBundles.Any())
+            {
+                _console.WriteLine("Bundles saved : ");
+                _console.WriteLine(String.Format("{0,-35} {1,20}", "Name", "# distinct items"));
+                foreach (ItemBundle itemBundle in itemBundles)
+                {
+                    _console.WriteLine(String.Format("{0,-35} {1,20}", itemBundle.BundleName, itemBundle.ItemsId.Split(',').Count()));
+                }
+            }
+            else
+            {
+                _console.WriteLine("No bundle found.");
             }
 
             return Task.CompletedTask;

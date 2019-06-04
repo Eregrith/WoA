@@ -50,6 +50,11 @@ namespace WoA.Lib.Commands.QueryObjects
     {
     }
 
+    [WoACommand(RegexToMatch = "bundle show saved", Description = "Shows the actual saved bundle")]
+    public class BundleShowSavedCommand : INotification
+    {
+    }
+
     [WoACommand(RegexToMatch = "bundle clear", Description = "Clears the bundle of any item")]
     public class BundleClearCommand : INotification
     {
