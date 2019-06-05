@@ -88,5 +88,14 @@ namespace WoA.Lib.Blizzard
 
             return JsonConvert.DeserializeObject<CharacterProfile>(response.Content);
         }
+
+        public WowQuality GetQuality(int itemId)
+        {
+            IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/item/" + itemId);
+
+            WowItem item = JsonConvert.DeserializeObject<WowItem>(response.Content);
+
+            return (WowQuality)item.quality;
+        }
     }
 }

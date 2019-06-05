@@ -8,5 +8,6 @@ namespace WoA.Lib.Blizzard
         List<Auction> Auctions { get; }
 
         CharacterProfile GetInfosOnCharacter(string characterName, string realm);
+        WowQuality GetQuality(int itemId);
     }
 }

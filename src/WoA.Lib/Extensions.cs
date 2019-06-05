@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WoA.Lib.Blizzard;
 
 namespace WoA.Lib
 {
@@ -80,6 +81,27 @@ namespace WoA.Lib
             }
 
             return item.ToString();
+        }
+
+        public static string WithQuality(this string itemName, WowQuality quality)
+        {
+            switch (quality)
+            {
+                case WowQuality.gray:
+                    return $"---{itemName}---";
+                case WowQuality.white:
+                    return itemName;
+                case WowQuality.green:
+                    return $"[[{itemName}]]";
+                case WowQuality.blue:
+                    return $"{{{{{itemName}}}}}";
+                case WowQuality.violet:
+                    return $"+++{itemName}+++";
+                case WowQuality.orange:
+                    return $"{{++{itemName}++}}";
+                default:
+                    return itemName;
+            }
         }
     }
 }

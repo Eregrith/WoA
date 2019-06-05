@@ -132,9 +132,10 @@ namespace WoA.Lib
                 return;
             }
             _console.WriteLine($"Looking at auctions for item:");
+            WowQuality itemQuality = _blizzard.GetQuality(itemId);
             _console.WriteAscii(tsmItem.Name);
             var itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
-            _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem.Name} auctions");
+            _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem.Name.WithQuality(itemQuality)} auctions");
             _console.WriteLine($"Tsm Item : {tsmItem}");
 
             ShowAuctions(tsmItem, itemAuctions);

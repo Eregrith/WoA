@@ -19,6 +19,7 @@ namespace WoA.Lib.Blizzard
         [Display(Name = "Demon Hunter")]
         DemonHunter = 12
     }
+
     public enum WowRace
     {
         Human = 1,
@@ -74,5 +75,15 @@ namespace WoA.Lib.Blizzard
         [Display(Name = "Mag'har Orc")]
         MagharOrc = 36,
         Mechagnome = 37
+    }
+
+    public enum WowQuality
+    {
+        gray = 0,
+        white = 1,
+        green = 2,
+        blue = 3,
+        violet = 4,
+        orange = 5
     }
 }
