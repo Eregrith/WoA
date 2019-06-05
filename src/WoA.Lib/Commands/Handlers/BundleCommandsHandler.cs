@@ -21,6 +21,7 @@ namespace WoA.Lib.Commands.Handlers
         , INotificationHandler<BundleClearCommand>
         , INotificationHandler<BundleFlipCommand>
         , INotificationHandler<BundleExportCommand>
+        , INotificationHandler<BundleImportCommand>
         , INotificationHandler<BundleBuyCommand>
     {
         private readonly IItemsBundler _itemsBundler;
@@ -197,7 +198,29 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine("TSM Export string for current bundle has been copied to clipboard");
             return Task.CompletedTask;
         }
-        
+
+        public Task Handle(BundleImportCommand notification, CancellationToken cancellationToken)
+        {
+            _console.WriteLine("Paste TSM import string here");
+            _console.WriteLine("============================");
+            string line = Console.ReadLine();
+            List<int> items = new List<int>();
+            List<string> parts = line.Split(',').ToList();
+            foreach (string part in parts)
+            {
+                if (int.TryParse(part.Split(':')[1], out int itemId))
+                {
+                    items.Add(itemId);
+                }
+            }
+            if (items.Any())
+            {
+                _itemsBundler.Clear();
+                items.ForEach(i => _itemsBundler.Add(i, 1));
+                _console.WriteLine(items.Count + " items imported");
+            }
+            return Task.CompletedTask;
+        }
 
         public Task Handle(BundleBuyCommand notification, CancellationToken cancellationToken)
         {

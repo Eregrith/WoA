@@ -18,7 +18,7 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
-    [WoACommand(RegexToMatch = @"tuj$")]
+    [WoACommand(RegexToMatch = @"^tuj$")]
     public class UndermineJournalUsageCommand : INotification
     { }
 }

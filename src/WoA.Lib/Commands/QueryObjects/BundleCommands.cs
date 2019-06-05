@@ -8,12 +8,12 @@ using WoA.Lib.Commands.Attributes;
 namespace WoA.Lib.Commands.QueryObjects
 {
 
-    [WoACommand(RegexToMatch = "bundle$", Description = "Handles bundles of items", DisplayedInHelp = true)]
+    [WoACommand(RegexToMatch = "^bundle$", Description = "Handles bundles of items", DisplayedInHelp = true)]
     public class BundleUsageCommand : INotification
     {
     }
 
-    [WoACommand(RegexToMatch = "bundle add (?:(?<itemQuantity>[0-9]+) )?(?<itemDesc>.+)")]
+    [WoACommand(RegexToMatch = "^bundle add (?:(?<itemQuantity>[0-9]+) )?(?<itemDesc>.+)")]
     public class BundleAddCommand : INotification
     {
         public string ItemDescription { get; set; }
@@ -29,7 +29,7 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
-    [WoACommand(RegexToMatch = "bundle save (?<bundleName>.+)", Description = "Save the current bundle")]
+    [WoACommand(RegexToMatch = "^bundle save (?<bundleName>.+)", Description = "Save the current bundle")]
     public class BundleSaveCommand : INotification
     {
         public string BundleName { get; set; }
@@ -40,7 +40,7 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
-    [WoACommand(RegexToMatch = "bundle load (?<bundleName>.+)", Description = "Load the selected bundle")]
+    [WoACommand(RegexToMatch = "^bundle load (?<bundleName>.+)", Description = "Load the selected bundle")]
     public class BundleLoadCommand : INotification
     {
         public string BundleName { get; set; }
@@ -51,32 +51,37 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
-    [WoACommand(RegexToMatch = "bundle list", Description = "Shows the bundle's contents and price")]
+    [WoACommand(RegexToMatch = "^bundle list", Description = "Shows the bundle's contents and price")]
     public class BundleListCommand : INotification
     {
     }
 
-    [WoACommand(RegexToMatch = "bundle show saved", Description = "Shows saved bundles")]
+    [WoACommand(RegexToMatch = "^bundle show saved", Description = "Shows saved bundles")]
     public class BundleShowSavedCommand : INotification
     {
     }
 
-    [WoACommand(RegexToMatch = "bundle clear", Description = "Clears the bundle of any item")]
+    [WoACommand(RegexToMatch = "^bundle clear", Description = "Clears the bundle of any item")]
     public class BundleClearCommand : INotification
     {
     }
 
-    [WoACommand(RegexToMatch = "bundle flip", Description = "Look at potential flipping for the current bundle")]
+    [WoACommand(RegexToMatch = "^bundle flip", Description = "Look at potential flipping for the current bundle")]
     public class BundleFlipCommand : INotification
     {
     }
 
-    [WoACommand(RegexToMatch = "bundle export tsm", Description = "Copies to clipboard the TSM import string for current bundle")]
+    [WoACommand(RegexToMatch = "^bundle export tsm", Description = "Copies to clipboard the TSM import string for current bundle")]
     public class BundleExportCommand : INotification
     {
     }
 
-    [WoACommand(RegexToMatch = "bundle buy (?<percentMax>[0-9]+)", Description = "Buy as many items as needed whose under chosen % of market price")]
+    [WoACommand(RegexToMatch = "^bundle import tsm", Description = "Replaces current bundle by importing from a TSM group export string")]
+    public class BundleImportCommand : INotification
+    {
+    }
+
+    [WoACommand(RegexToMatch = "^bundle buy (?<percentMax>[0-9]+)", Description = "Buy as many items as needed whose under chosen % of market price")]
     public class BundleBuyCommand : INotification
     {
         public int PercentMax { get; set; }

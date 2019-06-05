@@ -4,7 +4,7 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = @"what ?is (?<itemDesc>.+)", Description = "See wowhead's page for given item", DisplayedInHelp = true)]
+    [WoACommand(RegexToMatch = @"^what ?is (?<itemDesc>.+)", Description = "See wowhead's page for given item", DisplayedInHelp = true)]
     public class WhatIsItemCommand : INotification
     {
         public string ItemDescription { get; set; }
@@ -15,7 +15,7 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
-    [WoACommand(RegexToMatch = @"what ?is$")]
+    [WoACommand(RegexToMatch = @"^what ?is$")]
     public class WhatIsItemUsageCommand : INotification
     { }
 }

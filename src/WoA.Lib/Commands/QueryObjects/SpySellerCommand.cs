@@ -4,7 +4,7 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = @"spy (?<sellerName>.+)", Description = "See all auctions and info for given seller", DisplayedInHelp = true)]
+    [WoACommand(RegexToMatch = @"^spy (?<sellerName>.+)", Description = "See all auctions and info for given seller", DisplayedInHelp = true)]
     public class SpySellerCommand : INotification
     {
         public string SellerName { get; set; }
@@ -15,7 +15,7 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
-    [WoACommand(RegexToMatch = @"spy$")]
+    [WoACommand(RegexToMatch = @"^spy$")]
     public class SpySellerUsageCommand : INotification
     {}
 }
