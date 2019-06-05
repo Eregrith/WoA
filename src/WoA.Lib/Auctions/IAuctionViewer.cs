@@ -11,6 +11,7 @@ namespace WoA.Lib
         void SeeTopSellers();
         void SimulateFlippingItem(int itemId);
         ItemFlipResult SimulateFlippingItemShortVersion(int itemId);
+        ItemFlipResult SimulateBuyingItemShortVersion(int itemId, int nbItem, int maxPercentBuyout);
         void SimulateResettingItem(int itemId, int buyingPercentageValue, int sellingPercentageValue);
         void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions);
     }

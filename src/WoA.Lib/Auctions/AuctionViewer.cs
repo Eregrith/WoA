@@ -63,7 +63,34 @@ namespace WoA.Lib
 
                 percentProfit = Math.Round(((double)sumSelloutFlippingWithGoblinTaxe / sumBuyoutCheapAuctions - 1) * 100, 2);
             }
-            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}", tsmItem.Name, tsmItem.MarketValue.ToGoldString(), totalQuantity, sumBuyoutCheapAuctions.ToGoldString(), profit.ToGoldString(), percentProfit.ToString()+"%"));
+            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}", tsmItem.Name, tsmItem.MarketValue.ToGoldString(), totalQuantity, sumBuyoutCheapAuctions.ToGoldString(), profit.ToGoldString(), percentProfit.ToString() + "%"));
+            return new ItemFlipResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions, NetProfit = profit, PercentProfit = percentProfit };
+        }
+
+        public ItemFlipResult SimulateBuyingItemShortVersion(int itemId, int nbItem, int maxPercentBuyout)
+        {
+            TsmItem tsmItem = _tsm.GetItem(itemId);
+            float maxPercentage = (float)maxPercentBuyout / 100;
+            IEnumerable<Auction> itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
+            long maxBuy = (long)(tsmItem?.MarketValue * maxPercentage);
+            IEnumerable<Auction> cheapAuctions = itemAuctions.Where(a => a.PricePerItem <= maxBuy && a.buyout != 0);
+            long sumBuyoutCheapAuctions = 0;
+            long profit = 0;
+            double percentProfit = 0;
+            int totalQuantity = 0;
+            int tempNbItem = nbItem;
+            if (cheapAuctions.Any())
+            {
+                var stackAuctions = new Queue<Auction>(cheapAuctions.OrderBy(x => x.PricePerItem));
+                while (tempNbItem > 0 && stackAuctions.Any())
+                {
+                    var test = stackAuctions.Dequeue();
+                    sumBuyoutCheapAuctions += test.buyout;
+                    totalQuantity += test.quantity;
+                    tempNbItem -= test.quantity;
+                }
+            }
+            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}", nbItem + " x " + tsmItem.Name, tsmItem.MarketValue.ToGoldString(), totalQuantity, sumBuyoutCheapAuctions.ToGoldString()));
             return new ItemFlipResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions, NetProfit = profit, PercentProfit = percentProfit };
         }
 

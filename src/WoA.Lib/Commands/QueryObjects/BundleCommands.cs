@@ -50,7 +50,7 @@ namespace WoA.Lib.Commands.QueryObjects
     {
     }
 
-    [WoACommand(RegexToMatch = "bundle show saved", Description = "Shows the actual saved bundle")]
+    [WoACommand(RegexToMatch = "bundle show saved", Description = "Shows saved bundles")]
     public class BundleShowSavedCommand : INotification
     {
     }
@@ -68,5 +68,19 @@ namespace WoA.Lib.Commands.QueryObjects
     [WoACommand(RegexToMatch = "bundle export tsm", Description = "Copies to clipboard the TSM import string for current bundle")]
     public class BundleExportCommand : INotification
     {
+    }
+
+    [WoACommand(RegexToMatch = "bundle buy (?<percentMax>[0-9]+)", Description = "Buy as many items as needed whose under chosen % of market price")]
+    public class BundleBuyCommand : INotification
+    {
+        public int PercentMax { get; set; }
+
+        public BundleBuyCommand(Match m)
+        {
+            if (!String.IsNullOrEmpty(m.Groups["percentMax"].Value))
+                PercentMax = int.Parse(m.Groups["percentMax"].Value);
+            else
+                PercentMax = 100;
+        }
     }
 }

@@ -21,6 +21,7 @@ namespace WoA.Lib.Commands.Handlers
         , INotificationHandler<BundleClearCommand>
         , INotificationHandler<BundleFlipCommand>
         , INotificationHandler<BundleExportCommand>
+        , INotificationHandler<BundleBuyCommand>
     {
         private readonly IItemsBundler _itemsBundler;
         private readonly IAuctionViewer _auctionViewer;
@@ -194,6 +195,25 @@ namespace WoA.Lib.Commands.Handlers
             string tsmExportString = String.Join(",", items.Keys.Select(k => "i:" + k));
             _clipboard.SetText(tsmExportString);
             _console.WriteLine("TSM Export string for current bundle has been copied to clipboard");
+            return Task.CompletedTask;
+        }
+        
+
+        public Task Handle(BundleBuyCommand notification, CancellationToken cancellationToken)
+        {
+            Dictionary<int, int> bundle = _itemsBundler.GetItems();
+            List<ItemFlipResult> itemFlipResults = new List<ItemFlipResult>();
+
+            _console.WriteLine($"Buying current bundle's items at {notification.PercentMax}% of market value :");
+            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}", "Item", "Market Price", "Qty available", "Total buyout"));
+            foreach (KeyValuePair<int, int> item in bundle)
+            {
+                itemFlipResults.Add(_auctionViewer.SimulateBuyingItemShortVersion(item.Key, item.Value, notification.PercentMax));
+            }
+
+            _console.WriteLine(" ");
+            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}",
+                "Total", " ", itemFlipResults.Sum(x => x.Quantity), itemFlipResults.Sum(x => x.TotalBuyout).ToGoldString()));
             return Task.CompletedTask;
         }
     }
