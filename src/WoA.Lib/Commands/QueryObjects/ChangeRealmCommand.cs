@@ -14,4 +14,8 @@ namespace WoA.Lib.Commands.QueryObjects
             Realm = m.Groups["realm"].Value;
         }
     }
+
+    [WoACommand(RegexToMatch = "chrealm$")]
+    public class ChangeRealmUsageCommand : INotification
+    { }
 }

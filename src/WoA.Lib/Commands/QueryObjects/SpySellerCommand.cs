@@ -14,4 +14,8 @@ namespace WoA.Lib.Commands.QueryObjects
             SellerName = match.Groups["sellerName"].Value;
         }
     }
+
+    [WoACommand(RegexToMatch = @"spy$")]
+    public class SpySellerUsageCommand : INotification
+    {}
 }

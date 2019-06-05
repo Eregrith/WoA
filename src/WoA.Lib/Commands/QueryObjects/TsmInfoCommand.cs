@@ -17,4 +17,8 @@ namespace WoA.Lib.Commands.QueryObjects
             ItemDescription = m.Groups["itemDesc"].Value;
         }
     }
+
+    [WoACommand(RegexToMatch = "tsm$")]
+    public class TsmInfoUsageCommand : INotification
+    { }
 }

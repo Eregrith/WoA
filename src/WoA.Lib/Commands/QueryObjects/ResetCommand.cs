@@ -22,4 +22,7 @@ namespace WoA.Lib.Commands.QueryObjects
             SellPricePercent = int.Parse(m.Groups["sellPricePercent"].Value);
         }
     }
+    [WoACommand(RegexToMatch = @"reset$")]
+    public class ResetUsageCommand : INotification
+    { }
 }

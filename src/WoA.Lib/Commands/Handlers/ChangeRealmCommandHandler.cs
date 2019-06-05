@@ -10,7 +10,8 @@ using WoA.Lib.TSM;
 
 namespace WoA.Lib.Commands.Handlers
 {
-    public class ChangeRealmCommandHandler : INotificationHandler<ChangeRealmCommand>
+    public class ChangeRealmCommandHandler
+        : INotificationHandler<ChangeRealmCommand>
     {
         private readonly IConfiguration _config;
         private readonly ITsmClient _tsm;

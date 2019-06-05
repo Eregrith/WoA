@@ -14,4 +14,8 @@ namespace WoA.Lib.Commands.QueryObjects
             ItemDescription = m.Groups["itemDesc"].Value;
         }
     }
+
+    [WoACommand(RegexToMatch = "see$")]
+    public class SeeAuctionsUsageCommand : INotification
+    { }
 }

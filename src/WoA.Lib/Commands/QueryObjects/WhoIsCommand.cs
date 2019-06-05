@@ -7,7 +7,7 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = "whois (?<seller>.+)", Description = "Shows info on given seller", DisplayedInHelp = true)]
+    [WoACommand(RegexToMatch = "who ?is (?<seller>.+)", Description = "Shows info on given seller", DisplayedInHelp = true)]
     public class WhoIsCommand : INotification
     {
         public string SellerName { get; set; }
@@ -17,4 +17,8 @@ namespace WoA.Lib.Commands.QueryObjects
             SellerName = m.Groups["seller"].Value;
         }
     }
+
+    [WoACommand(RegexToMatch = "who ?is$")]
+    public class WhoIsUsageCommand : INotification
+    { }
 }

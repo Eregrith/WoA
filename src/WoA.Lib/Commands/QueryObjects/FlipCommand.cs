@@ -18,4 +18,8 @@ namespace WoA.Lib.Commands.QueryObjects
             ItemDescription = m.Groups["itemDesc"].Value;
         }
     }
+
+    [WoACommand(RegexToMatch = "flip$")]
+    public class FlipUsageCommand : INotification
+    { }
 }

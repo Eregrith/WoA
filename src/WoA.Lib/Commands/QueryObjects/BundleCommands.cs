@@ -7,7 +7,13 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = "bundle add (?:(?<itemQuantity>[0-9]+) )?(?<itemDesc>.+)", Description = "Adds an item to the bundle")]
+
+    [WoACommand(RegexToMatch = "bundle$", Description = "Handles bundles of items", DisplayedInHelp = true)]
+    public class BundleUsageCommand : INotification
+    {
+    }
+
+    [WoACommand(RegexToMatch = "bundle add (?:(?<itemQuantity>[0-9]+) )?(?<itemDesc>.+)")]
     public class BundleAddCommand : INotification
     {
         public string ItemDescription { get; set; }
