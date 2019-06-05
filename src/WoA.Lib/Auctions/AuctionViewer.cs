@@ -75,8 +75,6 @@ namespace WoA.Lib
             long maxBuy = (long)(tsmItem?.MarketValue * maxPercentage);
             IEnumerable<Auction> cheapAuctions = itemAuctions.Where(a => a.PricePerItem <= maxBuy && a.buyout != 0);
             long sumBuyoutCheapAuctions = 0;
-            long profit = 0;
-            double percentProfit = 0;
             int totalQuantity = 0;
             int tempNbItem = nbItem;
             if (cheapAuctions.Any())
@@ -84,14 +82,14 @@ namespace WoA.Lib
                 var stackAuctions = new Queue<Auction>(cheapAuctions.OrderBy(x => x.PricePerItem));
                 while (tempNbItem > 0 && stackAuctions.Any())
                 {
-                    var test = stackAuctions.Dequeue();
-                    sumBuyoutCheapAuctions += test.buyout;
-                    totalQuantity += test.quantity;
-                    tempNbItem -= test.quantity;
+                    Auction auction = stackAuctions.Dequeue();
+                    sumBuyoutCheapAuctions += auction.buyout;
+                    totalQuantity += auction.quantity;
+                    tempNbItem -= auction.quantity;
                 }
             }
             _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}", nbItem + " x " + tsmItem.Name, tsmItem.MarketValue.ToGoldString(), totalQuantity, sumBuyoutCheapAuctions.ToGoldString()));
-            return new ItemFlipResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions, NetProfit = profit, PercentProfit = percentProfit };
+            return new ItemFlipResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions, NetProfit = 0, PercentProfit = 0 };
         }
 
         public void SimulateResettingItem(int itemId, int buyingPercentageValue, int sellingPercentageValue)
