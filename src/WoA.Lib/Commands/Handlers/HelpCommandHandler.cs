@@ -27,9 +27,12 @@ namespace WoA.Lib.Commands.Handlers
             foreach (var woaCommand in woaCommands)
             {
                 var attr = woaCommand.GetCustomAttribute<WoACommandAttribute>();
-                string regex = attr.RegexToMatch;
-                string desc = attr.Description;
-                _console.WriteLine(String.Format("{0,-40} : {1}", regex, desc));
+                if (attr.DisplayedInHelp)
+                {
+                    string regex = attr.RegexToMatch;
+                    string desc = attr.Description;
+                    _console.WriteLine(String.Format("{0,-40} : {1}", regex, desc));
+                }
             }
             return Task.CompletedTask;
         }

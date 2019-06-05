@@ -4,7 +4,7 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = "chrealm (?<realm>[a-z]+)", Description = "Change realm")]
+    [WoACommand(RegexToMatch = "chrealm (?<realm>[a-z]+)", Description = "Change realm", DisplayedInHelp = true)]
     public class ChangeRealmCommand : INotification
     {
         public string Realm { get; set; }

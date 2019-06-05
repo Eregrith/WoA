@@ -6,5 +6,6 @@ namespace WoA.Lib.Commands.Attributes
     {
         public string RegexToMatch { get; set; }
         public string Description { get; set; }
+        public bool DisplayedInHelp { get; set; }
     }
 }

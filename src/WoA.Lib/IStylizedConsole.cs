@@ -6,6 +6,7 @@ namespace WoA.Lib
     public interface IStylizedConsole
     {
         void WriteLine(string line);
+        void WriteLine();
         void WriteAscii(string line);
         void Write(string msg);
         void Write(string msg, Color color);

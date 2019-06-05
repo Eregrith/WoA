@@ -7,7 +7,7 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = @"tuj (?<itemDesc>.+)", Description = "See TUJ's page for given item")]
+    [WoACommand(RegexToMatch = @"tuj (?<itemDesc>.+)", Description = "See TUJ's page for given item", DisplayedInHelp = true)]
     public class UndermineJournalCommand : INotification
     {
         public string ItemDescription { get; set; }

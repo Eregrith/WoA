@@ -7,7 +7,7 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = "whois (?<seller>.+)", Description = "Shows info on given seller")]
+    [WoACommand(RegexToMatch = "whois (?<seller>.+)", Description = "Shows info on given seller", DisplayedInHelp = true)]
     public class WhoIsCommand : INotification
     {
         public string SellerName { get; set; }

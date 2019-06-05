@@ -29,7 +29,12 @@ namespace WorldOfAuctions
         {
             Console.WriteLineStyled(line, _stylesheet);
         }
-        
+
+        public void WriteLine()
+        {
+            Console.WriteLine();
+        }
+
         public void WriteAscii(string line)
         {
             Console.WriteAscii(RemoveDiacritics(line), Color.White);
