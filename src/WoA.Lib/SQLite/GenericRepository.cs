@@ -5,6 +5,7 @@ using WoA.Lib.TSM;
 using System.Collections.Generic;
 using System.IO;
 using WoA.Lib.Auctions;
+using WoA.Lib.Blizzard;
 
 namespace WoA.Lib.SQLite
 {
@@ -21,11 +22,12 @@ namespace WoA.Lib.SQLite
             _context.CreateTable<TsmItem>();
             _context.CreateTable<TsmRealmData>();
             _context.CreateTable<ItemBundle>();
+            _context.CreateTable<WowItem>();
         }
 
         public T Add<T>(T model)
         {
-            int iRes = _context.Insert(model);
+            _context.Insert(model);
             return model;
         }
 
@@ -36,7 +38,7 @@ namespace WoA.Lib.SQLite
 
         public T Update<T>(T model)
         {
-            int iRes = _context.Update(model);
+            _context.Update(model);
             return model;
         }
 
@@ -61,13 +63,8 @@ namespace WoA.Lib.SQLite
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
-            }
+            if (!this.disposed && disposing)
+                _context.Dispose();
             this.disposed = true;
         }
 

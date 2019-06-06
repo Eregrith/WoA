@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using WoA.Lib.Blizzard;
 using WoA.Lib.SQLite;
 
 namespace WoA.Lib.TSM
@@ -15,6 +16,7 @@ namespace WoA.Lib.TSM
         private string getUrlFor(string subUrl) => _baseUrl + $"{subUrl}?format=json&apiKey=" + _config.TsmApiKey;
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
+        private readonly IBlizzardClient _blizzard;
 
         public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console)
         {
@@ -67,7 +69,12 @@ namespace WoA.Lib.TSM
         {
             string url = getUrlFor("item/" + _config.CurrentRegion + "/" + _config.CurrentRealm);
             var items = CallTsmApi<List<TsmItem>>(url);
-            items.ForEach(i => { i.ItemId = int.Parse(i.Id); i.Realm = _config.CurrentRealm; i.Id = _config.CurrentRealm + "-" + i.Id; });
+            items.ForEach(i =>
+            {
+                i.ItemId = int.Parse(i.Id);
+                i.Realm = _config.CurrentRealm;
+                i.Id = _config.CurrentRealm + "-" + i.Id;
+            });
             return items;
         }
 
@@ -102,14 +109,14 @@ namespace WoA.Lib.TSM
             if (potential.Any(i => i.Key.Name.ToLower() == itemName.ToLower()))
                 return potential.First(i => i.Key.Name.ToLower() == itemName.ToLower()).Key.ItemId;
 
-            if (potential.Count() == 0)
+            if (potential.Count == 0)
             {
                 _console.WriteLine("No item found called " + itemName);
                 return 0;
             }
-            if (potential.Count() == 1)
+            if (potential.Count == 1)
                 return potential.First().Key.ItemId;
-            if (potential.Count() < 10)
+            if (potential.Count < 10)
             {
                 _console.WriteLine("Multiple items found with that name. Which one do you want ?");
                 int i = 0;

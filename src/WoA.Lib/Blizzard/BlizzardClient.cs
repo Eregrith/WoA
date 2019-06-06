@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using WoA.Lib.SQLite;
 
 namespace WoA.Lib.Blizzard
 {
@@ -12,14 +13,15 @@ namespace WoA.Lib.Blizzard
     {
         private readonly IConfiguration _config;
         private readonly IStylizedConsole _console;
-        private List<Auction> _auctions;
+        private readonly IGenericRepository _repo;
         private string _token;
-        public List<Auction> Auctions { get => _auctions; }
+        public List<Auction> Auctions { get; private set; }
 
-        public BlizzardClient(IConfiguration config, IStylizedConsole console)
+        public BlizzardClient(IConfiguration config, IStylizedConsole console, IGenericRepository repo)
         {
             _config = config;
             _console = console;
+            _repo = repo;
         }
 
         public void LoadAuctions()
@@ -32,10 +34,10 @@ namespace WoA.Lib.Blizzard
 
             string fileUrl = GetAuctionFileUrl();
 
-            _auctions = GetAuctions(fileUrl);
+            Auctions = GetAuctions(fileUrl);
 
             stopwatch.Stop();
-            _console.WriteLine($"BLI > Got {_auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + " ms");
+            _console.WriteLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + " ms");
         }
 
         private List<Auction> GetAuctions(string fileUrl)
@@ -91,11 +93,27 @@ namespace WoA.Lib.Blizzard
 
         public WowQuality GetQuality(int itemId)
         {
+            return (WowQuality)GetItem(itemId).quality;
+        }
+
+        public WowItem GetItem(int itemId)
+        {
+            WowItem item = _repo.GetById<WowItem>(itemId.ToString());
+            if (item == null)
+            {
+                item = GetItemFromAPI(itemId);
+                _repo.Add(item);
+            }
+            return item;
+        }
+
+        private WowItem GetItemFromAPI(int itemId)
+        {
             IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/item/" + itemId);
 
             WowItem item = JsonConvert.DeserializeObject<WowItem>(response.Content);
 
-            return (WowQuality)item.quality;
+            return item;
         }
     }
 }

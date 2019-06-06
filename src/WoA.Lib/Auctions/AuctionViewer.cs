@@ -132,10 +132,10 @@ namespace WoA.Lib
                 return;
             }
             _console.WriteLine($"Looking at auctions for item:");
-            WowQuality itemQuality = _blizzard.GetQuality(itemId);
             _console.WriteAscii(tsmItem.Name);
             var itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
-            _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem.Name.WithQuality(itemQuality)} auctions");
+            WowQuality quality = _blizzard.GetQuality(itemId);
+            _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem.Name.WithQuality(quality)} auctions");
             _console.WriteLine($"Tsm Item : {tsmItem}");
 
             ShowAuctions(tsmItem, itemAuctions);
@@ -158,15 +158,16 @@ namespace WoA.Lib
             _console.WriteLine(String.Format("{0,40}{1,20}{2,12}{3,10}{4,20}{5,15}", "Item name", "Price per item", "Quantity", "Time Left", "Buyout total", "Seller"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item, a.timeLeft }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
-                TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
-                WowQuality itemQuality = _blizzard.GetQuality(auctionGroup.First().item);
+                WowItem item = _blizzard.GetItem(auctionGroup.First().item);
+                WowQuality quality = (WowQuality)item.quality;
+                string name = item.name;
                 _console.WriteLine(String.Format("{5,46}{0,20}{1,7}x {2,3}{6,10}{3,20}{4,15}"
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).ToGoldString()
                     , auctionGroup.Key.owner
-                    , tsmItem?.Name.WithQuality(itemQuality)
+                    , name.WithQuality(quality)
                     , auctionGroup.Key.timeLeft.ToAuctionTimeString()));
             }
 
@@ -179,10 +180,11 @@ namespace WoA.Lib
 
             foreach (var auctionGroup in auctions.GroupBy(a => a.item).OrderByDescending(g => g.Sum(a => a.buyout)))
             {
-                TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
-                WowQuality itemQuality = _blizzard.GetQuality(auctionGroup.First().item);
+                WowItem item = _blizzard.GetItem(auctionGroup.First().item);
+                WowQuality quality = (WowQuality)item.quality;
+                string name = item.name;
                 _console.WriteLine(String.Format("{0,51}{1,12}{2,20}"
-                    , tsmItem?.Name.WithQuality(itemQuality)
+                    , name.WithQuality(quality)
                     , auctionGroup.Sum(a => a.quantity)
                     , auctionGroup.Sum(a => a.buyout).ToGoldString()));
             }

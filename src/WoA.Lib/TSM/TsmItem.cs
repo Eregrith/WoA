@@ -1,5 +1,6 @@
 ﻿using SQLite;
 using System;
+using WoA.Lib.Blizzard;
 
 namespace WoA.Lib.TSM
 {
