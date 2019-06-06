@@ -14,5 +14,6 @@ namespace WoA.Lib
         ItemBuyResult SimulateBuyingItemShortVersion(int itemId, int nbItem, int maxPercentBuyout);
         void SimulateResettingItem(int itemId, int buyingPercentageValue, int sellingPercentageValue);
         void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions);
+        long GetTotalAHPostedValueFor(string toon);
     }
 }

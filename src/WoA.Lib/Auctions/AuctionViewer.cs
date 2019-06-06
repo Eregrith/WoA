@@ -222,5 +222,10 @@ namespace WoA.Lib
                     , avgMarketValue));
             }
         }
+
+        public long GetTotalAHPostedValueFor(string toon)
+        {
+            return _blizzard.Auctions.Where(a => a.owner == toon).Sum(a => a.buyout);
+        }
     }
 }
