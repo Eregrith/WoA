@@ -159,13 +159,14 @@ namespace WoA.Lib
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item, a.timeLeft }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
                 TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
-                _console.WriteLine(String.Format("{5,40}{0,20}{1,7}x {2,3}{6,10}{3,20}{4,15}"
+                WowQuality itemQuality = _blizzard.GetQuality(auctionGroup.First().item);
+                _console.WriteLine(String.Format("{5,46}{0,20}{1,7}x {2,3}{6,10}{3,20}{4,15}"
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).ToGoldString()
                     , auctionGroup.Key.owner
-                    , tsmItem?.Name
+                    , tsmItem?.Name.WithQuality(itemQuality)
                     , auctionGroup.Key.timeLeft.ToAuctionTimeString()));
             }
 
@@ -179,8 +180,9 @@ namespace WoA.Lib
             foreach (var auctionGroup in auctions.GroupBy(a => a.item).OrderByDescending(g => g.Sum(a => a.buyout)))
             {
                 TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
-                _console.WriteLine(String.Format("{0,45}{1,12}{2,20}"
-                    , tsmItem?.Name
+                WowQuality itemQuality = _blizzard.GetQuality(auctionGroup.First().item);
+                _console.WriteLine(String.Format("{0,51}{1,12}{2,20}"
+                    , tsmItem?.Name.WithQuality(itemQuality)
                     , auctionGroup.Sum(a => a.quantity)
                     , auctionGroup.Sum(a => a.buyout).ToGoldString()));
             }

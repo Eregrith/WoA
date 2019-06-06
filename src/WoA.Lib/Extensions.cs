@@ -90,11 +90,11 @@ namespace WoA.Lib
                 case WowQuality.gray:
                     return $"---{itemName}---";
                 case WowQuality.white:
-                    return itemName;
+                    return $"==={itemName}===";
                 case WowQuality.green:
-                    return $"[[{itemName}]]";
+                    return $"[[[{itemName}]]]";
                 case WowQuality.blue:
-                    return $"{{{{{itemName}}}}}";
+                    return $"{{{{{{{itemName}}}}}}}";
                 case WowQuality.violet:
                     return $"+++{itemName}+++";
                 case WowQuality.orange:
