@@ -65,15 +65,62 @@ namespace WoA.Lib.Commands.Handlers
             return Task.CompletedTask;
         }
 
+        public Task Handle(BundleRemoveCommand notification, CancellationToken cancellationToken)
+        {
+            if (IsYourCurrentBundleValid())
+            {
+                int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
+                if (itemId > 0)
+                {
+                    TsmItem tsmItem = _tsm.GetItem(itemId);
+                    if (_itemsBundler.Remove(itemId, notification.ItemQuantity, notification.RemoveAllQuantity))
+                    {
+                        if (notification.RemoveAllQuantity)
+                        {
+                            _console.WriteLine(tsmItem.Name + " removed from bundle");
+                        }
+                        else
+                        {
+                            _console.WriteLine(notification.ItemQuantity + " x " + tsmItem.Name + " removed from bundle");
+                        }
+                    }
+                    else
+                    {
+                        _console.WriteLine(tsmItem.Name + " doesn't exist in bundle");
+                    }
+                }
+                else
+                {
+                    _console.WriteLine("No item found called " + notification.ItemDescription);
+                }
+            }
+            return Task.CompletedTask;
+        }
+
         public Task Handle(BundleSaveCommand notification, CancellationToken cancellationToken)
         {
-            ItemBundle itemBundle = _repo.GetById<ItemBundle>(notification.BundleName);
-            if (itemBundle != null && !string.IsNullOrWhiteSpace(itemBundle.ItemsId))
+            if (IsYourCurrentBundleValid())
             {
-                _console.WriteLine($"There already a bundle saved with name : {itemBundle.BundleName}");
-                _console.WriteLine($"Do you want to update it (yes/no) ?");
-                string answer = Console.ReadLine();
-                if (answer.Equals("yes"))
+                ItemBundle itemBundle = _repo.GetById<ItemBundle>(notification.BundleName);
+                if (itemBundle != null && !string.IsNullOrWhiteSpace(itemBundle.ItemsId))
+                {
+                    _console.WriteLine($"There already a bundle saved with name : {itemBundle.BundleName}");
+                    _console.WriteLine($"Do you want to update it (yes/no) ?");
+                    string answer = Console.ReadLine();
+                    if (answer.Equals("yes"))
+                    {
+                        Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                        itemBundle = new ItemBundle()
+                        {
+                            BundleName = notification.BundleName,
+                            ItemsId = String.Join(",", bundle.Keys),
+                            ItemsValue = String.Join(",", bundle.Values),
+                        };
+                        _repo.Update(itemBundle);
+                        _console.WriteLine($"{itemBundle.BundleName} updated");
+                    }
+                }
+                else
                 {
                     Dictionary<int, int> bundle = _itemsBundler.GetItems();
                     itemBundle = new ItemBundle()
@@ -82,21 +129,9 @@ namespace WoA.Lib.Commands.Handlers
                         ItemsId = String.Join(",", bundle.Keys),
                         ItemsValue = String.Join(",", bundle.Values),
                     };
-                    _repo.Update(itemBundle);
-                    _console.WriteLine($"{itemBundle.BundleName} updated");
+                    _repo.Add(itemBundle);
+                    _console.WriteLine($"Bundle saved with name : {itemBundle.BundleName}");
                 }
-            }
-            else
-            {
-                Dictionary<int, int> bundle = _itemsBundler.GetItems();
-                itemBundle = new ItemBundle()
-                {
-                    BundleName = notification.BundleName,
-                    ItemsId = String.Join(",", bundle.Keys),
-                    ItemsValue = String.Join(",", bundle.Values),
-                };
-                _repo.Add(itemBundle);
-                _console.WriteLine($"Bundle saved with name : {itemBundle.BundleName}");
             }
             return Task.CompletedTask;
         }
@@ -149,54 +184,87 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(BundleListCommand notification, CancellationToken cancellationToken)
         {
-            Dictionary<int, int> bundle = _itemsBundler.GetItems();
-            _console.WriteLine("Current bundle contains:");
-            _console.WriteLine(String.Format("{0,-8} {1,20} {2,20} {3,20}", "Quantity", "Item", "Market Price", "Total"));
-            long bigTotal = 0;
-            foreach (KeyValuePair<int, int> item in bundle)
+            if (IsYourCurrentBundleValid())
             {
-                TsmItem tsmItem = _tsm.GetItem(item.Key);
-                long itemTotal = (tsmItem.MarketValue * item.Value);
-                _console.WriteLine(String.Format("{0,-8} {1,20} {2,20} {3,20}", item.Value, tsmItem.Name, tsmItem.MarketValue.ToGoldString(), itemTotal.ToGoldString()));
-                bigTotal += itemTotal;
+                Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                _console.WriteLine("Current bundle contains:");
+                _console.WriteLine(String.Format("{0,-8} {1,20} {2,20} {3,20}", "Quantity", "Item", "Market Price", "Total"));
+                long bigTotal = 0;
+                foreach (KeyValuePair<int, int> item in bundle)
+                {
+                    TsmItem tsmItem = _tsm.GetItem(item.Key);
+                    long itemTotal = (tsmItem.MarketValue * item.Value);
+                    _console.WriteLine(String.Format("{0,-8} {1,20} {2,20} {3,20}", item.Value, tsmItem.Name, tsmItem.MarketValue.ToGoldString(), itemTotal.ToGoldString()));
+                    bigTotal += itemTotal;
+                }
+                _console.WriteLine("This bundle's total price at market value is " + bigTotal.ToGoldString());
             }
-            _console.WriteLine("This bundle's total price at market value is " + bigTotal.ToGoldString());
             return Task.CompletedTask;
         }
 
         public Task Handle(BundleClearCommand notification, CancellationToken cancellationToken)
         {
-            _itemsBundler.Clear();
-            _console.WriteLine("Bundle cleared");
+            if (IsYourCurrentBundleValid())
+            {
+                _itemsBundler.Clear();
+                _console.WriteLine("Bundle cleared");
+            }
             return Task.CompletedTask;
         }
 
         public Task Handle(BundleFlipCommand notification, CancellationToken cancellationToken)
         {
-            Dictionary<int, int> bundle = _itemsBundler.GetItems();
-            List<ItemFlipResult> itemFlipResults = new List<ItemFlipResult>();
-
-            _console.WriteLine("Flipping current bundle will result:");
-            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}", "Item", "Market Price", "Qty available", "Total buyout", "Net profit", "Percent profit"));
-            foreach (KeyValuePair<int, int> item in bundle)
+            if (IsYourCurrentBundleValid())
             {
-                itemFlipResults.Add(_auctionViewer.SimulateFlippingItemShortVersion(item.Key));
-            }
+                Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                List<ItemFlipResult> itemFlipResults = new List<ItemFlipResult>();
 
-            _console.WriteLine(" ");
-            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}",
-                "Total", " ", itemFlipResults.Sum(x => x.Quantity), itemFlipResults.Sum(x => x.TotalBuyout).ToGoldString(),
-                itemFlipResults.Sum(x => x.NetProfit).ToGoldString(),
-                Math.Round(((double)itemFlipResults.Sum(x => x.NetProfit) / itemFlipResults.Sum(x => x.TotalBuyout)) * 100, 2) + "%"));
+                _console.WriteLine("Flipping current bundle will result:");
+                _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}", "Item", "Market Price", "Qty available", "Total buyout", "Net profit", "Percent profit"));
+                foreach (KeyValuePair<int, int> item in bundle)
+                {
+                    itemFlipResults.Add(_auctionViewer.SimulateFlippingItemShortVersion(item.Key));
+                }
+
+                _console.WriteLine(" ");
+                _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}",
+                    "Total", " ", itemFlipResults.Sum(x => x.Quantity), itemFlipResults.Sum(x => x.TotalBuyout).ToGoldString(),
+                    itemFlipResults.Sum(x => x.NetProfit).ToGoldString(),
+                    Math.Round(((double)itemFlipResults.Sum(x => x.NetProfit) / itemFlipResults.Sum(x => x.TotalBuyout)) * 100, 2) + "%"));
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(BundleBuyCommand notification, CancellationToken cancellationToken)
+        {
+            if (IsYourCurrentBundleValid())
+            {
+                Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                List<ItemBuyResult> itemFlipResults = new List<ItemBuyResult>();
+
+                _console.WriteLine($"Buying current bundle's items at {notification.PercentMax}% of market value :");
+                _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}", "Item", "Market Price", "Qty available", "Total buyout"));
+                foreach (KeyValuePair<int, int> item in bundle)
+                {
+                    itemFlipResults.Add(_auctionViewer.SimulateBuyingItemShortVersion(item.Key, item.Value, notification.PercentMax));
+                }
+
+                _console.WriteLine(" ");
+                _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}",
+                    "Total", " ", itemFlipResults.Sum(x => x.Quantity), itemFlipResults.Sum(x => x.TotalBuyout).ToGoldString()));
+            }
             return Task.CompletedTask;
         }
 
         public Task Handle(BundleExportCommand notification, CancellationToken cancellationToken)
         {
-            var items = _itemsBundler.GetItems();
-            string tsmExportString = String.Join(",", items.Keys.Select(k => "i:" + k));
-            _clipboard.SetText(tsmExportString);
-            _console.WriteLine("TSM Export string for current bundle has been copied to clipboard");
+            if (IsYourCurrentBundleValid())
+            {
+                var items = _itemsBundler.GetItems();
+                string tsmExportString = String.Join(",", items.Keys.Select(k => "i:" + k));
+                _clipboard.SetText(tsmExportString);
+                _console.WriteLine("TSM Export string for current bundle has been copied to clipboard");
+            }
             return Task.CompletedTask;
         }
 
@@ -223,22 +291,15 @@ namespace WoA.Lib.Commands.Handlers
             return Task.CompletedTask;
         }
 
-        public Task Handle(BundleBuyCommand notification, CancellationToken cancellationToken)
+        private bool IsYourCurrentBundleValid()
         {
             Dictionary<int, int> bundle = _itemsBundler.GetItems();
-            List<ItemBuyResult> itemFlipResults = new List<ItemBuyResult>();
-
-            _console.WriteLine($"Buying current bundle's items at {notification.PercentMax}% of market value :");
-            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}", "Item", "Market Price", "Qty available", "Total buyout"));
-            foreach (KeyValuePair<int, int> item in bundle)
+            if (bundle == null || !bundle.Any())
             {
-                itemFlipResults.Add(_auctionViewer.SimulateBuyingItemShortVersion(item.Key, item.Value, notification.PercentMax));
+                _console.WriteLine("Your current bundle is empty");
+                return false;
             }
-
-            _console.WriteLine(" ");
-            _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}",
-                "Total", " ", itemFlipResults.Sum(x => x.Quantity), itemFlipResults.Sum(x => x.TotalBuyout).ToGoldString()));
-            return Task.CompletedTask;
+            return true;
         }
     }
 }
