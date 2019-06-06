@@ -67,7 +67,7 @@ namespace WoA.Lib
             return new ItemFlipResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions, NetProfit = profit, PercentProfit = percentProfit };
         }
 
-        public ItemFlipResult SimulateBuyingItemShortVersion(int itemId, int nbItem, int maxPercentBuyout)
+        public ItemBuyResult SimulateBuyingItemShortVersion(int itemId, int nbItem, int maxPercentBuyout)
         {
             TsmItem tsmItem = _tsm.GetItem(itemId);
             float maxPercentage = (float)maxPercentBuyout / 100;
@@ -89,7 +89,7 @@ namespace WoA.Lib
                 }
             }
             _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}", nbItem + " x " + tsmItem.Name, tsmItem.MarketValue.ToGoldString(), totalQuantity, sumBuyoutCheapAuctions.ToGoldString()));
-            return new ItemFlipResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions, NetProfit = 0, PercentProfit = 0 };
+            return new ItemBuyResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions };
         }
 
         public void SimulateResettingItem(int itemId, int buyingPercentageValue, int sellingPercentageValue)

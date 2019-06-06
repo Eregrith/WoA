@@ -225,7 +225,7 @@ namespace WoA.Lib.Commands.Handlers
         public Task Handle(BundleBuyCommand notification, CancellationToken cancellationToken)
         {
             Dictionary<int, int> bundle = _itemsBundler.GetItems();
-            List<ItemFlipResult> itemFlipResults = new List<ItemFlipResult>();
+            List<ItemBuyResult> itemFlipResults = new List<ItemBuyResult>();
 
             _console.WriteLine($"Buying current bundle's items at {notification.PercentMax}% of market value :");
             _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}", "Item", "Market Price", "Qty available", "Total buyout"));
