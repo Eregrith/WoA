@@ -29,6 +29,29 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
+    [WoACommand(RegexToMatch = "^bundle remove (?:(?<itemQuantity>[0-9]+) )?(?<itemDesc>.+)")]
+    public class BundleRemoveCommand : INotification
+    {
+        public string ItemDescription { get; set; }
+        public int ItemQuantity { get; set; }
+        public bool RemoveAllQuantity { get; set; }
+
+        public BundleRemoveCommand(Match m)
+        {
+            ItemDescription = m.Groups["itemDesc"].Value;
+            if (!String.IsNullOrEmpty(m.Groups["itemQuantity"].Value))
+            {
+                ItemQuantity = int.Parse(m.Groups["itemQuantity"].Value);
+                RemoveAllQuantity = false;
+            }
+            else
+            {
+                ItemQuantity = 0;
+                RemoveAllQuantity = true;
+            }
+        }
+    }
+
     [WoACommand(RegexToMatch = "^bundle save (?<bundleName>.+)", Description = "Save the current bundle")]
     public class BundleSaveCommand : INotification
     {

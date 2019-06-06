@@ -46,8 +46,11 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine();
             _console.WriteLine(String.Format("{0,-40}", "bundle add <item description>"));
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle add <quantity> <item description>", "Adds <quantity> (default 1) of given item to the bundle"));
+            _console.WriteLine(String.Format("{0,-40}", "bundle remove <item description>"));
+            _console.WriteLine(String.Format("{0,-40} : {1}", "bundle remove <quantity> <item description>", "Remove item or <quantity> (default all) of given item to the bundle"));
             _console.WriteLine();
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle flip", "Shows a summary of potential flips for items in the bundle"));
+            _console.WriteLine(String.Format("{0,-40} : {1}", "bundle buy", "Shows a summary of total buying price for items in the bundle"));
             _console.WriteLine();
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle list", "Lists all items in the current bundle and their tsm prices"));
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle clear", "Empties the current bundle of all items"));

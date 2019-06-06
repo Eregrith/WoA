@@ -14,6 +14,7 @@ namespace WoA.Lib.Commands.Handlers
 {
     public class BundleCommandsHandler
         : INotificationHandler<BundleAddCommand>
+        , INotificationHandler<BundleRemoveCommand>
         , INotificationHandler<BundleSaveCommand>
         , INotificationHandler<BundleLoadCommand>
         , INotificationHandler<BundleShowSavedCommand>
