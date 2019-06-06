@@ -17,6 +17,7 @@ namespace WoA.Lib.Commands.Handlers
         , INotificationHandler<BundleRemoveCommand>
         , INotificationHandler<BundleSaveCommand>
         , INotificationHandler<BundleLoadCommand>
+        , INotificationHandler<BundleDeleteSaveCommand>
         , INotificationHandler<BundleShowSavedCommand>
         , INotificationHandler<BundleListCommand>
         , INotificationHandler<BundleClearCommand>
@@ -153,6 +154,22 @@ namespace WoA.Lib.Commands.Handlers
                     _console.WriteLine(quantity + " x " + tsmItem.Name + " added to bundle");
                 }
                 _console.WriteLine($"{notification.BundleName} loaded");
+            }
+            else
+            {
+                _console.WriteLine($"No bundle found with name : {notification.BundleName}");
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(BundleDeleteSaveCommand notification, CancellationToken cancellationToken)
+        {
+            ItemBundle itemBundle = _repo.GetById<ItemBundle>(notification.BundleName);
+            if (itemBundle != null && !string.IsNullOrWhiteSpace(itemBundle.ItemsId))
+            {
+                _repo.Delete(itemBundle);
+                _console.WriteLine($"{notification.BundleName} deleted");
             }
             else
             {

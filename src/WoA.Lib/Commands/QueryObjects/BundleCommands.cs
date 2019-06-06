@@ -74,6 +74,17 @@ namespace WoA.Lib.Commands.QueryObjects
         }
     }
 
+    [WoACommand(RegexToMatch = "^bundle delete save (?<bundleName>.+)", Description = "Delete the selected bundle")]
+    public class BundleDeleteSaveCommand : INotification
+    {
+        public string BundleName { get; set; }
+
+        public BundleDeleteSaveCommand(Match m)
+        {
+            BundleName = m.Groups["bundleName"].Value;
+        }
+    }
+
     [WoACommand(RegexToMatch = "^bundle list", Description = "Shows the bundle's contents and price")]
     public class BundleListCommand : INotification
     {

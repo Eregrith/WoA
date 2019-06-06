@@ -57,6 +57,7 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine();
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle save <bundle name>", "Saves the bundle as <bundle name>"));
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle load <bundle name>", "Loads the bundle of given name"));
+            _console.WriteLine(String.Format("{0,-40} : {1}", "bundle delete save <bundle name>", "Delete the bundle of given name"));
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle show saved", "Shows saved bundles"));
             _console.WriteLine();
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle export tsm", "Copies to clipboard the TSM import string for current bundle"));
