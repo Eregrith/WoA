@@ -25,13 +25,13 @@ namespace WorldOfAuctions
             _stylesheet.AddStyle("30m", Color.Red);
 
             _stylesheet.AddStyle("(" + string.Join("|", config.PlayerToons) + ")", Color.SteelBlue);
-
-            _stylesheet.AddStyle(@"---[a-zA-Z\-0-9 :\(\)']+---", Color.Gray, match => match.Substring(3, match.Length - 6));
-            _stylesheet.AddStyle(@"===[a-zA-Z\-0-9 :\(\)']+===", Color.White, match => match.Substring(3, match.Length - 6));
-            _stylesheet.AddStyle(@"\[\[\[[a-zA-Z\-0-9 :\(\)']+\]\]\]", Color.Green, match => match.Substring(3, match.Length-6));
-            _stylesheet.AddStyle(@"\{\{\{[a-zA-Z\-0-9 :\(\)']+\}\}\}", Color.DeepSkyBlue, match => match.Substring(3, match.Length - 6));
-            _stylesheet.AddStyle(@"\+\+\+[a-zA-Z\-0-9 :\(\)']+\+\+\+", Color.MediumVioletRed, match => match.Substring(3, match.Length - 6));
-            _stylesheet.AddStyle(@"\{\+\+[a-zA-Z\-0-9 :\(\)']+\+\+\}", Color.Orange, match => match.Substring(3, match.Length - 6));
+            string itemRegex = @"[a-zA-Z\-0-9 :\(\)\.']+";
+            _stylesheet.AddStyle($"---{itemRegex}---", Color.Gray, match => match.Substring(3, match.Length - 6));
+            _stylesheet.AddStyle($@"==={itemRegex}===", Color.White, match => match.Substring(3, match.Length - 6));
+            _stylesheet.AddStyle($@"\[\[\[{itemRegex}\]\]\]", Color.Green, match => match.Substring(3, match.Length-6));
+            _stylesheet.AddStyle($@"\{{\{{\{{{itemRegex}\}}\}}\}}", Color.DeepSkyBlue, match => match.Substring(3, match.Length - 6));
+            _stylesheet.AddStyle($@"\+\+\+{itemRegex}\+\+\+", Color.MediumVioletRed, match => match.Substring(3, match.Length - 6));
+            _stylesheet.AddStyle($@"\{{\+\+{itemRegex}\+\+\}}", Color.Orange, match => match.Substring(3, match.Length - 6));
         }
 
         public void WriteLine(string line)
