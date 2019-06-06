@@ -61,6 +61,7 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle show saved", "Shows saved bundles"));
             _console.WriteLine();
             _console.WriteLine(String.Format("{0,-40} : {1}", "bundle export tsm", "Copies to clipboard the TSM import string for current bundle"));
+            _console.WriteLine(String.Format("{0,-40} : {1}", "bundle import tsm", "Replaces current bundle from given TSM import string"));
             return Task.CompletedTask;
         }
 
