@@ -17,6 +17,7 @@ namespace WoA.Lib.Commands.Handlers
         , INotificationHandler<SpySellerUsageCommand>
         , INotificationHandler<TsmInfoUsageCommand>
         , INotificationHandler<UndermineJournalUsageCommand>
+        , INotificationHandler<WowuctionUsageCommand>
         , INotificationHandler<WhatIsItemUsageCommand>
         , INotificationHandler<WhoIsUsageCommand>
     {
@@ -116,7 +117,7 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine();
             _console.WriteLine("Usage:");
             _console.WriteLine();
-            _console.WriteLine(String.Format("{0,-30} : {1}", "tsm <iem description>", "Shows TSM info on given item."));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "tsm <item description>", "Shows TSM info on given item."));
             return Task.CompletedTask;
         }
 
@@ -126,7 +127,17 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine();
             _console.WriteLine("Usage:");
             _console.WriteLine();
-            _console.WriteLine(String.Format("{0,-30} : {1}", "tuj <iem description>", "Opens The Undermine Journal page for given item."));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "tuj <item description>", "Opens The Undermine Journal page for given item."));
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(WowuctionUsageCommand notification, CancellationToken cancellationToken)
+        {
+            _console.WriteAscii("wowuction");
+            _console.WriteLine();
+            _console.WriteLine("Usage:");
+            _console.WriteLine();
+            _console.WriteLine(String.Format("{0,-30} : {1}", "wowuction <item description>", "Opens Wowuction page for given item."));
             return Task.CompletedTask;
         }
 
@@ -137,7 +148,7 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine("Usage:");
             _console.WriteLine();
             _console.WriteLine(String.Format("{0,-30}", "what is <item description>"));
-            _console.WriteLine(String.Format("{0,-30} : {1}", "whatis <iem description>", "Opens wowhead's page for given item."));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "whatis <item description>", "Opens wowhead's page for given item."));
             return Task.CompletedTask;
         }
 
