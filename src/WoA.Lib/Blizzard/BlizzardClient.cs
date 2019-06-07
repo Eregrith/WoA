@@ -16,12 +16,14 @@ namespace WoA.Lib.Blizzard
         private readonly IGenericRepository _repo;
         private string _token;
         public List<Auction> Auctions { get; private set; }
+        private long _lastFileGot;
 
         public BlizzardClient(IConfiguration config, IStylizedConsole console, IGenericRepository repo)
         {
             _config = config;
             _console = console;
             _repo = repo;
+            _lastFileGot = 0;
         }
 
         public void LoadAuctions()
@@ -32,12 +34,17 @@ namespace WoA.Lib.Blizzard
 
             _token = GetAccessToken();
 
-            string fileUrl = GetAuctionFileUrl();
-
-            Auctions = GetAuctions(fileUrl);
+            AuctionApiResponse file = GetAuctionFile();
+            if (file.files.First().lastModified > _lastFileGot)
+            {
+                _console.WriteNotificationLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
+                Auctions = GetAuctions(file.files.First().url);
+                _lastFileGot = file.files.First().lastModified;
+            }
+            else
+                _console.WriteNotificationLine($"BLI > No new data fetched");
 
             stopwatch.Stop();
-            _console.WriteNotificationLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
         }
 
         private List<Auction> GetAuctions(string fileUrl)
@@ -49,14 +56,13 @@ namespace WoA.Lib.Blizzard
             return JsonConvert.DeserializeObject<AuctionFileContents>(response.Content).auctions;
         }
 
-        private string GetAuctionFileUrl()
+        private AuctionApiResponse GetAuctionFile()
         {
             string fileUrl;
             IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/auction/data/" + _config.CurrentRealm);
 
             var auctionApiResponse = JsonConvert.DeserializeObject<AuctionApiResponse>(response.Content);
-            fileUrl = auctionApiResponse.files.First().url;
-            return fileUrl;
+            return auctionApiResponse;
         }
 
         private IRestResponse CallBlizzardAPI(string url)
