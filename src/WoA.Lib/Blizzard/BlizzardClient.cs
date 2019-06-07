@@ -38,7 +38,7 @@ namespace WoA.Lib.Blizzard
             AuctionApiResponse file = GetAuctionFile();
             if (file.files.First().lastModified > _lastFileGot)
             {
-                ProcessAuctions(file.files.First().url);
+                ProcessAuctions(file.files.First().url, file.files.First().lastModified);
                 Auctions = _repo.GetAll<Auction>().ToList();
                 _lastFileGot = file.files.First().lastModified;
                 _console.WriteNotificationLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
@@ -49,24 +49,28 @@ namespace WoA.Lib.Blizzard
             stopwatch.Stop();
         }
 
-        private void ProcessAuctions(string url)
+        private void ProcessAuctions(string url, long timestamp)
         {
             List<Auction> auctionsFromFile = GetAuctions(url);
 
-            UpdateOrDeleteExistingAuctions(auctionsFromFile);
+            UpdateOrDeleteExistingAuctions(auctionsFromFile, timestamp);
             InsertNewAuctions(auctionsFromFile);
         }
 
-        private void UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile)
+        private void UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile, long timestamp)
         {
             var savedAuctions = _repo.GetAll<Auction>();
             int updated = 0;
             int removed = 0;
+            List<Auction> playerAuctionProbablySold = new List<Auction>();
             foreach (Auction savedAuction in savedAuctions)
             {
                 var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.auc == savedAuction.auc);
                 if (updatedAuction == null)
                 {
+                    if (_config.PlayerToons.Contains(savedAuction.owner)
+                        && savedAuction.timeLeft.ToHoursLeft() > new TimeSpan(timestamp - _lastFileGot).TotalHours)
+                        playerAuctionProbablySold.Add(savedAuction);
                     _repo.Delete(savedAuction);
                     removed++;
                 }
@@ -80,6 +84,23 @@ namespace WoA.Lib.Blizzard
                 _console.WriteNotificationLine($"BLI > {updated} auctions updated.");
             if (removed > 0)
                 _console.WriteNotificationLine($"BLI > {removed} auctions removed.");
+            if (playerAuctionProbablySold.Any())
+            {
+                _console.WriteNotificationLine($"BLI > {playerAuctionProbablySold.Count} of your auctions probably sold (or were cancelled before timing out).");
+                foreach (Auction a in playerAuctionProbablySold)
+                {
+                    WowItem item = GetItem(a.item);
+                    WowQuality quality = (WowQuality)item.quality;
+                    string name = item.name;
+                    _console.WriteLine(String.Format("{0,46}{1,20}{2,4}{3,20}{4,15}{5,4}"
+                        , name.WithQuality(quality)
+                        , a.PricePerItem.ToGoldString()
+                        , a.quantity
+                        , a.buyout.ToGoldString()
+                        , a.owner
+                        , a.timeLeft.ToAuctionTimeString()));
+                }
+            }
         }
 
         private void InsertNewAuctions(List<Auction> auctionsFromFile)

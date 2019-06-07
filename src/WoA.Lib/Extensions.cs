@@ -26,6 +26,22 @@ namespace WoA.Lib
                     return auctionTimeLeft;
             }
         }
+        public static int ToHoursLeft(this string auctionTimeLeft)
+        {
+            switch (auctionTimeLeft)
+            {
+                case "VERY_LONG":
+                    return 48;
+                case "LONG":
+                    return 24;
+                case "MEDIUM":
+                    return 12;
+                case "SHORT":
+                    return 2;
+                default:
+                    return 0;
+            }
+        }
 
         public static string ToGoldString(this long value)
         {
