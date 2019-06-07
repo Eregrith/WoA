@@ -28,7 +28,7 @@ namespace WoA.Lib.Blizzard
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            _console.WriteLine($"BLI > Loading auctions for realm " + _config.CurrentRealm);
+            _console.WriteNotificationLine($"BLI > Loading auctions for realm " + _config.CurrentRealm + " started.");
 
             _token = GetAccessToken();
 
@@ -37,7 +37,7 @@ namespace WoA.Lib.Blizzard
             Auctions = GetAuctions(fileUrl);
 
             stopwatch.Stop();
-            _console.WriteLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + " ms");
+            _console.WriteNotificationLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
         }
 
         private List<Auction> GetAuctions(string fileUrl)

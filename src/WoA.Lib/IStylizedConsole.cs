@@ -13,5 +13,7 @@ namespace WoA.Lib
         void StartAlternating();
         void WriteLineWithAlternatingBackground(string line);
         void StopAlternating();
+        void FlushNotificationLines();
+        void WriteNotificationLine(string line);
     }
 }

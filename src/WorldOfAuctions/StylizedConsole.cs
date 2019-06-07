@@ -1,6 +1,8 @@
 ﻿using Colorful;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using WoA.Lib;
 
@@ -11,6 +13,7 @@ namespace WorldOfAuctions
         private readonly StyleSheet _stylesheet;
         private ColorAlternator _currentAlternator;
         private Color _savedBackground;
+        private readonly List<string> _notifications = new List<string>();
 
         public StylizedConsole(IConfiguration config)
         {
@@ -43,11 +46,16 @@ namespace WorldOfAuctions
         {
             Console.WriteLine();
         }
+        public void WriteNotificationLine(string line)
+        {
+            _notifications.Add(line);
+        }
 
         public void WriteAscii(string line)
         {
             Console.WriteAscii(RemoveDiacritics(line), Color.White);
         }
+
         private string RemoveDiacritics(string text)
         {
             var normalizedString = text.Normalize(NormalizationForm.FormD);
@@ -93,6 +101,16 @@ namespace WorldOfAuctions
         {
             Console.BackgroundColor = _savedBackground;
             _currentAlternator = null;
+        }
+
+        public void FlushNotificationLines()
+        {
+            List<string> snapshotOfNotifications = _notifications.ToList();
+            foreach (string notification in snapshotOfNotifications)
+            {
+                Console.WriteLineStyled("[Notif] " + notification, _stylesheet);
+            }
+            _notifications.RemoveAll(n => snapshotOfNotifications.Contains(n));
         }
     }
 }

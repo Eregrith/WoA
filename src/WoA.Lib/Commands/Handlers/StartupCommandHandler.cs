@@ -27,7 +27,6 @@ namespace WoA.Lib.Commands.Handlers
         {
             _console.WriteLine($"World of Auctions v{notification.CurrentVersion} started");
             _tsm.RefreshTsmItemsInRepository();
-            _blizzard.LoadAuctions();
             return Task.CompletedTask;
         }
     }

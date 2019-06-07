@@ -23,11 +23,14 @@ namespace WorldOfAuctions
             try
             {
                 _mediator.Publish(new StartupCommand { CurrentVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion });
+                _mediator.Publish(new StartPeriodicRefreshOfAuctionsCommand());
 
+                _console.WriteLine("Type 'help' for a list of commands");
                 string line;
                 do
                 {
                     Console.ForegroundColor = ConsoleColor.White;
+                    _console.FlushNotificationLines();
                     _console.Write("> ", System.Drawing.Color.White);
                     line = Console.ReadLine();
                     if (!String.IsNullOrEmpty(line) && line != "exit")
