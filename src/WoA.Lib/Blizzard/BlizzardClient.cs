@@ -160,6 +160,10 @@ namespace WoA.Lib.Blizzard
         {
             IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/character/" + realm.ToLower() + "/" + characterName);
 
+            var statusResponse = JsonConvert.DeserializeObject<WowStatusResponse>(response.Content);
+            if (statusResponse.status == "nok")
+                throw new CharacterInfoException(statusResponse.reason);
+
             return JsonConvert.DeserializeObject<CharacterProfile>(response.Content);
         }
 

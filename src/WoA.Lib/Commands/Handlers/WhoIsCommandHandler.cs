@@ -31,11 +31,18 @@ namespace WoA.Lib.Commands.Handlers
             }
             _console.WriteAscii(notification.SellerName);
             string sellerRealm = _blizzard.Auctions.First(a => a.owner == notification.SellerName).ownerRealm;
-            CharacterProfile seller = _blizzard.GetInfosOnCharacter(notification.SellerName, sellerRealm);
+            try
+            {
+                CharacterProfile seller = _blizzard.GetInfosOnCharacter(notification.SellerName, sellerRealm);
 
-            _console.WriteLine(String.Format("Lvl {0} {1} {2} {3} ({4})", seller.level, seller.Gender, seller.RaceName, seller.ClassName, seller.Faction));
-            _console.WriteLine(String.Format("{0} achievement points", seller.achievementPoints));
-            _console.WriteLine(String.Format("{0} honorable kills", seller.totalHonorableKills));
+                _console.WriteLine(String.Format("Lvl {0} {1} {2} {3} ({4})", seller.level, seller.Gender, seller.RaceName, seller.ClassName, seller.Faction));
+                _console.WriteLine(String.Format("{0} achievement points", seller.achievementPoints));
+                _console.WriteLine(String.Format("{0} honorable kills", seller.totalHonorableKills));
+            }
+            catch (CharacterInfoException e)
+            {
+                _console.WriteLine("Could not gather info on " + notification.SellerName + " : " + e.Message);
+            }
             return Task.CompletedTask;
         }
     }
