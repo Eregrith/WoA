@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,8 @@ namespace WoA.Lib
 
     public class Auction
     {
+        [PrimaryKey]
+        public string auc { get; set; }
         public int item { get; set; }
         public string owner { get; set; }
         public string ownerRealm { get; set; }
@@ -28,5 +31,6 @@ namespace WoA.Lib
         public int quantity { get; set; }
         public string timeLeft { get; set; }
         public long PricePerItem => buyout / quantity;
+        public DateTime FirstSeenOn { get; set; }
     }
 }

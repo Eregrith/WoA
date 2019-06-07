@@ -15,8 +15,8 @@ namespace WoA.Lib.Blizzard
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
         private string _token;
-        public List<Auction> Auctions { get; private set; }
         private long _lastFileGot;
+        public List<Auction> Auctions { get; set; }
 
         public BlizzardClient(IConfiguration config, IStylizedConsole console, IGenericRepository repo)
         {
@@ -24,6 +24,7 @@ namespace WoA.Lib.Blizzard
             _console = console;
             _repo = repo;
             _lastFileGot = 0;
+            Auctions = _repo.GetAll<Auction>().ToList();
         }
 
         public void LoadAuctions()
@@ -37,14 +38,58 @@ namespace WoA.Lib.Blizzard
             AuctionApiResponse file = GetAuctionFile();
             if (file.files.First().lastModified > _lastFileGot)
             {
-                _console.WriteNotificationLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
-                Auctions = GetAuctions(file.files.First().url);
+                ProcessAuctions(file.files.First().url);
+                Auctions = _repo.GetAll<Auction>().ToList();
                 _lastFileGot = file.files.First().lastModified;
+                _console.WriteNotificationLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
             }
             else
                 _console.WriteNotificationLine($"BLI > No new data fetched");
 
             stopwatch.Stop();
+        }
+
+        private void ProcessAuctions(string url)
+        {
+            List<Auction> auctionsFromFile = GetAuctions(url);
+
+            UpdateOrDeleteExistingAuctions(auctionsFromFile);
+            InsertNewAuctions(auctionsFromFile);
+        }
+
+        private void UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile)
+        {
+            var savedAuctions = _repo.GetAll<Auction>();
+            int updated = 0;
+            int removed = 0;
+            foreach (Auction savedAuction in savedAuctions)
+            {
+                var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.auc == savedAuction.auc);
+                if (updatedAuction == null)
+                {
+                    _repo.Delete(savedAuction);
+                    removed++;
+                }
+                else
+                {
+                    _repo.Update(updatedAuction);
+                    updated++;
+                }
+            }
+            if (updated > 0)
+                _console.WriteNotificationLine($"BLI > {updated} auctions updated.");
+            if (removed > 0)
+                _console.WriteNotificationLine($"BLI > {removed} auctions removed.");
+        }
+
+        private void InsertNewAuctions(List<Auction> auctionsFromFile)
+        {
+            var savedAuctions = _repo.GetAll<Auction>();
+            var newAuctions = auctionsFromFile.Where(a => !savedAuctions.Any(r => r.auc == a.auc)).ToList();
+            newAuctions.ForEach(a => a.FirstSeenOn = DateTime.Now);
+            _repo.AddAll(newAuctions);
+            if (newAuctions.Count > 0)
+                _console.WriteNotificationLine($"BLI > {newAuctions.Count} new auctions.");
         }
 
         private List<Auction> GetAuctions(string fileUrl)

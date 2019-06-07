@@ -22,6 +22,7 @@ namespace WoA.Lib.SQLite
             _context.CreateTable<TsmItem>();
             _context.CreateTable<TsmRealmData>();
             _context.CreateTable<ItemBundle>();
+            _context.CreateTable<Auction>();
             _context.CreateTable<WowItem>();
         }
 
