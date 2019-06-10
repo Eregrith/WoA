@@ -92,7 +92,7 @@ namespace WoA.Lib.Blizzard
                     WowItem item = GetItem(a.item);
                     WowQuality quality = (WowQuality)item.quality;
                     string name = item.name;
-                    _console.WriteNotificationLine(String.Format("{0,46}{1,20}{2,4}{3,20}{4,15}{5,4}"
+                    _console.WriteNotificationLine(String.Format("{0,46}{1,20} x{2,3}{3,20}{4,15}{5,4}"
                         , name.WithQuality(quality)
                         , a.PricePerItem.ToGoldString()
                         , a.quantity

@@ -155,20 +155,23 @@ namespace WoA.Lib
 
         public void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions)
         {
-            _console.WriteLine(String.Format("{0,40}{1,20}{2,12}{3,10}{4,20}{5,15}", "Item name", "Price per item", "Quantity", "Time Left", "Buyout total", "Seller"));
+            _console.WriteLine(String.Format("{0,40}{1,20}{2,12}{3,10}{4,20}{5,15}{6,14}", "Item name", "Price per item", "Quantity", "Time Left", "Buyout total", "Seller", "% MarketValue"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item, a.timeLeft }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
                 WowItem item = _blizzard.GetItem(auctionGroup.First().item);
+                TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
+                string percentDbMarket = tsmItem != null ? Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue).ToString() : "unknown";
                 WowQuality quality = (WowQuality)item.quality;
                 string name = item.name;
-                _console.WriteLine(String.Format("{5,46}{0,20}{1,7}x {2,3}{6,10}{3,20}{4,15}"
+                _console.WriteLine(String.Format("{0,46}{1,20}{2,7}x {3,3}{4,10}{5,20}{6,15}{7,12} %"
+                    , name.WithQuality(quality)
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
+                    , auctionGroup.Key.timeLeft.ToAuctionTimeString()
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).ToGoldString()
                     , auctionGroup.Key.owner
-                    , name.WithQuality(quality)
-                    , auctionGroup.Key.timeLeft.ToAuctionTimeString()));
+                    , percentDbMarket));
             }
 
             _console.WriteLine(String.Format("{0,20}{1,12}{2,20}"
@@ -176,17 +179,20 @@ namespace WoA.Lib
                 , auctions.Sum(a => a.quantity)
                 , auctions.Sum(a => a.buyout).ToGoldString()));
 
-            _console.WriteLine(String.Format("{0,45}", "Grand total per item"));
+            _console.WriteLine(String.Format("{0,45}{1,12}{1,20}{2,20}", "Grand total per item", "", "Average %MarketValue"));
 
             foreach (var auctionGroup in auctions.GroupBy(a => a.item).OrderByDescending(g => g.Sum(a => a.buyout)))
             {
                 WowItem item = _blizzard.GetItem(auctionGroup.First().item);
+                TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item);
+                string percentDbMarket = tsmItem != null ? Math.Round(auctionGroup.Average(a => (a.PricePerItem * 100.0) / tsmItem.MarketValue), 2).ToString() : "unknown";
                 WowQuality quality = (WowQuality)item.quality;
                 string name = item.name;
-                _console.WriteLine(String.Format("{0,51}{1,12}{2,20}"
+                _console.WriteLine(String.Format("{0,51}{1,12}{2,20}{3,18:0.00} %"
                     , name.WithQuality(quality)
                     , auctionGroup.Sum(a => a.quantity)
-                    , auctionGroup.Sum(a => a.buyout).ToGoldString()));
+                    , auctionGroup.Sum(a => a.buyout).ToGoldString()
+                    , percentDbMarket));
             }
         }
 
