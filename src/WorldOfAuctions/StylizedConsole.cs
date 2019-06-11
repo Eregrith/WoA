@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using WoA.Lib;
@@ -35,6 +36,8 @@ namespace WorldOfAuctions
             _stylesheet.AddStyle($@"\{{\{{\{{{itemRegex}\}}\}}\}}", Color.DeepSkyBlue, match => match.Substring(3, match.Length - 6));
             _stylesheet.AddStyle($@"\+\+\+{itemRegex}\+\+\+", Color.MediumVioletRed, match => match.Substring(3, match.Length - 6));
             _stylesheet.AddStyle($@"\{{\+\+{itemRegex}\+\+\}}", Color.Orange, match => match.Substring(3, match.Length - 6));
+
+            Console.SetIn(new StreamReader(Console.OpenStandardInput(8192), Console.InputEncoding, false, 8192));
         }
 
         public void WriteLine(string line)
