@@ -31,13 +31,13 @@ namespace WoA.Lib
             switch (auctionTimeLeft)
             {
                 case "VERY_LONG":
-                    return 48;
-                case "LONG":
                     return 24;
-                case "MEDIUM":
+                case "LONG":
                     return 12;
+                case "MEDIUM":
+                    return 1;
                 case "SHORT":
-                    return 2;
+                    return 0;
                 default:
                     return 0;
             }

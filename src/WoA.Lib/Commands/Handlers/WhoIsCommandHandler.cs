@@ -41,7 +41,7 @@ namespace WoA.Lib.Commands.Handlers
             }
             catch (CharacterInfoException e)
             {
-                _console.WriteLine("Could not gather info on " + notification.SellerName + " : " + e.Message);
+                _console.WriteLine("Could not gather info on " + notification.SellerName + "-" + sellerRealm + " : " + e.Message);
             }
             return Task.CompletedTask;
         }

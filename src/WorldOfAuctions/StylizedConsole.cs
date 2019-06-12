@@ -51,7 +51,7 @@ namespace WorldOfAuctions
         }
         public void WriteNotificationLine(string line)
         {
-            _notifications.Add(line);
+            _notifications.Add($"[Notif {System.DateTime.Now.ToShortTimeString()}] " + line);
         }
 
         public void WriteAscii(string line)
@@ -111,7 +111,7 @@ namespace WorldOfAuctions
             List<string> snapshotOfNotifications = _notifications.ToList();
             foreach (string notification in snapshotOfNotifications)
             {
-                Console.WriteLineStyled("[Notif] " + notification, _stylesheet);
+                Console.WriteLineStyled(notification, _stylesheet);
             }
             _notifications.RemoveAll(n => snapshotOfNotifications.Contains(n));
         }
