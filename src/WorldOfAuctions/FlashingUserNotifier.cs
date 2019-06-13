@@ -72,7 +72,7 @@ namespace WorldOfAuctions
 
         public void Toast(string v)
         {
-            ShowTextToast("WoA", "World Of Auctions", v);
+            ShowImageToast("WoA", "World Of Auctions", v, Path.GetFullPath("WoA.png"));
         }
 
         public FlashingUserNotifier()

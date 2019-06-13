@@ -84,6 +84,7 @@ namespace WoA.Lib.Blizzard
                 }
                 else
                 {
+		    updatedAuction.FirstSeenOn = savedAuction.FirstSeenOn;
                     _repo.Update(updatedAuction);
                     updated++;
                 }

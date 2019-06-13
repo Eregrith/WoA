@@ -206,7 +206,7 @@ namespace WoA.Lib
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).ToGoldString()
-                    , auctionGroup.Key.timeLeft.ToAuctionTimeString() + "      " + auctionGroup.Key.FirstSeenOn.ToString("MM/dd hh:mm") + "  "
+                    , auctionGroup.Key.timeLeft.ToAuctionTimeString() + "      " + auctionGroup.Key.FirstSeenOn.ToString("MM/dd HH:mm") + "  "
                     , auctionGroup.Key.owner
                     , Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)));
             }
