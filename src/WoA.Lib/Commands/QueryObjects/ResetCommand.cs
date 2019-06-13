@@ -5,7 +5,7 @@ using WoA.Lib.Commands.Attributes;
 namespace WoA.Lib.Commands.QueryObjects
 {
     [WoACommand(
-        RegexToMatch = @"^eset (?:'(?<itemDesc>[^']+)'(?: (?<maxBuyPercent>[0-9]+)%? (?<sellPricePercent>[0-9]+)%?)|(?<itemDesc>.+))",
+        RegexToMatch = @"^reset (?:'(?<itemDesc>[^']+)'(?: (?<maxBuyPercent>[0-9]+)%? (?<sellPricePercent>[0-9]+)%?)|(?<itemDesc>.+))",
         Description = "Look at potential resetting for given item (buy all items up to 90% dbmarket and sell them all at 110% dbmarket)",
         DisplayedInHelp = true
     )]
