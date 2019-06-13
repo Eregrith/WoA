@@ -25,7 +25,7 @@ namespace WoA.Lib.Commands.Handlers
         {
             _timer = new Timer(RefreshAuctions, null, TimeSpan.Zero, TimeSpan.FromMinutes(10));
             _console.WriteLine("Automatic periodic refresh of auctions started. Auctions will be scanned for an update every ten minutes.");
-            _console.WriteLine("Notifications will pop after any user interaction when the updates have happened.");
+            _console.WriteLine("Notifications will pop when the updates happen.");
             return Task.CompletedTask;
         }
 

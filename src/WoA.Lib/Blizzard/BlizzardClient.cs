@@ -34,7 +34,8 @@ namespace WoA.Lib.Blizzard
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            _console.WriteNotificationLine($"BLI > Loading auctions for realm " + _config.CurrentRealm + " started.");
+
+            _notifier.Toast($"Loading auctions for realm " + _config.CurrentRealm + " started");
 
             _token = GetAccessToken();
 
@@ -44,10 +45,9 @@ namespace WoA.Lib.Blizzard
                 ProcessAuctions(file.files.First().url, file.files.First().lastModified);
                 Auctions = _repo.GetAll<Auction>().ToList();
                 _lastFileGot = file.files.First().lastModified;
-                _console.WriteNotificationLine($"BLI > Got {Auctions.Count} auctions from the file for realm " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
             }
             else
-                _console.WriteNotificationLine($"BLI > No new data fetched");
+                _notifier.Toast($"No new auctions processed.");
 
             stopwatch.Stop();
         }
@@ -56,11 +56,16 @@ namespace WoA.Lib.Blizzard
         {
             List<Auction> auctionsFromFile = GetAuctions(url);
 
-            UpdateOrDeleteExistingAuctions(auctionsFromFile, timestamp);
-            InsertNewAuctions(auctionsFromFile);
+            (int updated, int removed) = UpdateOrDeleteExistingAuctions(auctionsFromFile, timestamp);
+            int added = InsertNewAuctions(auctionsFromFile);
+
+            _notifier.Toast($"{auctionsFromFile.Count} auctions processed"
+                            + Environment.NewLine + $"{updated} updated"
+                            + Environment.NewLine + $"{added} new"
+                            + Environment.NewLine + $"{removed} removed");
         }
 
-        private void UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile, long timestamp)
+        private (int, int) UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile, long timestamp)
         {
             var savedAuctions = _repo.GetAll<Auction>();
             int updated = 0;
@@ -83,13 +88,11 @@ namespace WoA.Lib.Blizzard
                     updated++;
                 }
             }
-            if (updated > 0)
-                _console.WriteNotificationLine($"BLI > {updated} auctions updated.");
-            if (removed > 0)
-                _console.WriteNotificationLine($"BLI > {removed} auctions removed.");
+
             if (playerAuctionProbablySold.Any())
             {
                 _notifier.NotifySomethingNew();
+                _notifier.Toast($"{playerAuctionProbablySold} of your auctions probably sold for a total of {playerAuctionProbablySold.Sum(a => a.buyout).ToGoldString()}.");
                 _console.WriteNotificationLine($"BLI > {playerAuctionProbablySold.Count} of your auctions probably sold (or were cancelled before timing out).");
                 foreach (Auction a in playerAuctionProbablySold)
                 {
@@ -105,16 +108,17 @@ namespace WoA.Lib.Blizzard
                         , a.timeLeft.ToAuctionTimeString()));
                 }
             }
+
+            return (updated, removed);
         }
 
-        private void InsertNewAuctions(List<Auction> auctionsFromFile)
+        private int InsertNewAuctions(List<Auction> auctionsFromFile)
         {
             var savedAuctions = _repo.GetAll<Auction>();
             var newAuctions = auctionsFromFile.Where(a => !savedAuctions.Any(r => r.auc == a.auc)).ToList();
             newAuctions.ForEach(a => a.FirstSeenOn = DateTime.Now);
             _repo.AddAll(newAuctions);
-            if (newAuctions.Count > 0)
-                _console.WriteNotificationLine($"BLI > {newAuctions.Count} new auctions.");
+            return newAuctions.Count;
         }
 
         private List<Auction> GetAuctions(string fileUrl)

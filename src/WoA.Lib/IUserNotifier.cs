@@ -8,5 +8,6 @@ namespace WoA.Lib
     {
         void NotifySomethingNew();
         void ClearNotifications();
+        void Toast(string v);
     }
 }
