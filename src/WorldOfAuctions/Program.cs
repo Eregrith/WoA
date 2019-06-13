@@ -35,6 +35,7 @@ namespace WorldOfAuctions
             builder.RegisterType<GenericRepository>().As<IGenericRepository>().SingleInstance();
             builder.RegisterType<ItemBundler>().As<IItemsBundler>();
             builder.RegisterType<ClipboardManager>().As<IClipboardManager>();
+            builder.RegisterType<FlashingUserNotifier>().As<IUserNotifier>();
             builder.RegisterType<Mediator>()
                 .As<IMediator>()
                 .SingleInstance();

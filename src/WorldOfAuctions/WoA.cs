@@ -11,11 +11,13 @@ namespace WorldOfAuctions
     {
         private readonly IStylizedConsole _console;
         private readonly IMediator _mediator;
+        private readonly IUserNotifier _notifier;
 
-        public WoA(IStylizedConsole console, IMediator mediator)
+        public WoA(IStylizedConsole console, IMediator mediator, IUserNotifier notifier)
         {
             _console = console;
             _mediator = mediator;
+            _notifier = notifier;
         }
 
         public void Run()
@@ -33,6 +35,7 @@ namespace WorldOfAuctions
                     _console.FlushNotificationLines();
                     _console.Write("> ", System.Drawing.Color.White);
                     line = Console.ReadLine();
+                    _notifier.ClearNotifications();
                     if (!String.IsNullOrEmpty(line) && line != "exit")
                         _mediator.Publish(new ParseCommand { UserInput = line });
                 } while (line != "exit");

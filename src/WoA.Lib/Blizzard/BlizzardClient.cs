@@ -18,13 +18,16 @@ namespace WoA.Lib.Blizzard
         private long _lastFileGot;
         public List<Auction> Auctions { get; set; }
 
-        public BlizzardClient(IConfiguration config, IStylizedConsole console, IGenericRepository repo)
+        private readonly IUserNotifier _notifier;
+
+        public BlizzardClient(IConfiguration config, IStylizedConsole console, IGenericRepository repo, IUserNotifier notifier)
         {
             _config = config;
             _console = console;
             _repo = repo;
             _lastFileGot = 0;
             Auctions = _repo.GetAll<Auction>().ToList();
+            _notifier = notifier;
         }
 
         public void LoadAuctions()
@@ -86,6 +89,7 @@ namespace WoA.Lib.Blizzard
                 _console.WriteNotificationLine($"BLI > {removed} auctions removed.");
             if (playerAuctionProbablySold.Any())
             {
+                _notifier.NotifySomethingNew();
                 _console.WriteNotificationLine($"BLI > {playerAuctionProbablySold.Count} of your auctions probably sold (or were cancelled before timing out).");
                 foreach (Auction a in playerAuctionProbablySold)
                 {

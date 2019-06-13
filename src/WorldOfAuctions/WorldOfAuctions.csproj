@@ -96,6 +96,7 @@
   <ItemGroup>
     <Compile Include="ClipboardManager.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="FlashingUserNotifier.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StylizedConsole.cs" />
