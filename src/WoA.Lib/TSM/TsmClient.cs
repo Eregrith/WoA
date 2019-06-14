@@ -16,7 +16,6 @@ namespace WoA.Lib.TSM
         private string getUrlFor(string subUrl) => _baseUrl + $"{subUrl}?format=json&apiKey=" + _config.TsmApiKey;
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
-        private readonly IBlizzardClient _blizzard;
 
         public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console)
         {

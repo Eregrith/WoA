@@ -162,6 +162,8 @@ namespace WoA.Lib.Blizzard
 
             var tokenResponse = JsonConvert.DeserializeObject<AccessTokenResponse>(response.Content);
 
+            if (tokenResponse == null)
+                throw new Exception("Could not get access token from blizzard api. Check your settings");
             return tokenResponse.access_token;
         }
 

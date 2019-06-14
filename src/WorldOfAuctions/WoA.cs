@@ -48,25 +48,57 @@ namespace WorldOfAuctions
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                Exception inner = e.InnerException;
+                while (inner != null)
+                {
+                    Console.WriteLine("InnerException: ", inner);
+                    inner = inner.InnerException;
+                }
                 Console.ReadLine();
             }
         }
 
         private void CheckConfig()
         {
-            List<string> configProblems = new List<string>();
+            bool needSave = false;
             if (String.IsNullOrEmpty(_config.CurrentRegion))
-                configProblems.Add("Missing region");
+            {
+                _console.WriteLine("What is your region [eu|us] ?");
+                string line = Console.ReadLine();
+                _config.CurrentRegion = line;
+                needSave = true;
+            }
             if (String.IsNullOrEmpty(_config.CurrentRealm))
-                configProblems.Add("Missing realm");
-            if (String.IsNullOrEmpty(_config.Blizzard_ClientId)
-                || String.IsNullOrEmpty(_config.Blizzard_ClientSecret))
-                configProblems.Add("Blizzard ClientId/ClientSecret are not defined properly");
+            {
+                _console.WriteLine("What is your realm slug (no special chars, example Drek'Thar is drekthar) ?");
+                string line = Console.ReadLine();
+                _config.CurrentRealm = line;
+                needSave = true;
+            }
+            if (String.IsNullOrEmpty(_config.Blizzard_ClientId))
+            {
+                _console.WriteLine("What is your Blizzard Client Id?");
+                string line = Console.ReadLine();
+                _config.Blizzard_ClientId = line;
+                needSave = true;
+            }
+            if (String.IsNullOrEmpty(_config.Blizzard_ClientSecret))
+            {
+                _console.WriteLine("What is your Blizzard Client Secret?");
+                string line = Console.ReadLine();
+                _config.Blizzard_ClientSecret = line;
+                needSave = true;
+            }
             if (String.IsNullOrEmpty(_config.TsmApiKey))
-                configProblems.Add("TSM ApiKey is not defined properly");
+            {
+                _console.WriteLine("What is your TSM ApiKey ?");
+                string line = Console.ReadLine();
+                _config.TsmApiKey = line;
+                needSave = true;
+            }
 
-            if (configProblems.Any())
-                throw new ConfigurationValidationException(configProblems);
+            if (needSave)
+                _config.Save();
         }
     }
 }
