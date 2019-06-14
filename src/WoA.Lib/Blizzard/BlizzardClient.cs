@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using log4net;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -19,8 +20,9 @@ namespace WoA.Lib.Blizzard
         public List<Auction> Auctions { get; set; }
 
         private readonly IUserNotifier _notifier;
+        private readonly ILog _logger;
 
-        public BlizzardClient(IConfiguration config, IStylizedConsole console, IGenericRepository repo, IUserNotifier notifier)
+        public BlizzardClient(IConfiguration config, IStylizedConsole console, IGenericRepository repo, IUserNotifier notifier, ILog logger)
         {
             _config = config;
             _console = console;
@@ -28,6 +30,7 @@ namespace WoA.Lib.Blizzard
             _lastFileGot = 0;
             Auctions = _repo.GetAll<Auction>().ToList();
             _notifier = notifier;
+            _logger = logger;
         }
 
         public void LoadAuctions()
@@ -37,18 +40,27 @@ namespace WoA.Lib.Blizzard
 
             _notifier.Toast($"Loading auctions for realm " + _config.CurrentRealm + " started");
 
-            _token = GetAccessToken();
-
-            AuctionApiResponse file = GetAuctionFile();
-            if (file.files.First().lastModified > _lastFileGot)
+            try
             {
-                ProcessAuctions(file.files.First().url, file.files.First().lastModified);
-                Auctions = _repo.GetAll<Auction>().ToList();
-                _lastFileGot = file.files.First().lastModified;
-            }
-            else
-                _notifier.Toast($"No new auctions processed.");
+                _token = GetAccessToken();
 
+                AuctionApiResponse file = GetAuctionFile();
+                if (file.files.First().lastModified > _lastFileGot)
+                {
+                    ProcessAuctions(file.files.First().url, file.files.First().lastModified);
+                    Auctions = _repo.GetAll<Auction>().ToList();
+                    _lastFileGot = file.files.First().lastModified;
+                }
+                else
+                    _notifier.Toast($"No new auctions processed.");
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Error in LoadAuctions()", e);
+                _notifier.Toast("Error while loading auctions. There probably were no auctions loaded as a result");
+                _console.WriteNotificationLine("BLI > Error while loading auctions. There probably were no auctions loaded as a result");
+                _console.WriteNotificationLine(e.Message);
+            }
             stopwatch.Stop();
         }
 
@@ -128,6 +140,9 @@ namespace WoA.Lib.Blizzard
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
 
+            if (!response.IsSuccessful)
+                throw new Exception("Auctions file retrieval failed. Check your Blizzard ClientId/ClientSecret settings.");
+
             return JsonConvert.DeserializeObject<AuctionFileContents>(response.Content).auctions;
         }
 
@@ -142,28 +157,43 @@ namespace WoA.Lib.Blizzard
 
         private IRestResponse CallBlizzardAPI(string url)
         {
+            _logger.Debug("Calling POST [" + url + "] with token " + _token);
+
             var client = new RestClient(url);
             var request = new RestRequest(Method.GET);
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddHeader("authorization", $"Bearer {_token}");
             IRestResponse response = client.Execute(request);
+
+            _logger.Debug("Got response : " + Environment.NewLine + JsonConvert.SerializeObject(response));
+
+            if (!response.IsSuccessful)
+                throw new Exception("Call to Blizzard API failed. Check your Blizzard ClientId/ClientSecret settings.");
+
             return response;
         }
 
         private string GetAccessToken()
         {
-            var client = new RestClient("https://" + _config.CurrentRegion + ".battle.net/oauth/token");
+            string url = "https://" + _config.CurrentRegion + ".battle.net/oauth/token";
+            _logger.Debug("Calling POST [" + url + "]");
+            _logger.Debug("Client Id : " + _config.Blizzard_ClientId);
+            _logger.Debug("Client Secret : " + _config.Blizzard_ClientSecret);
+            var client = new RestClient(url);
             var request = new RestRequest(Method.POST);
             request.AddHeader("cache-control", "no-cache");
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddParameter("application/x-www-form-urlencoded", $"grant_type=client_credentials&client_id={_config.Blizzard_ClientId}&client_secret={_config.Blizzard_ClientSecret}", ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
 
+            _logger.Debug("Got response : " + Environment.NewLine + JsonConvert.SerializeObject(response));
+
+            if (!response.IsSuccessful)
+                throw new Exception("Could not get access token from blizzard api. Check your Blizzard ClientId/ClientSecret settings.");
+
             var tokenResponse = JsonConvert.DeserializeObject<AccessTokenResponse>(response.Content);
 
-            if (tokenResponse == null)
-                throw new Exception("Could not get access token from blizzard api. Check your settings");
             return tokenResponse.access_token;
         }
 

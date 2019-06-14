@@ -20,6 +20,7 @@ namespace WoA.Lib.Commands.Handlers
         , INotificationHandler<WowuctionUsageCommand>
         , INotificationHandler<WhatIsItemUsageCommand>
         , INotificationHandler<WhoIsUsageCommand>
+        , INotificationHandler<SettingsUsageCommand>
     {
         private readonly IStylizedConsole _console;
 
@@ -162,5 +163,16 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine(String.Format("{0,-30} : {1}", "whois <seller name>", "Shows info on given seller's character."));
             return Task.CompletedTask;
         }
+        public Task Handle(SettingsUsageCommand notification, CancellationToken cancellationToken)
+        {
+            _console.WriteAscii("settings");
+            _console.WriteLine();
+            _console.WriteLine("Usage:");
+            _console.WriteLine();
+            _console.WriteLine(String.Format("{0,-30} : {1}", "settings list", "Shows current settings."));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "settings set <name> <value>", "Set setting <name> to <value>"));
+            return Task.CompletedTask;
+        }
+
     }
 }

@@ -13,6 +13,8 @@ namespace WoA.Lib.Commands.QueryObjects
         {
             Realm = m.Groups["realm"].Value;
         }
+        public ChangeRealmCommand()
+        { }
     }
 
     [WoACommand(RegexToMatch = "^chrealm$")]

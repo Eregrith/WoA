@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Autofac.Core;
 using log4net;
 using log4net.Config;
 using MediatR;
@@ -30,7 +31,12 @@ namespace WorldOfAuctions
             builder.RegisterType<Configuration>().As<IConfiguration>().SingleInstance();
             builder.RegisterType<StylizedConsole>().As<IStylizedConsole>().SingleInstance();
             builder.RegisterType<TsmClient>().As<ITsmClient>().SingleInstance();
-            builder.RegisterType<BlizzardClient>().As<IBlizzardClient>().SingleInstance();
+            builder.RegisterType<BlizzardClient>()
+                .WithParameter(new ResolvedParameter(
+                       (pi, ctx) => pi.ParameterType == typeof(ILog),
+                       (pi, ctx) => ctx.ResolveKeyed<ILog>("application")))
+                .As<IBlizzardClient>()
+                .SingleInstance();
             builder.RegisterType<AuctionViewer>().As<IAuctionViewer>().SingleInstance();
             builder.RegisterType<GenericRepository>().As<IGenericRepository>().SingleInstance();
             builder.RegisterType<ItemBundler>().As<IItemsBundler>();
@@ -44,7 +50,12 @@ namespace WorldOfAuctions
                 var c = context.Resolve<IComponentContext>();
                 return t => c.Resolve(t);
             });
-            builder.Register(c => LogManager.GetLogger("Commands")).As<ILog>();
+            builder.Register(c => LogManager.GetLogger("Commands"))
+                    .As<ILog>()
+                    .Keyed<ILog>("commands");
+            builder.Register(c => LogManager.GetLogger("Application"))
+                    .As<ILog>()
+                    .Keyed<ILog>("application");
             builder.RegisterAssemblyTypes(typeof(FlipCommand).GetTypeInfo().Assembly)
                 .AsImplementedInterfaces()
                 .SingleInstance();
