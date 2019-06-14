@@ -77,7 +77,7 @@ namespace WorldOfAuctions
 
         public FlashingUserNotifier()
         {
-            ShortCutCreator.TryCreateShortcut("WoA", "World Of Auctions");
+            ShortCutCreator.TryCreateShortcut("WoA", "World of Auctions");
         }
 
         static void ShowTextToast(string appId, string title, string message)
