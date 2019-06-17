@@ -210,8 +210,9 @@ namespace WoA.Lib.Commands.Handlers
                 foreach (KeyValuePair<int, int> item in bundle)
                 {
                     TsmItem tsmItem = _tsm.GetItem(item.Key);
-                    long itemTotal = (tsmItem.MarketValue * item.Value);
-                    _console.WriteLine(String.Format("{0,-8} {1,20} {2,20} {3,20}", item.Value, tsmItem.Name, tsmItem.MarketValue.ToGoldString(), itemTotal.ToGoldString()));
+                    long itemPrice = tsmItem.VendorBuy != 0 ? tsmItem.VendorBuy : tsmItem.MarketValue;
+                    long itemTotal = (itemPrice * item.Value);
+                    _console.WriteLine(String.Format("{0,-8} {1,20} {2,20} {3,20}", item.Value, tsmItem.Name, (itemPrice == tsmItem.VendorBuy ? "(vendor) " + itemPrice.ToGoldString() : itemPrice.ToGoldString()), itemTotal.ToGoldString()));
                     bigTotal += itemTotal;
                 }
                 _console.WriteLine("This bundle's total price at market value is " + bigTotal.ToGoldString());

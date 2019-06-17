@@ -59,7 +59,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>40EF0850F0F150CE5478B44C5CAD384C00BDDBAA</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>F47539C819B9C54403418883E247967AC1F214E4</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>WorldOfAuctions_TemporaryKey.pfx</ManifestKeyFile>
