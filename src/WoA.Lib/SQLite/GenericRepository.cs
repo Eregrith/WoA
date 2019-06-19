@@ -16,7 +16,7 @@ namespace WoA.Lib.SQLite
         public GenericRepository(IStylizedConsole console, IConfiguration config)
         {
             string path = Path.GetDirectoryName(config.DatabasePath);
-            if (!Directory.Exists(path))
+            if (!String.IsNullOrEmpty(path) && !Directory.Exists(path))
                 Directory.CreateDirectory(path);
             _context = new SQLiteConnection(config.DatabasePath);
             _context.CreateTable<TsmItem>();

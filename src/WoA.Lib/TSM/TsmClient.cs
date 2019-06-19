@@ -16,7 +16,6 @@ namespace WoA.Lib.TSM
         private string getUrlFor(string subUrl) => _baseUrl + $"{subUrl}?format=json&apiKey=" + _config.TsmApiKey;
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
-        private readonly IBlizzardClient _blizzard;
 
         public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console)
         {
@@ -27,20 +26,27 @@ namespace WoA.Lib.TSM
 
         public void RefreshTsmItemsInRepository()
         {
-            if (LastUpdateIsOlderThanOneHour())
+            try
             {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-                _console.WriteLine("TSM > Updating data for " + _config.CurrentRealm);
-                List<TsmItem> items = GetItemsForRealm();
-                MarkRealmUpdated();
-                ReplaceItems(items);
-                stopwatch.Stop();
-                _console.WriteLine("TSM > Data updated for " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
+                if (LastUpdateIsOlderThanOneHour())
+                {
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    _console.WriteLine("TSM > Updating data for " + _config.CurrentRealm);
+                    List<TsmItem> items = GetItemsForRealm();
+                    MarkRealmUpdated();
+                    ReplaceItems(items);
+                    stopwatch.Stop();
+                    _console.WriteLine("TSM > Data updated for " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
+                }
+                else
+                {
+                    _console.WriteLine("TSM > No Update done for " + _config.CurrentRealm + ", last update is too recent.");
+                }
             }
-            else
+            catch (Exception e)
             {
-                _console.WriteLine("TSM > No Update done for " + _config.CurrentRealm + ", last update is too recent.");
+                _console.WriteLine("TSM > Error > Error while refreshing tsm data.");
             }
         }
 
@@ -94,6 +100,9 @@ namespace WoA.Lib.TSM
             var client = new RestClient(url);
             var request = new RestRequest(Method.GET);
             IRestResponse response = client.Execute(request);
+
+            if (!response.IsSuccessful)
+                _console.WriteLine("TSM > Error > Request to TSM api failed. Check your TSM ApiKey settings.");
 
             return JsonConvert.DeserializeObject<T>(response.Content);
         }

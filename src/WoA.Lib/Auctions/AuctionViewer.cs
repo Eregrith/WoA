@@ -132,7 +132,26 @@ namespace WoA.Lib
                 return;
             }
             _console.WriteLine($"Looking at auctions for item:");
-            _console.WriteAscii(tsmItem.Name);
+            string name = tsmItem.Name;
+            if (name.Length > 20)
+            {
+                List<string> parts = name.Split(' ').ToList();
+                string currentName = parts.First();
+                foreach (string part in parts.Skip(1))
+                {
+                    if ((currentName + ' ' + part).Length > 20)
+                    {
+                        _console.WriteAscii(currentName);
+                        currentName = part;
+                    }
+                    else
+                        currentName += ' ' + part;
+                }
+                if (!String.IsNullOrEmpty(currentName))
+                    _console.WriteAscii(currentName);
+            }
+            else
+                _console.WriteAscii(name);
             var itemAuctions = _blizzard.Auctions.Where(a => a.item == itemId);
             WowQuality quality = _blizzard.GetQuality(itemId);
             _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem.Name.WithQuality(quality)} auctions");

@@ -27,8 +27,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ProductName>World of Auctions</ProductName>
     <PublisherName>Eregrith</PublisherName>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.0</ApplicationVersion>
+    <ApplicationRevision>11</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -59,7 +59,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>40EF0850F0F150CE5478B44C5CAD384C00BDDBAA</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>F47539C819B9C54403418883E247967AC1F214E4</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>WorldOfAuctions_TemporaryKey.pfx</ManifestKeyFile>
@@ -170,6 +170,7 @@
     <None Include="App.Debug.config">
       <DependentUpon>App.config</DependentUpon>
       <IsTransformFile>true</IsTransformFile>
+      <SubType>Designer</SubType>
     </None>
     <None Include="App.Release.config">
       <DependentUpon>App.config</DependentUpon>
