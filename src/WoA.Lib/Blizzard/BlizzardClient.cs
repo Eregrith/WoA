@@ -105,7 +105,7 @@ namespace WoA.Lib.Blizzard
             if (playerAuctionProbablySold.Any())
             {
                 _notifier.NotifySomethingNew();
-                _notifier.Toast($"{playerAuctionProbablySold} of your auctions probably sold for a total of {playerAuctionProbablySold.Sum(a => a.buyout).ToGoldString()}.");
+                _notifier.Toast($"{playerAuctionProbablySold.Count} of your auctions probably sold for a total of {playerAuctionProbablySold.Sum(a => a.buyout).ToGoldString()}.");
                 _console.WriteNotificationLine($"BLI > {playerAuctionProbablySold.Count} of your auctions probably sold (or were cancelled before timing out).");
                 foreach (Auction a in playerAuctionProbablySold)
                 {
