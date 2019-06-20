@@ -11,12 +11,21 @@ namespace WorldOfAuctions
 {
     public class StylizedConsole : IStylizedConsole
     {
-        private readonly StyleSheet _stylesheet;
+        private StyleSheet _stylesheet;
         private ColorAlternator _currentAlternator;
         private Color _savedBackground;
         private readonly List<string> _notifications = new List<string>();
+        private readonly IConfiguration _config;
 
         public StylizedConsole(IConfiguration config)
+        {
+            _config = config;
+            InitStyleSheet();
+
+            Console.SetIn(new StreamReader(Console.OpenStandardInput(8192), Console.InputEncoding, false, 8192));
+        }
+
+        public void InitStyleSheet()
         {
             _stylesheet = new StyleSheet(Color.White);
             _stylesheet.AddStyle("[\xa0,0-9]+g", Color.Gold);
@@ -28,16 +37,14 @@ namespace WorldOfAuctions
             _stylesheet.AddStyle(" 2h", Color.Red);
             _stylesheet.AddStyle("30m", Color.Red);
 
-            _stylesheet.AddStyle("(" + string.Join("|", config.PlayerToons) + ")", Color.SteelBlue);
+            _stylesheet.AddStyle("(" + string.Join("|", _config.PlayerToons) + ")", Color.SteelBlue);
             string itemRegex = @"[a-zA-Z\-0-9 :\(\)\.']+";
             _stylesheet.AddStyle($"---{itemRegex}---", Color.Gray, match => match.Substring(3, match.Length - 6));
             _stylesheet.AddStyle($@"==={itemRegex}===", Color.White, match => match.Substring(3, match.Length - 6));
-            _stylesheet.AddStyle($@"\[\[\[{itemRegex}\]\]\]", Color.Green, match => match.Substring(3, match.Length-6));
+            _stylesheet.AddStyle($@"\[\[\[{itemRegex}\]\]\]", Color.Green, match => match.Substring(3, match.Length - 6));
             _stylesheet.AddStyle($@"\{{\{{\{{{itemRegex}\}}\}}\}}", Color.DeepSkyBlue, match => match.Substring(3, match.Length - 6));
             _stylesheet.AddStyle($@"\+\+\+{itemRegex}\+\+\+", Color.MediumVioletRed, match => match.Substring(3, match.Length - 6));
             _stylesheet.AddStyle($@"\{{\+\+{itemRegex}\+\+\}}", Color.Orange, match => match.Substring(3, match.Length - 6));
-
-            Console.SetIn(new StreamReader(Console.OpenStandardInput(8192), Console.InputEncoding, false, 8192));
         }
 
         public void WriteLine(string line)

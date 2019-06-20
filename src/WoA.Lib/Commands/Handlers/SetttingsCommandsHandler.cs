@@ -63,6 +63,7 @@ namespace WoA.Lib.Commands.Handlers
                 case "Toons":
                     _config.PlayerToons = notification.SettingValue.Split(',').ToList();
                     _config.Save();
+                    _console.InitStyleSheet();
                     break;
                 default:
                     _console.WriteLine("No setting is named " + notification.SettingName);

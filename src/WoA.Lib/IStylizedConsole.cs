@@ -15,5 +15,6 @@ namespace WoA.Lib
         void StopAlternating();
         void FlushNotificationLines();
         void WriteNotificationLine(string line);
+        void InitStyleSheet();
     }
 }
