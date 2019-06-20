@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,6 +34,8 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine("Blizzard_ClientSecret : " + _config.Blizzard_ClientSecret);
             _console.WriteLine();
             _console.WriteLine("TsmApiKey : " + _config.TsmApiKey);
+            _console.WriteLine();
+            _console.WriteLine("Toons : " + String.Join(",", _config.PlayerToons));
             return Task.CompletedTask;
         }
 
@@ -55,6 +58,10 @@ namespace WoA.Lib.Commands.Handlers
                     break;
                 case "TsmApiKey":
                     _config.TsmApiKey = notification.SettingValue;
+                    _config.Save();
+                    break;
+                case "Toons":
+                    _config.PlayerToons = notification.SettingValue.Split(',').ToList();
                     _config.Save();
                     break;
                 default:
