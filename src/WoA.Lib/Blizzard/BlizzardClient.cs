@@ -80,9 +80,9 @@ namespace WoA.Lib.Blizzard
         private (int, int) UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile, long timestamp)
         {
             var savedAuctions = _repo.GetAll<Auction>();
-            int updated = 0;
-            int removed = 0;
             List<Auction> playerAuctionProbablySold = new List<Auction>();
+            List<Auction> removed = new List<Auction>();
+            List<Auction> updated = new List<Auction>();
             foreach (Auction savedAuction in savedAuctions)
             {
                 var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.auc == savedAuction.auc);
@@ -91,16 +91,16 @@ namespace WoA.Lib.Blizzard
                     if (_config.PlayerToons.Contains(savedAuction.owner)
                         && savedAuction.timeLeft.ToHoursLeft() > new TimeSpan(timestamp - _lastFileGot).TotalHours)
                         playerAuctionProbablySold.Add(savedAuction);
-                    _repo.Delete(savedAuction);
-                    removed++;
+                    removed.Add(savedAuction);
                 }
                 else
                 {
-		    updatedAuction.FirstSeenOn = savedAuction.FirstSeenOn;
-                    _repo.Update(updatedAuction);
-                    updated++;
+		            updatedAuction.FirstSeenOn = savedAuction.FirstSeenOn;
+                    updated.Add(updatedAuction);
                 }
             }
+            _repo.DeleteAll(removed);
+            _repo.UpdateAll(updated);
 
             if (playerAuctionProbablySold.Any())
             {
@@ -122,7 +122,7 @@ namespace WoA.Lib.Blizzard
                 }
             }
 
-            return (updated, removed);
+            return (updated.Count, removed.Count);
         }
 
         private int InsertNewAuctions(List<Auction> auctionsFromFile)

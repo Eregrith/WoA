@@ -47,7 +47,10 @@ namespace WoA.Lib
         {
             StringBuilder goldString = new StringBuilder();
             if (value < 0)
+            {
                 goldString.Append('-');
+                value = -value;
+            }
             if (value >= 10000)
             {
                 if (goldString.Length > 0)

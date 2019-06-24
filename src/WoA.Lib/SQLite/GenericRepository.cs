@@ -43,10 +43,20 @@ namespace WoA.Lib.SQLite
             return model;
         }
 
+        public void UpdateAll<T>(List<T> models)
+        {
+            _context.UpdateAll(models);
+        }
+
         public bool Delete<T>(T model)
         {
             int iRes = _context.Delete(model);
             return iRes.Equals(1);
+        }
+
+        public void DeleteAll<T>(List<T> models)
+        {
+            models.ForEach(m => _context.Delete(m));
         }
 
         public T GetById<T>(string pk) where T : new()

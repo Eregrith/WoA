@@ -10,7 +10,9 @@ namespace WoA.Lib.SQLite
         T Add<T>(T model);
         void AddAll<T>(List<T> models);
         T Update<T>(T model);
+        void UpdateAll<T>(List<T> models);
         bool Delete<T>(T model);
+        void DeleteAll<T>(List<T> models);
         T GetById<T>(string pk) where T : new();
         T[] GetAll<T>() where T : new();
     }
