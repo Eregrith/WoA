@@ -16,12 +16,14 @@ namespace WoA.Lib.TSM
         private string getUrlFor(string subUrl) => _baseUrl + $"{subUrl}?format=json&apiKey=" + _config.TsmApiKey;
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
+        private readonly IUserNotifier _notifier;
 
-        public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console)
+        public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console, IUserNotifier notifier)
         {
             _config = config;
             _console = console;
             _repo = repo;
+            _notifier = notifier;
         }
 
         public void RefreshTsmItemsInRepository()
@@ -32,21 +34,17 @@ namespace WoA.Lib.TSM
                 {
                     Stopwatch stopwatch = new Stopwatch();
                     stopwatch.Start();
-                    _console.WriteLine("TSM > Updating data for " + _config.CurrentRealm);
+                    _notifier.Toast("Updating TSM data for " + _config.CurrentRealm);
                     List<TsmItem> items = GetItemsForRealm();
                     MarkRealmUpdated();
                     ReplaceItems(items);
                     stopwatch.Stop();
-                    _console.WriteLine("TSM > Data updated for " + _config.CurrentRealm + " in " + stopwatch.ElapsedMilliseconds + "ms");
-                }
-                else
-                {
-                    _console.WriteLine("TSM > No Update done for " + _config.CurrentRealm + ", last update is too recent.");
+                    _notifier.Toast("TSM Data updated for " + _config.CurrentRealm);
                 }
             }
             catch (Exception e)
             {
-                _console.WriteLine("TSM > Error > Error while refreshing tsm data.");
+                _console.WriteNotificationLine("TSM > Error > Error while refreshing tsm data.");
             }
         }
 

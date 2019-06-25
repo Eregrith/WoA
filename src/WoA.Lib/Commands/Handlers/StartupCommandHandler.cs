@@ -25,8 +25,8 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(StartupCommand notification, CancellationToken cancellationToken)
         {
-            _console.WriteLine($"World of Auctions v{notification.CurrentVersion} started");
-            _tsm.RefreshTsmItemsInRepository();
+            _console.WriteAscii("World of Auctions");
+            _console.WriteLine($"version {notification.CurrentVersion}");
             return Task.CompletedTask;
         }
     }

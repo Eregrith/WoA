@@ -27,6 +27,12 @@ namespace WoA.Lib.Commands.Handlers
             int itemId = _auctions.GetItemId(notification.ItemDescription);
             TsmItem item = _tsm.GetItem(itemId);
 
+            if (item == null)
+            {
+                _console.Write("No item matching " + notification.ItemDescription + " was found");
+                return Task.CompletedTask;
+            }
+
             _console.WriteAscii(item.Name);
             _console.WriteLine();
             _console.WriteLine("Id : " + item.ItemId);

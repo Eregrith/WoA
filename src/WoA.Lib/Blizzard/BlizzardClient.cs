@@ -47,9 +47,14 @@ namespace WoA.Lib.Blizzard
                 AuctionApiResponse file = GetAuctionFile();
                 if (file.files.First().lastModified > _lastFileGot)
                 {
-                    ProcessAuctions(file.files.First().url, file.files.First().lastModified);
+                    (int added, int updated, int removed) = ProcessAuctions(file.files.First().url, file.files.First().lastModified);
                     Auctions = _repo.GetAll<Auction>().ToList();
                     _lastFileGot = file.files.First().lastModified;
+
+                    _notifier.Toast($"{added + updated + removed} auctions processed in " + (stopwatch.ElapsedMilliseconds / 1000) + " sec"
+                                    + Environment.NewLine + $"{updated} updated"
+                                    + Environment.NewLine + $"{added} new"
+                                    + Environment.NewLine + $"{removed} removed");
                 }
                 else
                     _notifier.Toast($"No new auctions processed.");
@@ -64,17 +69,14 @@ namespace WoA.Lib.Blizzard
             stopwatch.Stop();
         }
 
-        private void ProcessAuctions(string url, long timestamp)
+        private (int, int, int) ProcessAuctions(string url, long timestamp)
         {
             List<Auction> auctionsFromFile = GetAuctions(url);
 
             (int updated, int removed) = UpdateOrDeleteExistingAuctions(auctionsFromFile, timestamp);
             int added = InsertNewAuctions(auctionsFromFile);
 
-            _notifier.Toast($"{auctionsFromFile.Count} auctions processed"
-                            + Environment.NewLine + $"{updated} updated"
-                            + Environment.NewLine + $"{added} new"
-                            + Environment.NewLine + $"{removed} removed");
+            return (added, updated, removed);
         }
 
         private (int, int) UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile, long timestamp)
