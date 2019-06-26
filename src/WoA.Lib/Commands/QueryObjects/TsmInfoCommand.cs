@@ -7,7 +7,7 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = "^tsm (?<itemDesc>.+)", Description = "Shows TSM info on given item", DisplayedInHelp = true)]
+    [WoACommand(RegexToMatch = "^tsm (?<itemDesc>.+)", Usage = "tsm <item>", Description = "Shows TSM info on given item", DisplayedInHelp = true)]
     public class TsmInfoCommand : INotification
     {
         public string ItemDescription { get; set; }

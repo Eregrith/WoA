@@ -8,7 +8,7 @@ using WoA.Lib.Commands.Attributes;
 namespace WoA.Lib.Commands.QueryObjects
 {
 
-    [WoACommand(RegexToMatch = "^bundle$", Description = "Handles bundles of items", DisplayedInHelp = true)]
+    [WoACommand(RegexToMatch = "^bundle$", Usage = "bundle <subcommand>", Description = "Handles bundles of items. Use 'bundle' to have a list of subcommands", DisplayedInHelp = true)]
     public class BundleUsageCommand : INotification
     {
     }

@@ -7,7 +7,7 @@ using WoA.Lib.Commands.Attributes;
 
 namespace WoA.Lib.Commands.QueryObjects
 {
-    [WoACommand(RegexToMatch = "^settings$", DisplayedInHelp = true, Description = "See and manage settings")]
+    [WoACommand(RegexToMatch = "^settings$", Usage = "settings <subcommand>", DisplayedInHelp = true, Description = "See and manage settings. Type 'settings' to have a list of subcommands")]
     public class SettingsUsageCommand : INotification
     { }
 
