@@ -24,6 +24,8 @@ namespace WoA.Lib.SQLite
             _context.CreateTable<ItemBundle>();
             _context.CreateTable<Auction>();
             _context.CreateTable<WowItem>();
+            _context.CreateTable<BlizzardRealmData>();
+            _context.CreateTable<SoldAuction>();
         }
 
         public T Add<T>(T model)

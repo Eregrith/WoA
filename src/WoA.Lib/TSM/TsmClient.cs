@@ -39,7 +39,7 @@ namespace WoA.Lib.TSM
                     MarkRealmUpdated();
                     ReplaceItems(items);
                     stopwatch.Stop();
-                    _notifier.Toast("TSM Data updated for " + _config.CurrentRealm);
+                    _notifier.Toast("TSM Data updated for " + _config.CurrentRealm + " in " + (stopwatch.ElapsedMilliseconds / 1000) + " sec");
                 }
             }
             catch (Exception e)
@@ -50,10 +50,10 @@ namespace WoA.Lib.TSM
 
         private void MarkRealmUpdated()
         {
-            TsmRealmData realmData = _repo.GetById<TsmRealmData>(_config.CurrentRealm);
+            TsmRealmData realmData = GetRealmDataFromRepo();
             if (realmData == null)
             {
-                realmData = new TsmRealmData { Realm = _config.CurrentRealm };
+                realmData = new TsmRealmData { Realm = _config.CurrentRegion + '-' + _config.CurrentRealm };
                 _repo.Add(realmData);
             }
             realmData.LastUpdate = DateTime.UtcNow;
@@ -61,9 +61,14 @@ namespace WoA.Lib.TSM
             _repo.Update(realmData);
         }
 
+        private TsmRealmData GetRealmDataFromRepo()
+        {
+            return _repo.GetById<TsmRealmData>(_config.CurrentRegion + '-' + _config.CurrentRealm);
+        }
+
         private bool LastUpdateIsOlderThanOneHour()
         {
-            TsmRealmData realmData = _repo.GetById<TsmRealmData>(_config.CurrentRealm);
+            TsmRealmData realmData = GetRealmDataFromRepo();
             if (realmData == null) return true;
 
             return (DateTime.UtcNow - realmData.LastUpdate) > TimeSpan.FromHours(1);
@@ -77,7 +82,7 @@ namespace WoA.Lib.TSM
             {
                 i.ItemId = int.Parse(i.Id);
                 i.Realm = _config.CurrentRealm;
-                i.Id = _config.CurrentRealm + "-" + i.Id;
+                i.Id = _config.CurrentRegion + '-' + _config.CurrentRealm + "-" + i.Id;
             });
             return items;
         }

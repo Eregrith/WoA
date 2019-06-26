@@ -27,8 +27,8 @@ namespace WoA.Lib.Blizzard
             _config = config;
             _console = console;
             _repo = repo;
-            _lastFileGot = 0;
             Auctions = _repo.GetAll<Auction>().ToList();
+            _lastFileGot = _repo.GetById<BlizzardRealmData>(_config.CurrentRegion + "-" + _config.CurrentRealm)?.LastUpdate ?? 0;
             _notifier = notifier;
             _logger = logger;
         }
@@ -49,7 +49,7 @@ namespace WoA.Lib.Blizzard
                 {
                     (int added, int updated, int removed) = ProcessAuctions(file.files.First().url, file.files.First().lastModified);
                     Auctions = _repo.GetAll<Auction>().ToList();
-                    _lastFileGot = file.files.First().lastModified;
+                    UpdateLastFileGotTime(file);
 
                     _notifier.Toast($"{added + updated + removed} auctions processed in " + (stopwatch.ElapsedMilliseconds / 1000) + " sec"
                                     + Environment.NewLine + $"{updated} updated"
@@ -69,6 +69,22 @@ namespace WoA.Lib.Blizzard
             stopwatch.Stop();
         }
 
+        private void UpdateLastFileGotTime(AuctionApiResponse file)
+        {
+            _lastFileGot = file.files.First().lastModified;
+            BlizzardRealmData realmData = _repo.GetById<BlizzardRealmData>(_config.CurrentRegion + "-" + _config.CurrentRealm);
+            if (realmData == null)
+            {
+                realmData = new BlizzardRealmData { Id = _config.CurrentRegion + "-" + _config.CurrentRealm, LastUpdate = _lastFileGot };
+                _repo.Add(realmData);
+            }
+            else
+            {
+                realmData.LastUpdate = _lastFileGot;
+                _repo.Update(realmData);
+            }
+        }
+
         private (int, int, int) ProcessAuctions(string url, long timestamp)
         {
             List<Auction> auctionsFromFile = GetAuctions(url);
@@ -81,7 +97,9 @@ namespace WoA.Lib.Blizzard
 
         private (int, int) UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile, long timestamp)
         {
+            TimeSpan timeSinceLastUpdate = new TimeSpan(timestamp - _lastFileGot);
             var savedAuctions = _repo.GetAll<Auction>();
+            List<SoldAuction> probablySoldAuctions = new List<SoldAuction>();
             List<Auction> playerAuctionProbablySold = new List<Auction>();
             List<Auction> removed = new List<Auction>();
             List<Auction> updated = new List<Auction>();
@@ -90,9 +108,12 @@ namespace WoA.Lib.Blizzard
                 var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.auc == savedAuction.auc);
                 if (updatedAuction == null)
                 {
-                    if (_config.PlayerToons.Contains(savedAuction.owner)
-                        && savedAuction.timeLeft.ToHoursLeft() > new TimeSpan(timestamp - _lastFileGot).TotalHours)
-                        playerAuctionProbablySold.Add(savedAuction);
+                    if (savedAuction.timeLeft.ToHoursLeft() > timeSinceLastUpdate.TotalHours)
+                    {
+                        probablySoldAuctions.Add(new SoldAuction(savedAuction, timeSinceLastUpdate));
+                        if (_config.PlayerToons.Contains(savedAuction.owner))
+                            playerAuctionProbablySold.Add(savedAuction);
+                    }
                     removed.Add(savedAuction);
                 }
                 else
@@ -103,6 +124,7 @@ namespace WoA.Lib.Blizzard
             }
             _repo.DeleteAll(removed);
             _repo.UpdateAll(updated);
+            _repo.AddAll(probablySoldAuctions);
 
             if (playerAuctionProbablySold.Any())
             {
