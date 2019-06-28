@@ -95,7 +95,7 @@ namespace WoA.Lib.TSM
 
         public TsmItem GetItem(int id)
         {
-            return _repo.GetById<TsmItem>(_config.CurrentRealm + "-" + id);
+            return _repo.GetById<TsmItem>(_config.CurrentRegion + "-" + _config.CurrentRealm + "-" + id);
         }
 
         private T CallTsmApi<T>(string url)
