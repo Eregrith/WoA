@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WoA.Lib.Auctions;
+using WoA.Lib.Blizzard;
 using WoA.Lib.Commands.QueryObjects;
 using WoA.Lib.SQLite;
 using WoA.Lib.TSM;
@@ -30,6 +31,7 @@ namespace WoA.Lib.Commands.Handlers
         private readonly IAuctionViewer _auctionViewer;
         private readonly IStylizedConsole _console;
         private readonly ITsmClient _tsm;
+        private readonly IBlizzardClient _blizzard;
         private readonly IGenericRepository _repo;
         private readonly IClipboardManager _clipboard;
 
@@ -38,6 +40,7 @@ namespace WoA.Lib.Commands.Handlers
             IAuctionViewer auctionViewer,
             IStylizedConsole console,
             ITsmClient tsm,
+            IBlizzardClient blizzard,
             IGenericRepository repo,
             IClipboardManager clipboard
         )
@@ -46,6 +49,7 @@ namespace WoA.Lib.Commands.Handlers
             _auctionViewer = auctionViewer;
             _console = console;
             _tsm = tsm;
+            _blizzard = blizzard;
             _repo = repo;
             _clipboard = clipboard;
         }
@@ -56,8 +60,9 @@ namespace WoA.Lib.Commands.Handlers
             if (itemId > 0)
             {
                 _itemsBundler.Add(itemId, notification.ItemQuantity);
-                TsmItem tsmItem = _tsm.GetItem(itemId);
-                _console.WriteLine(notification.ItemQuantity + " x " + tsmItem.Name + " added to bundle");
+                WowItem wowItem = _blizzard.GetItem(itemId);
+                WowQuality quality = (WowQuality)wowItem.quality;
+                _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.WithQuality(quality) + " added to bundle");
             }
             else
             {
@@ -74,20 +79,25 @@ namespace WoA.Lib.Commands.Handlers
                 if (itemId > 0)
                 {
                     TsmItem tsmItem = _tsm.GetItem(itemId);
+                    WowItem wowItem = _blizzard.GetItem(itemId);
+                    WowQuality quality = (WowQuality)wowItem.quality;
+                    if (tsmItem != null)
+                        _console.WriteLine("No TSM data for item " + notification.ItemDescription);
+
                     if (_itemsBundler.Remove(itemId, notification.ItemQuantity, notification.RemoveAllQuantity))
                     {
                         if (notification.RemoveAllQuantity)
                         {
-                            _console.WriteLine(tsmItem.Name + " removed from bundle");
+                            _console.WriteLine(wowItem.name.WithQuality(quality) + " removed from bundle");
                         }
                         else
                         {
-                            _console.WriteLine(notification.ItemQuantity + " x " + tsmItem.Name + " removed from bundle");
+                            _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.WithQuality(quality) + " removed from bundle");
                         }
                     }
                     else
                     {
-                        _console.WriteLine(tsmItem.Name + " doesn't exist in bundle");
+                        _console.WriteLine(wowItem.name.WithQuality(quality) + " doesn't exist in bundle");
                     }
                 }
                 else
@@ -150,8 +160,9 @@ namespace WoA.Lib.Commands.Handlers
                     int itemId = int.Parse(test[i]);
                     int quantity = int.Parse(testValue[i]);
                     _itemsBundler.Add(itemId, quantity);
-                    TsmItem tsmItem = _tsm.GetItem(itemId);
-                    _console.WriteLine(quantity + " x " + tsmItem.Name + " added to bundle");
+                    WowItem wowItem = _blizzard.GetItem(itemId);
+                    WowQuality quality = (WowQuality)wowItem.quality;
+                    _console.WriteLine(quantity + " x " + wowItem.name.WithQuality(quality) + " added to bundle");
                 }
                 _console.WriteLine($"{notification.BundleName} loaded");
             }
@@ -205,15 +216,22 @@ namespace WoA.Lib.Commands.Handlers
             {
                 Dictionary<int, int> bundle = _itemsBundler.GetItems();
                 _console.WriteLine("Current bundle contains:");
-                _console.WriteLine(String.Format("{0,-8} {1,20} {2,20} {3,20}", "Quantity", "Item", "Market Price", "Total"));
+                _console.WriteLine(String.Format("{0,7} {1,8} {2,40} {3,40} {4,40}", "ItemId", "Quantity", "Item", "Market Price", "Total"));
                 long bigTotal = 0;
                 foreach (KeyValuePair<int, int> item in bundle)
                 {
                     TsmItem tsmItem = _tsm.GetItem(item.Key);
-                    long itemPrice = tsmItem.VendorBuy != 0 ? tsmItem.VendorBuy : tsmItem.MarketValue;
-                    long itemTotal = (itemPrice * item.Value);
-                    _console.WriteLine(String.Format("{0,-8} {1,20} {2,20} {3,20}", item.Value, tsmItem.Name, (itemPrice == tsmItem.VendorBuy ? "(vendor) " + itemPrice.ToGoldString() : itemPrice.ToGoldString()), itemTotal.ToGoldString()));
-                    bigTotal += itemTotal;
+                    WowItem wowItem = _blizzard.GetItem(item.Key);
+                    WowQuality quality = (WowQuality)wowItem.quality;
+                    if (tsmItem == null)
+                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.WithQuality(quality), "unknown", "unknown"));
+                    else
+                    {
+                        long itemPrice = tsmItem.VendorBuy != 0 ? tsmItem.VendorBuy : tsmItem.MarketValue;
+                        long itemTotal = (itemPrice * item.Value);
+                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.WithQuality(quality), (itemPrice == tsmItem.VendorBuy ? "(vendor) " + itemPrice.ToGoldString() : itemPrice.ToGoldString()), itemTotal.ToGoldString()));
+                        bigTotal += itemTotal;
+                    }
                 }
                 _console.WriteLine("This bundle's total price at market value is " + bigTotal.ToGoldString());
             }
