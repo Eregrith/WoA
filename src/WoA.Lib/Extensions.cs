@@ -26,7 +26,7 @@ namespace WoA.Lib
                     return auctionTimeLeft;
             }
         }
-        public static int ToHoursLeft(this string auctionTimeLeft)
+        public static double ToHoursLeft(this string auctionTimeLeft)
         {
             switch (auctionTimeLeft)
             {
@@ -35,7 +35,7 @@ namespace WoA.Lib
                 case "LONG":
                     return 12;
                 case "MEDIUM":
-                    return 1;
+                    return 0.5;
                 case "SHORT":
                     return 0;
                 default:

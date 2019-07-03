@@ -59,9 +59,18 @@ namespace WoA.Lib.Blizzard
                 else
                     _notifier.Toast($"No new auctions processed.");
             }
+            catch (BlizzardApiException e)
+            {
+                _logger.Error("BlizzardApiException in LoadAuctions()", e);
+                _logger.Error("Response content : " + e.Response.Content);
+                _notifier.Toast("Error while loading auctions. There probably were no auctions loaded as a result");
+                _console.WriteNotificationLine("BLI > Error while loading auctions. There probably were no auctions loaded as a result");
+                _console.WriteNotificationLine(e.Message);
+                _console.WriteNotificationLine(e.StatusResponse.reason);
+            }
             catch (Exception e)
             {
-                _logger.Error("Error in LoadAuctions()", e);
+                _logger.Error("Unknown Exception in LoadAuctions()", e);
                 _notifier.Toast("Error while loading auctions. There probably were no auctions loaded as a result");
                 _console.WriteNotificationLine("BLI > Error while loading auctions. There probably were no auctions loaded as a result");
                 _console.WriteNotificationLine(e.Message);
@@ -165,15 +174,14 @@ namespace WoA.Lib.Blizzard
             IRestResponse response = client.Execute(request);
 
             if (!response.IsSuccessful)
-                throw new Exception("Auctions file retrieval failed. Check your Blizzard ClientId/ClientSecret settings.");
+                throw new AuctionFileRetrievalException(response);
 
             return JsonConvert.DeserializeObject<AuctionFileContents>(response.Content).auctions;
         }
 
         private AuctionApiResponse GetAuctionFile()
         {
-            string fileUrl;
-            IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/auction/data/" + _config.CurrentRealm);
+            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/wow/auction/data/{_config.CurrentRealm}");
 
             var auctionApiResponse = JsonConvert.DeserializeObject<AuctionApiResponse>(response.Content);
             return auctionApiResponse;
@@ -193,14 +201,14 @@ namespace WoA.Lib.Blizzard
             _logger.Debug("Got response : " + Environment.NewLine + JsonConvert.SerializeObject(response));
 
             if (!response.IsSuccessful)
-                throw new Exception("Call to Blizzard API failed. Check your Blizzard ClientId/ClientSecret settings.");
+                throw new BlizzardApiCallException(response);
 
             return response;
         }
 
         private string GetAccessToken()
         {
-            string url = "https://" + _config.CurrentRegion + ".battle.net/oauth/token";
+            string url = $"https://{_config.CurrentRegion}.battle.net/oauth/token";
             _logger.Debug("Calling POST [" + url + "]");
             _logger.Debug("Client Id : " + _config.Blizzard_ClientId);
             _logger.Debug("Client Secret : " + _config.Blizzard_ClientSecret);
@@ -214,7 +222,7 @@ namespace WoA.Lib.Blizzard
             _logger.Debug("Got response : " + Environment.NewLine + JsonConvert.SerializeObject(response));
 
             if (!response.IsSuccessful)
-                throw new Exception("Could not get access token from blizzard api. Check your Blizzard ClientId/ClientSecret settings.");
+                throw new BlizzardTokenRetrievalException(response);
 
             var tokenResponse = JsonConvert.DeserializeObject<AccessTokenResponse>(response.Content);
 
@@ -223,11 +231,11 @@ namespace WoA.Lib.Blizzard
 
         public CharacterProfile GetInfosOnCharacter(string characterName, string realm)
         {
-            IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/character/" + realm.ToLower() + "/" + characterName);
+            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/wow/character/{realm.ToLower()}/{characterName}");
 
             var statusResponse = JsonConvert.DeserializeObject<WowStatusResponse>(response.Content);
             if (statusResponse.status == "nok")
-                throw new CharacterInfoException(statusResponse.reason);
+                throw new CharacterInfoException(response);
 
             return JsonConvert.DeserializeObject<CharacterProfile>(response.Content);
         }
@@ -250,7 +258,7 @@ namespace WoA.Lib.Blizzard
 
         private WowItem GetItemFromAPI(int itemId)
         {
-            IRestResponse response = CallBlizzardAPI("https://" + _config.CurrentRegion + ".api.blizzard.com/wow/item/" + itemId);
+            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/wow/item/{itemId}");
 
             WowItem item = JsonConvert.DeserializeObject<WowItem>(response.Content);
 

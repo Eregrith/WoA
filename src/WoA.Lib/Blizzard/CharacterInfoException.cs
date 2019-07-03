@@ -1,25 +1,16 @@
-﻿using System;
+﻿using RestSharp;
+using System;
 using System.Runtime.Serialization;
 
 namespace WoA.Lib.Blizzard
 {
     [Serializable]
-    internal class CharacterInfoException : Exception
+    internal class CharacterInfoException : BlizzardApiException
     {
-        public CharacterInfoException()
-        {
-        }
+        public CharacterInfoException(IRestResponse response)
+            : base(response)
+        { }
 
-        public CharacterInfoException(string message) : base(message)
-        {
-        }
-
-        public CharacterInfoException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected CharacterInfoException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        public override string Message => base.StatusResponse.reason;
     }
 }

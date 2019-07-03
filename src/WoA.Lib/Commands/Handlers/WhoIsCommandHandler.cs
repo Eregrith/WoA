@@ -39,9 +39,9 @@ namespace WoA.Lib.Commands.Handlers
                 _console.WriteLine(String.Format("{0} achievement points", seller.achievementPoints));
                 _console.WriteLine(String.Format("{0} honorable kills", seller.totalHonorableKills));
             }
-            catch (CharacterInfoException e)
+            catch (BlizzardApiException e)
             {
-                _console.WriteLine("Could not gather info on " + notification.SellerName + "-" + sellerRealm + " : " + e.Message);
+                _console.WriteLine("Could not gather info on " + notification.SellerName + "-" + sellerRealm + " : " + e.StatusResponse.reason);
             }
             return Task.CompletedTask;
         }
