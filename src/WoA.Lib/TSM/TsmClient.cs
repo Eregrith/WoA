@@ -17,6 +17,7 @@ namespace WoA.Lib.TSM
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
         private readonly IUserNotifier _notifier;
+        private const int UPDATE_INTERVAL_TIME_PER_SERVER_IN_HOURS = 4;
 
         public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console, IUserNotifier notifier)
         {
@@ -30,7 +31,7 @@ namespace WoA.Lib.TSM
         {
             try
             {
-                if (LastUpdateIsOlderThanOneHour())
+                if (LastUpdateIsOldEnough())
                 {
                     Stopwatch stopwatch = new Stopwatch();
                     stopwatch.Start();
@@ -66,12 +67,12 @@ namespace WoA.Lib.TSM
             return _repo.GetById<TsmRealmData>(_config.CurrentRegion + '-' + _config.CurrentRealm);
         }
 
-        private bool LastUpdateIsOlderThanOneHour()
+        private bool LastUpdateIsOldEnough()
         {
             TsmRealmData realmData = GetRealmDataFromRepo();
             if (realmData == null) return true;
 
-            return (DateTime.UtcNow - realmData.LastUpdate) > TimeSpan.FromHours(1);
+            return (DateTime.UtcNow - realmData.LastUpdate) > TimeSpan.FromHours(UPDATE_INTERVAL_TIME_PER_SERVER_IN_HOURS);
         }
 
         private List<TsmItem> GetItemsForRealm()
@@ -105,7 +106,10 @@ namespace WoA.Lib.TSM
             IRestResponse response = client.Execute(request);
 
             if (!response.IsSuccessful)
-                _console.WriteLine("TSM > Error > Request to TSM api failed. Check your TSM ApiKey settings.");
+            {
+                _console.WriteNotificationLine("TSM > Error > Request to TSM api failed. Check your TSM ApiKey settings.");
+                _console.WriteNotificationLine("TSM > Error > Error: " + JsonConvert.DeserializeObject<TsmError>(response.Content).error);
+            }
 
             return JsonConvert.DeserializeObject<T>(response.Content);
         }
