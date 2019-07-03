@@ -23,5 +23,8 @@ namespace WoA.Lib.Blizzard
             ElapsedTimeSinceLastUpdate = timeSinceLastUpdate;
             SaleDetectedOn = DateTime.Now;
         }
+
+        public SoldAuction()
+        { }
     }
 }
