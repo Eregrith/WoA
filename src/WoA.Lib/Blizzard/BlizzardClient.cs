@@ -264,5 +264,10 @@ namespace WoA.Lib.Blizzard
 
             return item;
         }
+
+        public IEnumerable<WowItem> GetItemsWithNameLike(string partialName)
+        {
+            return _repo.GetAll<WowItem>().Where(i => i.name.ToLower().Contains(partialName.ToLower()));
+        }
     }
 }

@@ -174,7 +174,13 @@ namespace WoA.Lib
 
         public void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions)
         {
-            _console.WriteLine(String.Format("{0,40}{1,20}{2,12}{3,30}{4,20}{5,15}{6,14}", "Item name", "Price per item", "Quantity", "Time Left (first seen on)", "Buyout total", "Seller", "% MarketValue"));
+            ShowAuctionsForMultiItems(auctions, true, true);
+        }
+
+        public void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions, bool showHeader, bool showTotals)
+        {
+            if (showHeader)
+                _console.WriteLine(String.Format("{0,40}{1,20}{2,12}{3,30}{4,20}{5,15}{6,14}", "Item name", "Price per item", "Quantity", "Time Left (first seen on)", "Buyout total", "Seller", "% MarketValue"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.owner, a.item, a.timeLeft, a.FirstSeenOn }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
                 WowItem item = _blizzard.GetItem(auctionGroup.First().item);
@@ -192,6 +198,8 @@ namespace WoA.Lib
                     , auctionGroup.Key.owner
                     , percentDbMarket));
             }
+
+            if (!showTotals) return;
 
             _console.WriteLine(String.Format("{0,20}{1,12}{2,20}"
                 , "Grand total"

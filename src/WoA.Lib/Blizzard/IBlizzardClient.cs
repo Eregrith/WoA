@@ -10,5 +10,6 @@ namespace WoA.Lib.Blizzard
         CharacterProfile GetInfosOnCharacter(string characterName, string realm);
         WowQuality GetQuality(int itemId);
         WowItem GetItem(int itemId);
+        IEnumerable<WowItem> GetItemsWithNameLike(string partialItemName);
     }
 }
