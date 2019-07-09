@@ -26,6 +26,7 @@ namespace WoA.Lib.Commands.Handlers
         , INotificationHandler<BundleExportCommand>
         , INotificationHandler<BundleImportCommand>
         , INotificationHandler<BundleBuyCommand>
+        , INotificationHandler<BundleMultiseeCommand>
     {
         private readonly IItemsBundler _itemsBundler;
         private readonly IAuctionViewer _auctionViewer;
@@ -300,6 +301,27 @@ namespace WoA.Lib.Commands.Handlers
                 string tsmExportString = String.Join(",", items.Keys.Select(k => "i:" + k));
                 _clipboard.SetText(tsmExportString);
                 _console.WriteLine("TSM Export string for current bundle has been copied to clipboard");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(BundleMultiseeCommand notification, CancellationToken cancellationToken)
+        {
+            if (IsYourCurrentBundleValid())
+            {
+                Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                _auctionViewer.ShowAuctionsForMultiItems(new List<Auction>(), true, false);
+                foreach (KeyValuePair<int, int> item in bundle)
+                {
+                    _console.WriteLine($"--------------------------------------------------");
+                    IEnumerable<Auction> auctions = _blizzard.Auctions.Where(a => a.item == item.Key).OrderBy(a => a.PricePerItem).Take(notification.Amount);
+                    WowItem wowItem = _blizzard.GetItem(item.Key);
+                    if (auctions.Any())
+                        _auctionViewer.ShowAuctionsForMultiItems(auctions, false, false);
+                    else
+                        _console.WriteLine($"No {wowItem.name.WithQuality((WowQuality)wowItem.quality)} [{item.Key}] found.");
+                    _console.WriteLine();
+                }
             }
             return Task.CompletedTask;
         }

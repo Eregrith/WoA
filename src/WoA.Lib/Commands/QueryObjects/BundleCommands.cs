@@ -128,4 +128,15 @@ namespace WoA.Lib.Commands.QueryObjects
                 PercentMax = 100;
         }
     }
+
+    [WoACommand(RegexToMatch = "^bundle multisee (?<amount>[0-9]+)", Description = "Shows up to <amount> auctions for items in the bundle")]
+    public class BundleMultiseeCommand : INotification
+    {
+        public int Amount { get; set; }
+
+        public BundleMultiseeCommand(Match m)
+        {
+            Amount = int.Parse(m.Groups["amount"].Value);
+        }
+    }
 }
