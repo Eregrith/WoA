@@ -8,8 +8,9 @@ namespace WoA.Lib.Blizzard
     {
         public DateTime SaleDetectedOn { get; set; }
         public TimeSpan ElapsedTimeSinceLastUpdate { get; set; }
+        public string SourceRealm { get; set; }
 
-        public SoldAuction(Auction a, TimeSpan timeSinceLastUpdate)
+        public SoldAuction(Auction a, TimeSpan timeSinceLastUpdate, string sourceRealm)
         {
             auc = a.auc;
             item = a.item;
@@ -22,6 +23,7 @@ namespace WoA.Lib.Blizzard
             FirstSeenOn = a.FirstSeenOn;
             ElapsedTimeSinceLastUpdate = timeSinceLastUpdate;
             SaleDetectedOn = DateTime.Now;
+            SourceRealm = sourceRealm;
         }
 
         public SoldAuction()

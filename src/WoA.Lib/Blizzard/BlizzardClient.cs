@@ -119,7 +119,7 @@ namespace WoA.Lib.Blizzard
                 {
                     if (savedAuction.timeLeft.ToHoursLeft() > timeSinceLastUpdate.TotalHours)
                     {
-                        probablySoldAuctions.Add(new SoldAuction(savedAuction, timeSinceLastUpdate));
+                        probablySoldAuctions.Add(new SoldAuction(savedAuction, timeSinceLastUpdate, _config.CurrentRealm));
                         if (_config.PlayerToons.Contains(savedAuction.owner))
                             playerAuctionProbablySold.Add(savedAuction);
                     }

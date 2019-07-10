@@ -31,7 +31,7 @@ namespace WoA.Lib.TSM
 
         public override string ToString()
         {
-            return String.Format("({1, 6}) {0,-45}: MkPrice({2, 20})", Name, ItemId, MarketValue.ToGoldString());
+            return String.Format("({1, 6}) {0,-45}: MkPrice({2, 20}) RegionMarketAvg({3,20})", Name, ItemId, MarketValue.ToGoldString(), RegionMarketAvg.ToGoldString());
         }
     }
 }

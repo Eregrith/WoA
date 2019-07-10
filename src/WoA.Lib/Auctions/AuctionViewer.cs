@@ -109,7 +109,9 @@ namespace WoA.Lib
             {
                 long sumBuyoutCheapAuctions = cheapAuctions.Sum(a => a.buyout);
 
-                _console.WriteLine($"For a total of {sumBuyoutCheapAuctions.ToGoldString()} for {cheapAuctions.Sum(a => a.quantity)} items at an average of {((long)cheapAuctions.Average(a => a.PricePerItem)).ToGoldString()} per");
+                var avg = cheapAuctions.Average(a => a.PricePerItem);
+                var avgPercent = Math.Round((avg * 100.0) / tsmItem.MarketValue, 2);
+                _console.WriteLine($"For a total of {sumBuyoutCheapAuctions.ToGoldString()} for {cheapAuctions.Sum(a => a.quantity)} items at an average of {((long)avg).ToGoldString()} ({avgPercent}% MarketValue) per");
 
                 ShowAuctions(tsmItem, cheapAuctions);
 
@@ -118,7 +120,7 @@ namespace WoA.Lib
                 long profit = sumSelloutFlippingWithGoblinTaxe - sumBuyoutCheapAuctions;
 
                 double percentProfit = Math.Round(((double)sumSelloutFlippingWithGoblinTaxe / sumBuyoutCheapAuctions - 1) * 100, 2);
-                _console.WriteLine($"Buying them and reselling them at {sellingPercentageValue}% would net you {profit.ToGoldString()} (AH cut accounted for. You gain {percentProfit}% of your invested money)");
+                _console.WriteLine($"Buying them and reselling them at {((long)Math.Round(tsmItem.MarketValue * sellingPercentage)).ToGoldString()} ({sellingPercentageValue}% MarketValue) each would net you {profit.ToGoldString()} (AH cut accounted for. You gain {percentProfit}% of your invested money)");
                 _console.WriteLine($"(In the meantime those pesky AH Goblins have taken out {goblinTax.ToGoldString()} with the 5% AH cut)");
             }
         }
@@ -238,10 +240,14 @@ namespace WoA.Lib
                     , Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)));
             }
 
-            _console.WriteLine(String.Format("{0,20}{1,12}{2,20}"
+            _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,50}{4,14}"
                 , "Grand total"
                 , auctions.Sum(a => a.quantity)
-                , auctions.Sum(a => a.buyout).ToGoldString()));
+                , auctions.Sum(a => a.buyout).ToGoldString()
+                , ""
+                , "avg:" + Math.Round(auctions.Average(a => Math.Round((a.PricePerItem * 100.0) / tsmItem.MarketValue)), 2) + " %"
+                )
+            );
 
             _console.WriteLine(String.Format("{0,20}{1,12}{1,20}{2,20}", "Grand total per seller", "", "Average %MarketValue"));
 

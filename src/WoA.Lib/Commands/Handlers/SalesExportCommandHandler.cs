@@ -26,7 +26,7 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(SalesExportCommand notification, CancellationToken cancellationToken)
         {
-            List<SoldAuction> soldAuctionsForRealm = _repository.GetAll<SoldAuction>().Where(sa => sa.ownerRealm == notification.Realm).ToList();
+            List<SoldAuction> soldAuctionsForRealm = _repository.GetAll<SoldAuction>().Where(sa => sa.SourceRealm == notification.Realm).ToList();
             if (!notification.Path.EndsWith(".csv"))
                 notification.Path = Path.Combine(notification.Path, notification.Realm.ToLowerInvariant() + ".csv");
             _console.WriteLine($"{soldAuctionsForRealm.Count} auctions to export to {notification.Path}");
