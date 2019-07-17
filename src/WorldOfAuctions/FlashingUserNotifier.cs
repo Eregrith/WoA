@@ -128,9 +128,17 @@ namespace WorldOfAuctions
             toast.Dismissed += events.ToastDismissed;
             toast.Failed += events.ToastFailed;
 
-            // Show the toast. Be sure to specify the AppUserModelId
-            // on your application's shortcut!
-            ToastNotificationManager.CreateToastNotifier(appId).Show(toast);
+            
+            try
+            {
+                // Show the toast. Be sure to specify the AppUserModelId
+                // on your application's shortcut!
+                ToastNotificationManager.CreateToastNotifier(appId).Show(toast);
+            }
+            catch
+            {
+                //stiffling exception
+            }
         }
 
         class ToastEvents
