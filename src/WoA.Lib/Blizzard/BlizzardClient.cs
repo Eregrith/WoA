@@ -153,6 +153,7 @@ namespace WoA.Lib.Blizzard
                         , a.owner
                         , a.timeLeft.ToAuctionTimeString()));
                 }
+                _console.WriteNotificationLine($"total duty-free sales : {playerAuctionProbablySold.Sum(a => a.buyout).ToGoldString()}, total sales with ah taxes : {((long)(playerAuctionProbablySold.Sum(a => a.buyout)*0.9)).ToGoldString()}");
             }
 
             return (updated.Count, removed.Count);
