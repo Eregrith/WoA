@@ -6,6 +6,7 @@ using WoA.Lib.Commands.QueryObjects;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+using WoA.Lib.Business;
 
 namespace WorldOfAuctions
 {
@@ -15,13 +16,15 @@ namespace WorldOfAuctions
         private readonly IMediator _mediator;
         private readonly IUserNotifier _notifier;
         private readonly IConfiguration _config;
+        private readonly IApplicationStateManager _state;
 
-        public WoA(IStylizedConsole console, IMediator mediator, IUserNotifier notifier, IConfiguration config)
+        public WoA(IStylizedConsole console, IMediator mediator, IUserNotifier notifier, IConfiguration config, IApplicationStateManager state)
         {
             _console = console;
             _mediator = mediator;
             _notifier = notifier;
             _config = config;
+            _state = state;
         }
 
         public void Run()
@@ -38,7 +41,10 @@ namespace WorldOfAuctions
                 {
                     Console.ForegroundColor = ConsoleColor.White;
                     _console.FlushNotificationLines();
-                    _console.Write("> ", System.Drawing.Color.White);
+                    string prompt = "> ";
+                    if (_state.CurrentState != ApplicationState.Neutral)
+                        prompt = _state.StateInfo.PromptModifier(prompt);
+                    _console.Write(prompt, System.Drawing.Color.White);
                     line = Console.ReadLine();
                     _notifier.ClearNotifications();
                     if (!String.IsNullOrEmpty(line) && line != "exit")

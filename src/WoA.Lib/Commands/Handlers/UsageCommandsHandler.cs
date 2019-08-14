@@ -21,6 +21,7 @@ namespace WoA.Lib.Commands.Handlers
         , INotificationHandler<WhatIsItemUsageCommand>
         , INotificationHandler<WhoIsUsageCommand>
         , INotificationHandler<SettingsUsageCommand>
+        , INotificationHandler<RecipeUsageCommand>
     {
         private readonly IStylizedConsole _console;
 
@@ -175,5 +176,19 @@ namespace WoA.Lib.Commands.Handlers
             return Task.CompletedTask;
         }
 
+        public Task Handle(RecipeUsageCommand notification, CancellationToken cancellationToken)
+        {
+            _console.WriteAscii("recipes");
+            _console.WriteLine();
+            _console.WriteLine("Usage:");
+            _console.WriteLine();
+            _console.WriteLine(String.Format("{0,-30} : {1}", "recipe list", "Shows saved recipes"));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "recipes add <target product>", "Starts recipe creation mode for given item."));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "recipe reagent add quantity> <item description>", "Adds <quantity> of given reagent to the recipe"));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "recipe save <recipe name>", "Saves current recipe as <recipe name>"));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "recipe show current", "Shows current recipe info"));
+            _console.WriteLine(String.Format("{0,-30} : {1}", "recipe cancel", "Cancels current recipe and exits recipe creation mode"));
+            return Task.CompletedTask;
+        }
     }
 }

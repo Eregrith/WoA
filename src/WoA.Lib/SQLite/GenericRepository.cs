@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using WoA.Lib.Auctions;
 using WoA.Lib.Blizzard;
+using WoA.Lib.Business;
 
 namespace WoA.Lib.SQLite
 {
@@ -26,6 +27,9 @@ namespace WoA.Lib.SQLite
             _context.CreateTable<WowItem>();
             _context.CreateTable<BlizzardRealmData>();
             _context.CreateTable<SoldAuction>();
+            _context.CreateTable<Farmable>();
+            _context.CreateTable<Recipe>();
+            _context.CreateTable<Reagent>();
         }
 
         public T Add<T>(T model)

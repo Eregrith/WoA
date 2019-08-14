@@ -8,6 +8,7 @@ using System.Reflection;
 using WoA.Lib;
 using WoA.Lib.Auctions;
 using WoA.Lib.Blizzard;
+using WoA.Lib.Business;
 using WoA.Lib.Commands.QueryObjects;
 using WoA.Lib.SQLite;
 using WoA.Lib.TSM;
@@ -42,6 +43,7 @@ namespace WorldOfAuctions
             builder.RegisterType<ItemBundler>().As<IItemsBundler>();
             builder.RegisterType<ClipboardManager>().As<IClipboardManager>();
             builder.RegisterType<FlashingUserNotifier>().As<IUserNotifier>();
+            builder.RegisterType<ApplicationStateManager>().As<IApplicationStateManager>();
             builder.RegisterType<Mediator>()
                 .As<IMediator>()
                 .SingleInstance();
