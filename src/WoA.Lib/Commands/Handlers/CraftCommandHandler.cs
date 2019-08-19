@@ -48,15 +48,23 @@ namespace WoA.Lib.Commands.Handlers
             {
                 List<Reagent> reagents = _repository.GetAll<Reagent>().Where(r => r.Recipe == recipe.Name).ToList();
                 _console.WriteLine($"With recipe {recipe.Name}:");
-                _console.WriteLine(String.Format("{0,40}{1,12}{2,40}{3,20}{4,20}", "Item", "Quantity", "Source", "Cost", "Total"));
                 long totalForRecipe = 0;
                 foreach (Reagent reagent in reagents)
                 {
                     TsmItem tsmReagent = _tsm.GetItem(reagent.ItemId);
                     WowItem wowReagent = _blizzard.GetItem(reagent.ItemId);
-                    ReagentSource reagentSource = GetBestReagentSource(tsmReagent, reagent.Quantity);
-                    _console.WriteLine(String.Format("{0,46}{1,12}{2,40}{3,20}{4,20}", wowReagent.name.WithQuality((WowQuality)wowReagent.quality), reagent.Quantity, reagentSource.Source, reagentSource.Cost.ToGoldString(), (reagent.Quantity * reagentSource.Cost).ToGoldString()));
-                    totalForRecipe += reagent.Quantity * reagentSource.Cost;
+                    _console.WriteLine(String.Format("Sources for : {0,46} (x {1,12})", wowReagent.name.WithQuality((WowQuality)wowReagent.quality), reagent.Quantity));
+                    List<ReagentSource> reagentSources = GetBestReagentSource(tsmReagent, reagent.Quantity);
+                    int neededQuantity = reagent.Quantity;
+                    _console.WriteLine(String.Format("{0,50}{1,10}{2,20}{3,20}", "Source", "Quantity", "Cost per item", "Total cost"));
+                    foreach (ReagentSource reagentSource in reagentSources.OrderBy(s => s.Cost))
+                    {
+                        neededQuantity -= reagentSource.Quantity;
+                        totalForRecipe += reagentSource.TotalCost;
+                        _console.WriteLine(String.Format("{0,50}{1,10}{2,20}{3,20}", reagentSource.Source, reagentSource.Quantity, reagentSource.Cost.ToGoldString(), reagentSource.TotalCost.ToGoldString()));
+                        if (neededQuantity <= 0)
+                            break;
+                    }
                 }
                 _console.WriteLine($"Total crafting price (using market values) for recipe {recipe.Name}: " + totalForRecipe.ToGoldString());
                 _console.WriteLine();
@@ -65,49 +73,54 @@ namespace WoA.Lib.Commands.Handlers
             return Task.CompletedTask;
         }
 
-        private ReagentSource GetBestReagentSource(TsmItem item, int quantity)
+        private List<ReagentSource> GetBestReagentSource(TsmItem item, int quantity)
         {
-            ReagentSource source = new ReagentSource
+            List<ReagentSource> sources = new List<ReagentSource>();
+
+            if (item.VendorBuy != 0)
             {
-                Source = "AH buy",
-                Cost = item.MarketValue,
-            };
-            CheckRealAHBuy(item, source, quantity);
-            CheckBestCraftingSource(item, source, quantity);
-            return source;
+                sources.Add(new ReagentSource
+                {
+                    Source = "Vendor Buy",
+                    Quantity = quantity,
+                    Cost = item.VendorBuy,
+                    TotalCost = item.VendorBuy * quantity
+                });
+            }
+            CheckBestCraftingSource(item, sources, quantity);
+            CheckRealAHBuy(item, sources, quantity);
+            return sources;
         }
 
-        private void CheckRealAHBuy(TsmItem item, ReagentSource source, int quantity)
+        private void CheckRealAHBuy(TsmItem item, List<ReagentSource> sources, int quantity)
         {
             List<Auction> auctions = _blizzard.Auctions.Where(a => a.item == item.ItemId).ToList();
-            if (auctions.Sum(a => a.quantity) < quantity) return;
 
             int quantityNeeded = quantity;
-            long totalPrice = 0;
             foreach (Auction auction in auctions.OrderBy(a => a.PricePerItem))
             {
                 if (auction.buyout > 0)
                 {
-                    totalPrice += auction.buyout;
+                    sources.Add(new ReagentSource
+                    {
+                        Source = "AH Buy",
+                        Quantity = auction.quantity,
+                        Cost = auction.buyout / Math.Min(auction.quantity, quantityNeeded),
+                        TotalCost = auction.buyout
+                    });
                     quantityNeeded -= auction.quantity;
                 }
                 if (quantityNeeded <= 0)
                     break;
             }
-            long averagePrice = totalPrice / quantity;
-            if (averagePrice < source.Cost)
-            {
-                source.Source = "Real AH Buy (x" + (quantity - quantityNeeded) + ")";
-                source.Cost = averagePrice;
-            }
         }
 
-        private ReagentSource CheckBestCraftingSource(TsmItem item, ReagentSource source, int quantity)
+        private void CheckBestCraftingSource(TsmItem item, List<ReagentSource> sources, int quantity)
         {
             List<Recipe> recipesForReagent = _repository.GetAll<Recipe>().Where(r => r.ItemId == item.ItemId).ToList();
 
             if (recipesForReagent.Count == 0)
-                return source;
+                return;
 
             foreach (Recipe recipe in recipesForReagent)
             {
@@ -116,17 +129,24 @@ namespace WoA.Lib.Commands.Handlers
                 foreach (Reagent reagent in reagents)
                 {
                     TsmItem tsmReagent = _tsm.GetItem(reagent.ItemId);
-                    ReagentSource reagentSource = GetBestReagentSource(tsmReagent, quantity);
-                    totalForRecipe += reagent.Quantity * reagentSource.Cost;
+                    List<ReagentSource> reagentSources = GetBestReagentSource(tsmReagent, reagent.Quantity * quantity);
+                    int quantityNeeded = quantity;
+                    foreach (ReagentSource source in reagentSources.OrderBy(r => r.Cost))
+                    {
+                        quantityNeeded -= source.Quantity;
+                        totalForRecipe += source.TotalCost;
+                        if (quantityNeeded <= 0)
+                            break;
+                    }
                 }
-                if (totalForRecipe < source.Cost)
+                sources.Add(new ReagentSource
                 {
-                    source.Source = "Craft: " + recipe.Name;
-                    source.Cost = totalForRecipe;
-                }
+                    Source = $"Craft recipe '{recipe.Name}'",
+                    Quantity = quantity,
+                    TotalCost = totalForRecipe,
+                    Cost = totalForRecipe,
+                });
             }
-
-            return source;
         }
     }
 }

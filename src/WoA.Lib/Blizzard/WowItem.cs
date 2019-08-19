@@ -2,10 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Text;
 
 namespace WoA.Lib.Blizzard
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class WowItem
     {
         [PrimaryKey]
@@ -42,5 +44,7 @@ namespace WoA.Lib.Blizzard
         public bool heroicTooltip { get; set; }
         public string context { get; set; }
         public int artifactId { get; set; }
+
+        private string DebuggerDisplay => $"{name} ({id})";
     }
 }
