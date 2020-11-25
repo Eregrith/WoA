@@ -11,39 +11,21 @@ namespace WoA.Lib.Blizzard
     public class WowItem
     {
         [PrimaryKey]
-        public string id { get; set; }
-        public int quality { get; set; }
-        public string description { get; set; }
+        public int id { get; set; }
         public string name { get; set; }
-        public string icon { get; set; }
-        public int stackable { get; set; }
-        public int itemBind { get; set; }
-        public long buyPrice { get; set; }
-        public int itemClass { get; set; }
-        public int itemSubClass { get; set; }
-        public int containerSlots { get; set; }
-        public int inventoryType { get; set; }
-        public bool equippable { get; set; }
-        public int itemLevel { get; set; }
-        public int maxCount { get; set; }
-        public int maxDurability { get; set; }
-        public int minFactionId { get; set; }
-        public int minReputation { get; set; }
-        public long sellPrice { get; set; }
-        public int requiredSkill { get; set; }
-        public int requiredLevel { get; set; }
-        public int requiredSkillRank { get; set; }
-        public int baseArmor { get; set; }
-        public bool hasSockets { get; set; }
-        public bool isAuctionable { get; set; }
-        public int armor { get; set; }
-        public int displayInfoId { get; set; }
-        public string nameDescription { get; set; }
-        public string nameDescriptionColor { get; set; }
-        public bool upgradable { get; set; }
-        public bool heroicTooltip { get; set; }
-        public string context { get; set; }
-        public int artifactId { get; set; }
+        public WowQuality quality { get; set; }
+        public int level { get; set; }
+        public int required_level { get; set; }
+        public WowMedia media { get; set; }
+        public WowItemClass item_class { get; set; }
+        public WowItemClass item_subclass { get; set; }
+        public WowInventoryType inventory_type { get; set; }
+        public long purchase_price { get; set; }
+        public long sell_price { get; set; }
+        public int max_count { get; set; }
+        public bool is_equippable { get; set; }
+        public bool is_stackable { get; set; }
+        public string description { get; set; }
 
         private string DebuggerDisplay => $"{name} ({id})";
     }

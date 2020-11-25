@@ -34,8 +34,6 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine("Blizzard_ClientSecret : " + _config.Blizzard_ClientSecret);
             _console.WriteLine();
             _console.WriteLine("TsmApiKey : " + _config.TsmApiKey);
-            _console.WriteLine();
-            _console.WriteLine("Toons : " + String.Join(",", _config.PlayerToons));
             return Task.CompletedTask;
         }
 
@@ -59,11 +57,6 @@ namespace WoA.Lib.Commands.Handlers
                 case "TsmApiKey":
                     _config.TsmApiKey = notification.SettingValue;
                     _config.Save();
-                    break;
-                case "Toons":
-                    _config.PlayerToons = notification.SettingValue.Split(',').ToList();
-                    _config.Save();
-                    _console.InitStyleSheet();
                     break;
                 default:
                     _console.WriteLine("No setting is named " + notification.SettingName);

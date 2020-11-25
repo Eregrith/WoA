@@ -8,7 +8,7 @@ namespace WoA.Lib.Blizzard
         List<Auction> Auctions { get; }
 
         CharacterProfile GetInfosOnCharacter(string characterName, string realm);
-        WowQuality GetQuality(int itemId);
+        WowQualityType GetQuality(int itemId);
         WowItem GetItem(int itemId);
         IEnumerable<WowItem> GetItemsWithNameLike(string partialItemName);
     }

@@ -53,7 +53,7 @@ namespace WoA.Lib.Commands.Handlers
                 {
                     TsmItem tsmReagent = _tsm.GetItem(reagent.ItemId);
                     WowItem wowReagent = _blizzard.GetItem(reagent.ItemId);
-                    _console.WriteLine(String.Format("Sources for : {0,46} (x {1,12})", wowReagent.name.WithQuality((WowQuality)wowReagent.quality), reagent.Quantity));
+                    _console.WriteLine(String.Format("Sources for : {0,46} (x {1,12})", wowReagent.name.WithQuality(wowReagent.quality.AsQualityTypeEnum), reagent.Quantity));
                     List<ReagentSource> reagentSources = GetBestReagentSource(tsmReagent, reagent.Quantity);
                     int neededQuantity = reagent.Quantity;
                     _console.WriteLine(String.Format("{0,50}{1,10}{2,20}{3,20}", "Source", "Quantity", "Cost per item", "Total cost"));
@@ -94,7 +94,7 @@ namespace WoA.Lib.Commands.Handlers
 
         private void CheckRealAHBuy(TsmItem item, List<ReagentSource> sources, int quantity)
         {
-            List<Auction> auctions = _blizzard.Auctions.Where(a => a.item == item.ItemId).ToList();
+            List<Auction> auctions = _blizzard.Auctions.Where(a => a.item.id == item.ItemId).ToList();
 
             int quantityNeeded = quantity;
             foreach (Auction auction in auctions.OrderBy(a => a.PricePerItem))
@@ -105,8 +105,8 @@ namespace WoA.Lib.Commands.Handlers
                     {
                         Source = "AH Buy",
                         Quantity = auction.quantity,
-                        Cost = auction.buyout / Math.Min(auction.quantity, quantityNeeded),
-                        TotalCost = auction.buyout
+                        Cost = auction.FullPrice / Math.Min(auction.quantity, quantityNeeded),
+                        TotalCost = auction.FullPrice
                     });
                     quantityNeeded -= auction.quantity;
                 }

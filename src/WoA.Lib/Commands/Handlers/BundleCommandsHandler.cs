@@ -62,7 +62,7 @@ namespace WoA.Lib.Commands.Handlers
             {
                 _itemsBundler.Add(itemId, notification.ItemQuantity);
                 WowItem wowItem = _blizzard.GetItem(itemId);
-                WowQuality quality = (WowQuality)wowItem.quality;
+                WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
                 _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.WithQuality(quality) + " added to bundle");
             }
             else
@@ -81,7 +81,7 @@ namespace WoA.Lib.Commands.Handlers
                 {
                     TsmItem tsmItem = _tsm.GetItem(itemId);
                     WowItem wowItem = _blizzard.GetItem(itemId);
-                    WowQuality quality = (WowQuality)wowItem.quality;
+                    WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
                     if (tsmItem != null)
                         _console.WriteLine("No TSM data for item " + notification.ItemDescription);
 
@@ -162,7 +162,7 @@ namespace WoA.Lib.Commands.Handlers
                     int quantity = int.Parse(testValue[i]);
                     _itemsBundler.Add(itemId, quantity);
                     WowItem wowItem = _blizzard.GetItem(itemId);
-                    WowQuality quality = (WowQuality)wowItem.quality;
+                    WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
                     _console.WriteLine(quantity + " x " + wowItem.name.WithQuality(quality) + " added to bundle");
                 }
                 _console.WriteLine($"{notification.BundleName} loaded");
@@ -223,7 +223,7 @@ namespace WoA.Lib.Commands.Handlers
                 {
                     TsmItem tsmItem = _tsm.GetItem(item.Key);
                     WowItem wowItem = _blizzard.GetItem(item.Key);
-                    WowQuality quality = (WowQuality)wowItem.quality;
+                    WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
                     if (tsmItem == null)
                         _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.WithQuality(quality), "unknown", "unknown"));
                     else
@@ -314,12 +314,12 @@ namespace WoA.Lib.Commands.Handlers
                 foreach (KeyValuePair<int, int> item in bundle)
                 {
                     _console.WriteLine($"--------------------------------------------------");
-                    IEnumerable<Auction> auctions = _blizzard.Auctions.Where(a => a.item == item.Key).OrderBy(a => a.PricePerItem).Take(notification.Amount);
+                    IEnumerable<Auction> auctions = _blizzard.Auctions.Where(a => a.item.id == item.Key).OrderBy(a => a.PricePerItem).Take(notification.Amount);
                     WowItem wowItem = _blizzard.GetItem(item.Key);
                     if (auctions.Any())
                         _auctionViewer.ShowAuctionsForMultiItems(auctions, false, false);
                     else
-                        _console.WriteLine($"No {wowItem.name.WithQuality((WowQuality)wowItem.quality)} [{item.Key}] found.");
+                        _console.WriteLine($"No {wowItem.name.WithQuality(wowItem.quality.AsQualityTypeEnum)} [{item.Key}] found.");
                     _console.WriteLine();
                 }
             }

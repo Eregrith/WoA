@@ -13,7 +13,6 @@ namespace WoA.Lib
         string CurrentRegion { get; set; }
         string CurrentRealm { get; set; }
         string DatabasePath { get; }
-        List<string> PlayerToons { get; set; }
 
         void Save();
     }

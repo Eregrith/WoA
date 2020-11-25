@@ -71,6 +71,12 @@ namespace WoA.Lib.SQLite
             return _context.Query<T>(map.GetByPrimaryKeySql, pk).FirstOrDefault();
         }
 
+        public T GetById<T>(int id) where T : new()
+        {
+            var map = _context.GetMapping(typeof(T));
+            return _context.Query<T>(map.GetByPrimaryKeySql, id).FirstOrDefault();
+        }
+
         public T[] GetAll<T>() where T : new()
         {
             return new TableQuery<T>(_context).ToArray();

@@ -66,7 +66,7 @@ namespace WoA.Lib.Blizzard
                 _notifier.Toast("Error while loading auctions. There probably were no auctions loaded as a result");
                 _console.WriteNotificationLine("BLI > Error while loading auctions. There probably were no auctions loaded as a result");
                 _console.WriteNotificationLine(e.Message);
-                _console.WriteNotificationLine(e.StatusResponse.reason);
+                _console.WriteNotificationLine(e.StatusResponse?.reason);
             }
             catch (Exception e)
             {
@@ -109,19 +109,16 @@ namespace WoA.Lib.Blizzard
             TimeSpan timeSinceLastUpdate = new TimeSpan(timestamp - _lastFileGot);
             var savedAuctions = _repo.GetAll<Auction>();
             List<SoldAuction> probablySoldAuctions = new List<SoldAuction>();
-            List<Auction> playerAuctionProbablySold = new List<Auction>();
             List<Auction> removed = new List<Auction>();
             List<Auction> updated = new List<Auction>();
             foreach (Auction savedAuction in savedAuctions)
             {
-                var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.auc == savedAuction.auc);
+                var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.id == savedAuction.id);
                 if (updatedAuction == null)
                 {
                     if (savedAuction.timeLeft.ToHoursLeft() > timeSinceLastUpdate.TotalHours)
                     {
                         probablySoldAuctions.Add(new SoldAuction(savedAuction, timeSinceLastUpdate, _config.CurrentRealm));
-                        if (_config.PlayerToons.Contains(savedAuction.owner))
-                            playerAuctionProbablySold.Add(savedAuction);
                     }
                     removed.Add(savedAuction);
                 }
@@ -135,34 +132,13 @@ namespace WoA.Lib.Blizzard
             _repo.UpdateAll(updated);
             _repo.AddAll(probablySoldAuctions);
 
-            if (playerAuctionProbablySold.Any())
-            {
-                _notifier.NotifySomethingNew();
-                _notifier.Toast($"{playerAuctionProbablySold.Count} of your auctions probably sold for a total of {playerAuctionProbablySold.Sum(a => a.buyout).ToGoldString()}.");
-                _console.WriteNotificationLine($"BLI > {playerAuctionProbablySold.Count} of your auctions probably sold (or were cancelled before timing out).");
-                foreach (Auction a in playerAuctionProbablySold)
-                {
-                    WowItem item = GetItem(a.item);
-                    WowQuality quality = (WowQuality)item.quality;
-                    string name = item.name;
-                    _console.WriteNotificationLine(String.Format("{0,46}{1,20} x{2,3}{3,20}{4,15}{5,4}"
-                        , name.WithQuality(quality)
-                        , a.PricePerItem.ToGoldString()
-                        , a.quantity
-                        , a.buyout.ToGoldString()
-                        , a.owner
-                        , a.timeLeft.ToAuctionTimeString()));
-                }
-                _console.WriteNotificationLine($"total duty-free sales : {playerAuctionProbablySold.Sum(a => a.buyout).ToGoldString()}, total sales with ah taxes : {((long)(playerAuctionProbablySold.Sum(a => a.buyout)*0.9)).ToGoldString()}");
-            }
-
             return (updated.Count, removed.Count);
         }
 
         private int InsertNewAuctions(List<Auction> auctionsFromFile)
         {
             var savedAuctions = _repo.GetAll<Auction>();
-            var newAuctions = auctionsFromFile.Where(a => !savedAuctions.Any(r => r.auc == a.auc)).ToList();
+            var newAuctions = auctionsFromFile.Where(a => !savedAuctions.Any(r => r.id == a.id)).ToList();
             newAuctions.ForEach(a => a.FirstSeenOn = DateTime.Now);
             _repo.AddAll(newAuctions);
             return newAuctions.Count;
@@ -241,9 +217,9 @@ namespace WoA.Lib.Blizzard
             return JsonConvert.DeserializeObject<CharacterProfile>(response.Content);
         }
 
-        public WowQuality GetQuality(int itemId)
+        public WowQualityType GetQuality(int itemId)
         {
-            return (WowQuality)GetItem(itemId).quality;
+            return (WowQualityType)GetItem(itemId).quality.AsQualityTypeEnum;
         }
 
         public WowItem GetItem(int itemId)

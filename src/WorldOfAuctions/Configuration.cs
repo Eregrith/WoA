@@ -19,8 +19,6 @@ namespace WorldOfAuctions
 
         public string DatabasePath => ConfigurationManager.AppSettings["DatabasePath"];
 
-        public List<string> PlayerToons { get; set; } = ConfigurationManager.AppSettings ["PlayerToons"].Split(';').ToList();
-
         public void Save()
         {
             var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -29,7 +27,6 @@ namespace WorldOfAuctions
             config.AppSettings.Settings["Blizzard_ClientSecret"].Value = Blizzard_ClientSecret;
             config.AppSettings.Settings["DefaultRegion"].Value = CurrentRegion;
             config.AppSettings.Settings["DefaultRealm"].Value = CurrentRealm;
-            config.AppSettings.Settings["PlayerToons"].Value = String.Join(";", PlayerToons);
             config.Save(ConfigurationSaveMode.Minimal);
         }
     }

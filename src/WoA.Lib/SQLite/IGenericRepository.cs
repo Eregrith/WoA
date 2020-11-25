@@ -14,6 +14,7 @@ namespace WoA.Lib.SQLite
         bool Delete<T>(T model);
         void DeleteAll<T>(List<T> models);
         T GetById<T>(string pk) where T : new();
+        T GetById<T>(int id) where T : new();
         T[] GetAll<T>() where T : new();
     }
 }

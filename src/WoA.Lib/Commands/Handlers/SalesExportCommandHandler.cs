@@ -34,7 +34,6 @@ namespace WoA.Lib.Commands.Handlers
             {
                 sw.WriteLine("Buyout"
                     + separator + "First seen on"
-                    + separator + "Seller"
                     + separator + "Price per item"
                     + separator + "Quantity"
                     + separator + "Item ID"
@@ -45,7 +44,6 @@ namespace WoA.Lib.Commands.Handlers
                 {
                     sw.WriteLine(             auction.buyout
                                 + separator + auction.FirstSeenOn
-                                + separator + auction.owner
                                 + separator + auction.PricePerItem
                                 + separator + auction.quantity
                                 + separator + auction.item
