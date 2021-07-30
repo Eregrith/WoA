@@ -25,7 +25,7 @@ namespace WoA.Lib
             {
                 return id;
             }
-            return _tsm.GetItemIdFromName(line);
+            return _blizzard.GetItemIdFromName(line);
         }
 
         public void SimulateFlippingItem(int itemId)
@@ -119,13 +119,17 @@ namespace WoA.Lib
         public void SeeAuctionsFor(int itemId)
         {
             TsmItem tsmItem = _tsm.GetItem(itemId);
+            string name;
             if (tsmItem == null)
             {
                 _console.WriteLine("No item found in TSM data with this id");
-                return;
+                name = _blizzard.GetItem(itemId).name.en_US;
+            }
+            else
+            {
+                name = tsmItem.Name;
             }
             _console.WriteLine($"Looking at auctions for item:");
-            string name = tsmItem.Name;
             if (name.Length > 20)
             {
                 List<string> parts = name.Split(' ').ToList();
@@ -147,12 +151,14 @@ namespace WoA.Lib
                 _console.WriteAscii(name);
             var itemAuctions = _blizzard.Auctions.Where(a => a.item.id == itemId);
             WowQualityType quality = _blizzard.GetQuality(itemId);
-            _console.WriteLine($"There are {itemAuctions.Count()} {tsmItem.Name.WithQuality(quality)} auctions");
-            _console.WriteLine($"Tsm Item : {tsmItem}");
+            _console.WriteLine($"There are {itemAuctions.Count()} {name.WithQuality(quality)} auctions");
+            if (tsmItem != null)
+                _console.WriteLine($"Tsm Item : {tsmItem}");
 
             ShowAuctions(tsmItem, itemAuctions);
 
-            _console.WriteLine($"{tsmItem.Name} is sold at a rate of {tsmItem.RegionSaleRate} in region, for around {tsmItem.RegionAvgDailySold} items per day");
+            if (tsmItem != null)
+                _console.WriteLine($"{tsmItem.Name} is sold at a rate of {tsmItem.RegionSaleRate} in region, for around {tsmItem.RegionAvgDailySold} items per day");
         }
 
         public void ShowAuctionsForMultiItems(IEnumerable<Auction> auctions)
@@ -170,7 +176,7 @@ namespace WoA.Lib
                 TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item.id);
                 string percentDbMarket = tsmItem != null ? Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue).ToString() : "unknown";
                 WowQualityType quality = item.quality.AsQualityTypeEnum;
-                string name = item.name;
+                string name = item.name.en_US;
                 _console.WriteLine(String.Format("{0,46}{1,20}{2,7}x {3,3}{4,30}{5,20}{6,12} %"
                     , name.WithQuality(quality)
                     , auctionGroup.Key.PricePerItem.ToGoldString()
@@ -196,7 +202,7 @@ namespace WoA.Lib
                 TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item.id);
                 string percentDbMarket = tsmItem != null ? Math.Round(auctionGroup.Average(a => (a.PricePerItem * 100.0) / tsmItem.MarketValue), 2).ToString() : "unknown";
                 WowQualityType quality = item.quality.AsQualityTypeEnum;
-                string name = item.name;
+                string name = item.name.en_US;
                 _console.WriteLine(String.Format("{0,51}{1,12}{2,20}{3,18:0.00} %"
                     , name.WithQuality(quality)
                     , auctionGroup.Sum(a => a.quantity)
@@ -210,21 +216,27 @@ namespace WoA.Lib
             _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,30}{4,14}", "Price per item", "Quantity", "Buyout total", "Time left (first seen on)", "% MarketValue"));
             foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.timeLeft, a.FirstSeenOn }).OrderBy(g => g.Key.PricePerItem))
             {
+                string marketRatio = "?";
+                if (tsmItem != null)
+                    marketRatio = $"{Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)}";
                 _console.WriteLine(String.Format("{0,20}{1,7}x {2,3}{3,20}{4,30}{5,12} %"
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).Value.ToGoldString()
                     , auctionGroup.Key.timeLeft.ToAuctionTimeString() + "      " + auctionGroup.Key.FirstSeenOn.ToString("MM/dd HH:mm") + "  "
-                    , Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)));
+                    , marketRatio));
             }
 
+            string average = "?";
+            if (tsmItem != null)
+                average = $"{Math.Round(auctions.Average(a => Math.Round((a.PricePerItem * 100.0) / tsmItem.MarketValue)), 2)}";
             _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,50}{4,14}"
                 , "Grand total"
                 , auctions.Sum(a => a.quantity)
                 , auctions.Sum(a => a.FullPrice).ToGoldString()
                 , ""
-                , "avg:" + Math.Round(auctions.Average(a => Math.Round((a.PricePerItem * 100.0) / tsmItem.MarketValue)), 2) + " %"
+                , "avg:" + average + " %"
                 )
             );
         }

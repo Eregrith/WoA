@@ -12,14 +12,10 @@ namespace WoA.Lib.Commands.Handlers
 {
     public class StartupCommandHandler : INotificationHandler<StartupCommand>
     {
-        private readonly ITsmClient _tsm;
-        private readonly IBlizzardClient _blizzard;
         private readonly IStylizedConsole _console;
 
         public StartupCommandHandler(ITsmClient tsm, IBlizzardClient blizzard, IStylizedConsole console)
         {
-            _tsm = tsm;
-            _blizzard = blizzard;
             _console = console;
         }
 

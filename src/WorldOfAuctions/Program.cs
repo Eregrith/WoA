@@ -10,7 +10,8 @@ using WoA.Lib.Auctions;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Business;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
+using WoA.Lib.Persistence.Files;
 using WoA.Lib.TSM;
 
 namespace WorldOfAuctions
@@ -39,7 +40,7 @@ namespace WorldOfAuctions
                 .As<IBlizzardClient>()
                 .SingleInstance();
             builder.RegisterType<AuctionViewer>().As<IAuctionViewer>().SingleInstance();
-            builder.RegisterType<GenericRepository>().As<IGenericRepository>().SingleInstance();
+            builder.RegisterType<FilesRepository>().As<IGenericRepository>().SingleInstance();
             builder.RegisterType<ItemBundler>().As<IItemsBundler>();
             builder.RegisterType<ClipboardManager>().As<IClipboardManager>();
             builder.RegisterType<FlashingUserNotifier>().As<IUserNotifier>();

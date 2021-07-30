@@ -12,6 +12,7 @@ namespace WoA.Lib
 
         string CurrentRegion { get; set; }
         string CurrentRealm { get; set; }
+        int? ConnectedRealmId { get; set; }
         string DatabasePath { get; }
 
         void Save();

@@ -9,8 +9,7 @@ using WoA.Lib.Commands.QueryObjects;
 namespace WoA.Lib.Commands.Handlers
 {
     public class UsageCommandsHandler
-        : INotificationHandler<ChangeRealmUsageCommand>
-        , INotificationHandler<BundleUsageCommand>
+        : INotificationHandler<BundleUsageCommand>
         , INotificationHandler<FlipUsageCommand>
         , INotificationHandler<ResetUsageCommand>
         , INotificationHandler<SeeAuctionsUsageCommand>
@@ -26,17 +25,6 @@ namespace WoA.Lib.Commands.Handlers
         public UsageCommandsHandler(IStylizedConsole console)
         {
             _console = console;
-        }
-
-        public Task Handle(ChangeRealmUsageCommand notification, CancellationToken cancellationToken)
-        {
-            _console.WriteAscii("chrealm");
-            _console.WriteLine();
-            _console.WriteLine("Usage:");
-            _console.WriteLine();
-            _console.WriteLine(String.Format("{0,-30} : {1}", "chrealm <realm name>", "Changes the current realm to <realm name>."));
-            _console.WriteLine(String.Format("{0,-30}   {1}", "", "If the given realm is the same as the current one, auction data is refreshed"));
-            return Task.CompletedTask;
         }
 
         public Task Handle(BundleUsageCommand notification, CancellationToken cancellationToken)

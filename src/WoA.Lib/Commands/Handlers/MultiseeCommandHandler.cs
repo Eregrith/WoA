@@ -35,7 +35,7 @@ namespace WoA.Lib.Commands.Handlers
                 if (auctions.Any())
                     _auctions.ShowAuctionsForMultiItems(auctions, false, false);
                 else
-                    _console.WriteLine($"No {item.name.WithQuality(item.quality.AsQualityTypeEnum)} [{item.id}] found.");
+                    _console.WriteLine($"No {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)} [{item.id}] found.");
                 _console.WriteLine();
             }
             return Task.CompletedTask;

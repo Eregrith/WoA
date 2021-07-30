@@ -8,22 +8,12 @@ using WoA.Lib.Blizzard;
 
 namespace WoA.Lib
 {
-    public class AuctionFileContents
-    {
-        public List<Realm> realms { get; set; }
-        public List<Auction> auctions { get; set; }
-    }
-
-    public class Realm
-    {
-        public string name { get; set; }
-        public string slug { get; set; }
-    }
-
-    public class Auction
+    public class Auction : IIdentifiable
     {
         [PrimaryKey]
         public string id { get; set; }
+        public string Id { get => id; set => id = value; }
+        [Ignore]
         public WowItem item { get; set; }
         public long? bid { get; set; }
         public long? buyout { get; set; }

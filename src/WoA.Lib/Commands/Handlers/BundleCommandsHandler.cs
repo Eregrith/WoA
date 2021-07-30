@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using WoA.Lib.Auctions;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
 using WoA.Lib.TSM;
 
 namespace WoA.Lib.Commands.Handlers
@@ -63,7 +63,7 @@ namespace WoA.Lib.Commands.Handlers
                 _itemsBundler.Add(itemId, notification.ItemQuantity);
                 WowItem wowItem = _blizzard.GetItem(itemId);
                 WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
-                _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.WithQuality(quality) + " added to bundle");
+                _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.en_US.WithQuality(quality) + " added to bundle");
             }
             else
             {
@@ -89,16 +89,16 @@ namespace WoA.Lib.Commands.Handlers
                     {
                         if (notification.RemoveAllQuantity)
                         {
-                            _console.WriteLine(wowItem.name.WithQuality(quality) + " removed from bundle");
+                            _console.WriteLine(wowItem.name.en_US.WithQuality(quality) + " removed from bundle");
                         }
                         else
                         {
-                            _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.WithQuality(quality) + " removed from bundle");
+                            _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.en_US.WithQuality(quality) + " removed from bundle");
                         }
                     }
                     else
                     {
-                        _console.WriteLine(wowItem.name.WithQuality(quality) + " doesn't exist in bundle");
+                        _console.WriteLine(wowItem.name.en_US.WithQuality(quality) + " doesn't exist in bundle");
                     }
                 }
                 else
@@ -163,7 +163,7 @@ namespace WoA.Lib.Commands.Handlers
                     _itemsBundler.Add(itemId, quantity);
                     WowItem wowItem = _blizzard.GetItem(itemId);
                     WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
-                    _console.WriteLine(quantity + " x " + wowItem.name.WithQuality(quality) + " added to bundle");
+                    _console.WriteLine(quantity + " x " + wowItem.name.en_US.WithQuality(quality) + " added to bundle");
                 }
                 _console.WriteLine($"{notification.BundleName} loaded");
             }
@@ -225,12 +225,12 @@ namespace WoA.Lib.Commands.Handlers
                     WowItem wowItem = _blizzard.GetItem(item.Key);
                     WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
                     if (tsmItem == null)
-                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.WithQuality(quality), "unknown", "unknown"));
+                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.en_US.WithQuality(quality), "unknown", "unknown"));
                     else
                     {
                         long itemPrice = tsmItem.VendorBuy != 0 ? tsmItem.VendorBuy : tsmItem.MarketValue;
                         long itemTotal = (itemPrice * item.Value);
-                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.WithQuality(quality), (itemPrice == tsmItem.VendorBuy ? "(vendor) " + itemPrice.ToGoldString() : itemPrice.ToGoldString()), itemTotal.ToGoldString()));
+                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.en_US.WithQuality(quality), (itemPrice == tsmItem.VendorBuy ? "(vendor) " + itemPrice.ToGoldString() : itemPrice.ToGoldString()), itemTotal.ToGoldString()));
                         bigTotal += itemTotal;
                     }
                 }
@@ -319,7 +319,7 @@ namespace WoA.Lib.Commands.Handlers
                     if (auctions.Any())
                         _auctionViewer.ShowAuctionsForMultiItems(auctions, false, false);
                     else
-                        _console.WriteLine($"No {wowItem.name.WithQuality(wowItem.quality.AsQualityTypeEnum)} [{item.Key}] found.");
+                        _console.WriteLine($"No {wowItem.name.en_US.WithQuality(wowItem.quality.AsQualityTypeEnum)} [{item.Key}] found.");
                     _console.WriteLine();
                 }
             }

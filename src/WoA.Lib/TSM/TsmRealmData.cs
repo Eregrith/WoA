@@ -3,7 +3,7 @@ using System;
 
 namespace WoA.Lib.TSM
 {
-    public class TsmRealmData
+    public class TsmRealmData : IIdentifiable
     {
         [PrimaryKey]
         public string Id { get; set; }

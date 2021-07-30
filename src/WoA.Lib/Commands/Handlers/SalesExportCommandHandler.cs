@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
 
 namespace WoA.Lib.Commands.Handlers
 {

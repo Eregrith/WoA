@@ -31,25 +31,10 @@ namespace WorldOfAuctions
         {
             try
             {
-                CheckConfig();
-                _mediator.Publish(new StartupCommand { CurrentVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion });
-                _mediator.Publish(new StartPeriodicRefreshOfAuctionsCommand());
-
-                _console.WriteLine("Type 'help' for a list of commands");
-                string line;
-                do
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    _console.FlushNotificationLines();
-                    string prompt = "> ";
-                    if (_state.CurrentState != ApplicationState.Neutral)
-                        prompt = _state.StateInfo.PromptModifier(prompt);
-                    _console.Write(prompt, System.Drawing.Color.White);
-                    line = Console.ReadLine();
-                    _notifier.ClearNotifications();
-                    if (!String.IsNullOrEmpty(line) && line != "exit")
-                        _mediator.Publish(new ParseCommand { UserInput = line });
-                } while (line != "exit");
+                CheckConfigAndAskUserToCompleteIt();
+                PublishStartupCommands();
+                DisplayHelpMessage();
+                MainLoop();
             }
             catch (Exception e)
             {
@@ -64,7 +49,59 @@ namespace WorldOfAuctions
             }
         }
 
-        private void CheckConfig()
+        private void MainLoop()
+        {
+            string line;
+            do
+            {
+                line = ReadAndProcessLine();
+            } while (line != "exit");
+        }
+
+        private void DisplayHelpMessage()
+        {
+            _console.WriteLine("Type 'help' for a list of commands");
+        }
+
+        private void PublishStartupCommands()
+        {
+            _mediator.Publish(new StartupCommand { CurrentVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion });
+            _mediator.Publish(new StartPeriodicRefreshOfAuctionsCommand());
+        }
+
+        private string ReadAndProcessLine()
+        {
+            PrepareDisplay();
+            DisplayPrompt();
+            string line = Console.ReadLine();
+            StopWindowFlashing();
+            ProcessCommandFromLine(line);
+            return line;
+        }
+
+        private void ProcessCommandFromLine(string line)
+        {
+            if (!String.IsNullOrEmpty(line) && line != "exit")
+                _mediator.Publish(new ParseCommand { UserInput = line });
+        }
+
+        private void StopWindowFlashing() => _notifier.ClearNotifications();
+
+        private void DisplayPrompt()
+        {
+            string prompt = "> ";
+            if (_state.CurrentState != ApplicationState.Neutral)
+                prompt = _state.StateInfo.PromptModifier(prompt);
+            _console.Write(prompt, System.Drawing.Color.White);
+        }
+
+        private void PrepareDisplay()
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            _console.FlushNotificationLines();
+        }
+
+        private void CheckConfigAndAskUserToCompleteIt()
         {
             bool needSave = false;
             if (String.IsNullOrEmpty(_config.CurrentRegion))
@@ -72,13 +109,6 @@ namespace WorldOfAuctions
                 _console.WriteLine("What is your region [eu|us] ?");
                 string line = Console.ReadLine();
                 _config.CurrentRegion = line;
-                needSave = true;
-            }
-            if (String.IsNullOrEmpty(_config.CurrentRealm))
-            {
-                _console.WriteLine("What is your realm slug (no special chars, example Drek'Thar is drekthar) ?");
-                string line = Console.ReadLine();
-                _config.CurrentRealm = line;
                 needSave = true;
             }
             if (String.IsNullOrEmpty(_config.Blizzard_ClientId))
@@ -93,6 +123,11 @@ namespace WorldOfAuctions
                 _console.WriteLine("What is your Blizzard Client Secret?");
                 string line = Console.ReadLine();
                 _config.Blizzard_ClientSecret = line;
+                needSave = true;
+            }
+            if (_config.ConnectedRealmId == null)
+            {
+                _mediator.Publish(new SetConnectedRealmIdCommand());
                 needSave = true;
             }
             if (String.IsNullOrEmpty(_config.TsmApiKey))

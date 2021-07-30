@@ -28,7 +28,7 @@ namespace WoA.Lib.Commands.Handlers
         {
             _console.WriteLine("Current settings :");
             _console.WriteLine();
-            _console.WriteLine("CurrentRealm : " + _config.CurrentRealm);
+            _console.WriteLine("ConnectedRealmId : " + _config.ConnectedRealmId);
             _console.WriteLine();
             _console.WriteLine("Blizzard_ClientId : " + _config.Blizzard_ClientId);
             _console.WriteLine("Blizzard_ClientSecret : " + _config.Blizzard_ClientSecret);
@@ -41,8 +41,8 @@ namespace WoA.Lib.Commands.Handlers
         {
             switch (notification.SettingName)
             {
-                case "CurrentRealm":
-                    ChangeRealmCommand command = new ChangeRealmCommand { Realm = notification.SettingValue };
+                case "ConnectedRealmId":
+                    SetConnectedRealmIdCommand command = new SetConnectedRealmIdCommand();
                     await _mediator.Publish(command);
                     _config.Save();
                     break;

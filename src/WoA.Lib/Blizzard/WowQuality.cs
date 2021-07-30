@@ -7,7 +7,7 @@ namespace WoA.Lib.Blizzard
     public class WowQuality
     {
         public string type { get; set; }
-        public string name { get; set; }
+        public WowLocalizedString name { get; set; }
         public WowQualityType AsQualityTypeEnum
         {
             get

@@ -3,6 +3,6 @@
     public class WowInventoryType
     {
         public string type { get; set; }
-        public string name { get; set; }
+        public WowLocalizedString name { get; set; }
     }
 }

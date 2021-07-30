@@ -4,8 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using WoA.Lib.Blizzard;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
 
 namespace WoA.Lib.TSM
 {

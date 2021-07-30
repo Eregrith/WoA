@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WoA.Lib.Blizzard
 {
-    public class BlizzardRealmData
+    public class BlizzardRealmData : IIdentifiable
     {
         [PrimaryKey]
         public string Id { get; set; }

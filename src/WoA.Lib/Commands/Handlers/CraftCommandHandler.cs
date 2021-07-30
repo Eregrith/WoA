@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Business;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
 using WoA.Lib.TSM;
 
 namespace WoA.Lib.Commands.Handlers
@@ -53,7 +53,7 @@ namespace WoA.Lib.Commands.Handlers
                 {
                     TsmItem tsmReagent = _tsm.GetItem(reagent.ItemId);
                     WowItem wowReagent = _blizzard.GetItem(reagent.ItemId);
-                    _console.WriteLine(String.Format("Sources for : {0,46} (x {1,12})", wowReagent.name.WithQuality(wowReagent.quality.AsQualityTypeEnum), reagent.Quantity));
+                    _console.WriteLine(String.Format("Sources for : {0,46} (x {1,12})", wowReagent.name.en_US.WithQuality(wowReagent.quality.AsQualityTypeEnum), reagent.Quantity));
                     List<ReagentSource> reagentSources = GetBestReagentSource(tsmReagent, reagent.Quantity);
                     int neededQuantity = reagent.Quantity;
                     _console.WriteLine(String.Format("{0,50}{1,10}{2,20}{3,20}", "Source", "Quantity", "Cost per item", "Total cost"));

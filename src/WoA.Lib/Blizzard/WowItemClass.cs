@@ -2,7 +2,7 @@
 {
     public class WowItemClass
     {
-        public string name { get; set; }
+        public WowLocalizedString name { get; set; }
         public int id { get; set; }
         public WowKey key { get; set; }
     }

@@ -9,7 +9,7 @@ using WoA.Lib.Blizzard;
 using WoA.Lib.Business;
 using WoA.Lib.Business.StateObjects;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
 using WoA.Lib.TSM;
 
 namespace WoA.Lib.Commands.Handlers
@@ -41,7 +41,7 @@ namespace WoA.Lib.Commands.Handlers
         {
             int id = _tsm.GetItemIdFromName(notification.ItemDesc);
             WowItem item = _blizzard.GetItem(id);
-            _console.WriteLine($"Started creating a recipe for item {item.name.WithQuality(item.quality.AsQualityTypeEnum)}");
+            _console.WriteLine($"Started creating a recipe for item {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)}");
             _state.SetState(ApplicationState.RecipeCreation, new RecipeCreationState(id));
             return Task.CompletedTask;
         }
@@ -54,7 +54,7 @@ namespace WoA.Lib.Commands.Handlers
             foreach (var recipeGroup in recipes.GroupBy(r => r.ItemId))
             {
                 WowItem item = _blizzard.GetItem(recipeGroup.Key);
-                _console.WriteLine($"{item.name.WithQuality(item.quality.AsQualityTypeEnum)} :");
+                _console.WriteLine($"{item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)} :");
                 foreach (var recipe in recipeGroup)
                     _console.WriteLine($"  {recipe.Name} => 1");
                 _console.WriteLine();
@@ -84,7 +84,7 @@ namespace WoA.Lib.Commands.Handlers
 
             int id = _tsm.GetItemIdFromName(notification.ItemDesc);
             WowItem item = _blizzard.GetItem(id);
-            _console.WriteLine($"Adding {notification.Quantity} x {item.name.WithQuality(item.quality.AsQualityTypeEnum)} to the recipe");
+            _console.WriteLine($"Adding {notification.Quantity} x {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)} to the recipe");
             RecipeCreationState recipe = (_state.StateInfo as RecipeCreationState);
             if (recipe.Reagents.ContainsKey(item))
                 recipe.Reagents[item] += notification.Quantity;
@@ -114,7 +114,7 @@ namespace WoA.Lib.Commands.Handlers
             {
                 Reagent r = new Reagent
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.NewGuid().ToString(),
                     Recipe = notification.Name,
                     ItemId = reagent.Key.id,
                     Quantity = reagent.Value
@@ -137,13 +137,13 @@ namespace WoA.Lib.Commands.Handlers
 
             RecipeCreationState recipeState = (_state.StateInfo as RecipeCreationState);
             WowItem item = _blizzard.GetItem(recipeState.ItemId);
-            _console.WriteLine($"You are making a recipe for {item.name.WithQuality(item.quality.AsQualityTypeEnum)}");
+            _console.WriteLine($"You are making a recipe for {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)}");
 
             _console.WriteLine(String.Format("{0,40}{1,12}", "Item", "Quantity"));
 
             foreach (KeyValuePair<WowItem, int> reagent in recipeState.Reagents)
             {
-                _console.WriteLine(String.Format("{0,46}{1,12}", reagent.Key.name.WithQuality(reagent.Key.quality.AsQualityTypeEnum), reagent.Value));
+                _console.WriteLine(String.Format("{0,46}{1,12}", reagent.Key.name.en_US.WithQuality(reagent.Key.quality.AsQualityTypeEnum), reagent.Value));
             }
 
             return Task.CompletedTask;

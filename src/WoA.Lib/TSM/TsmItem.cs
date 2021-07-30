@@ -4,7 +4,7 @@ using WoA.Lib.Blizzard;
 
 namespace WoA.Lib.TSM
 {
-    public class TsmItem
+    public class TsmItem : IIdentifiable
     {
         [PrimaryKey]
         public string Id { get; set; }

@@ -11,5 +11,7 @@ namespace WoA.Lib.Blizzard
         WowQualityType GetQuality(int itemId);
         WowItem GetItem(int itemId);
         IEnumerable<WowItem> GetItemsWithNameLike(string partialItemName);
+        ConnectedRealmSearchData SearchConnectedRealmsForEnglishName(string realmName);
+        int GetItemIdFromName(string line);
     }
 }
