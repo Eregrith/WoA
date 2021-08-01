@@ -86,19 +86,7 @@ namespace WoA.Lib.Persistence.MongoDB
 
         public void DeleteAll<T>(List<T> models) where T : IIdentifiable
         {
-            try
-            {
-                if (models.Any())
-                {
-                    IMongoCollection<T> collection = GetCollection<T>();
-                    FilterDefinition<T> filter = Builders<T>.Filter.AnyIn("Id", models.Select(m => m.Id));
-                    DeleteResult result = collection.DeleteMany(filter);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Error in MongoWrapper.DeleteAll", e);
-            }
+            models.ForEach(m => Delete(m));
         }
 
         public T[] GetAll<T>()

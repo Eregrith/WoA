@@ -153,10 +153,9 @@ namespace WoA.Lib.Blizzard
             request.AddHeader("authorization", $"Bearer {_token}");
             IRestResponse response = client.Execute(request);
 
-            _logger.Debug("Got response : " + Environment.NewLine + JsonConvert.SerializeObject(response));
-
             if (!response.IsSuccessful)
             {
+                _logger.Debug("Got failure response : " + Environment.NewLine + JsonConvert.SerializeObject(response));
                 if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
                     _token = null;
                 throw new BlizzardApiCallException(response);
@@ -247,7 +246,9 @@ namespace WoA.Lib.Blizzard
 
             ItemSearchResponse searchResponse = JsonConvert.DeserializeObject<ItemSearchResponse>(response.Content);
 
-            return searchResponse.results.First().data.id;
+            if (searchResponse.results.Any())
+                return searchResponse.results.First().data.id;
+            return null;
         }
     }
 }

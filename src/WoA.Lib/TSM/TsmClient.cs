@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using log4net;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -16,14 +17,16 @@ namespace WoA.Lib.TSM
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
         private readonly IUserNotifier _notifier;
+        private readonly ILog _logger;
         private const int UPDATE_INTERVAL_TIME_PER_SERVER_IN_HOURS = 4;
 
-        public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console, IUserNotifier notifier)
+        public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console, IUserNotifier notifier, ILog logger)
         {
             _config = config;
             _console = console;
             _repo = repo;
             _notifier = notifier;
+            _logger = logger;
         }
 
         public void RefreshTsmItemsInRepository()
@@ -111,6 +114,8 @@ namespace WoA.Lib.TSM
                     _console.WriteNotificationLine("TSM > Error > Error: " + JsonConvert.DeserializeObject<TsmError>(response.Content).error);
                 if (!String.IsNullOrEmpty(response.ErrorMessage))
                     _console.WriteNotificationLine("TSM > Error > Error: " + response.ErrorMessage);
+                _logger.Error($"TSM call error: [{response.StatusCode}] {response.StatusDescription}");
+                _logger.Error("Got response: " + Environment.NewLine + JsonConvert.SerializeObject(response));
             }
 
             return JsonConvert.DeserializeObject<T>(response.Content);
