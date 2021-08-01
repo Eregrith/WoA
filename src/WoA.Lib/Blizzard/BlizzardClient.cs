@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
 
 namespace WoA.Lib.Blizzard
 {
@@ -16,8 +16,21 @@ namespace WoA.Lib.Blizzard
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
         private string _token;
-        private long _lastFileGot;
-        public List<Auction> Auctions { get; set; }
+        private long _lastUpdate;
+        private List<Auction> _auctions = null;
+        public List<Auction> Auctions
+        {
+            get
+            {
+                if (_auctions == null)
+                    _auctions = _repo.GetAll<Auction>().ToList();
+                return _auctions;
+            }
+            set
+            {
+                _auctions = value;
+            }
+        }
 
         private readonly IUserNotifier _notifier;
         private readonly ILog _logger;
@@ -27,8 +40,7 @@ namespace WoA.Lib.Blizzard
             _config = config;
             _console = console;
             _repo = repo;
-            Auctions = _repo.GetAll<Auction>().ToList();
-            _lastFileGot = _repo.GetById<BlizzardRealmData>(_config.CurrentRegion + "-" + _config.CurrentRealm)?.LastUpdate ?? 0;
+            _lastUpdate = 0;
             _notifier = notifier;
             _logger = logger;
         }
@@ -42,22 +54,14 @@ namespace WoA.Lib.Blizzard
 
             try
             {
-                _token = GetAccessToken();
+                AuctionApiResponse auctionsResponse = GetAuctions();
+                (int added, int updated, int removed) = ProcessAuctions(auctionsResponse.auctions, DateTime.Now.Ticks);
+                Auctions = _repo.GetAll<Auction>().ToList();
 
-                AuctionApiResponse file = GetAuctionFile();
-                if (file.files.First().lastModified > _lastFileGot)
-                {
-                    (int added, int updated, int removed) = ProcessAuctions(file.files.First().url, file.files.First().lastModified);
-                    Auctions = _repo.GetAll<Auction>().ToList();
-                    UpdateLastFileGotTime(file);
-
-                    _notifier.Toast($"{added + updated + removed} auctions processed in " + (stopwatch.ElapsedMilliseconds / 1000) + " sec"
-                                    + Environment.NewLine + $"{updated} updated"
-                                    + Environment.NewLine + $"{added} new"
-                                    + Environment.NewLine + $"{removed} removed");
-                }
-                else
-                    _notifier.Toast($"No new auctions processed.");
+                _notifier.Toast($"{added + updated + removed} auctions processed in " + (stopwatch.ElapsedMilliseconds / 1000) + " sec"
+                                + Environment.NewLine + $"{updated} updated"
+                                + Environment.NewLine + $"{added} new"
+                                + Environment.NewLine + $"{removed} removed");
             }
             catch (BlizzardApiException e)
             {
@@ -66,7 +70,7 @@ namespace WoA.Lib.Blizzard
                 _notifier.Toast("Error while loading auctions. There probably were no auctions loaded as a result");
                 _console.WriteNotificationLine("BLI > Error while loading auctions. There probably were no auctions loaded as a result");
                 _console.WriteNotificationLine(e.Message);
-                _console.WriteNotificationLine(e.StatusResponse.reason);
+                _console.WriteNotificationLine("Error Message: " + e.Response.ErrorMessage);
             }
             catch (Exception e)
             {
@@ -78,26 +82,8 @@ namespace WoA.Lib.Blizzard
             stopwatch.Stop();
         }
 
-        private void UpdateLastFileGotTime(AuctionApiResponse file)
+        private (int, int, int) ProcessAuctions(List<Auction> auctionsFromFile, long timestamp)
         {
-            _lastFileGot = file.files.First().lastModified;
-            BlizzardRealmData realmData = _repo.GetById<BlizzardRealmData>(_config.CurrentRegion + "-" + _config.CurrentRealm);
-            if (realmData == null)
-            {
-                realmData = new BlizzardRealmData { Id = _config.CurrentRegion + "-" + _config.CurrentRealm, LastUpdate = _lastFileGot };
-                _repo.Add(realmData);
-            }
-            else
-            {
-                realmData.LastUpdate = _lastFileGot;
-                _repo.Update(realmData);
-            }
-        }
-
-        private (int, int, int) ProcessAuctions(string url, long timestamp)
-        {
-            List<Auction> auctionsFromFile = GetAuctions(url);
-
             (int updated, int removed) = UpdateOrDeleteExistingAuctions(auctionsFromFile, timestamp);
             int added = InsertNewAuctions(auctionsFromFile);
 
@@ -106,22 +92,19 @@ namespace WoA.Lib.Blizzard
 
         private (int, int) UpdateOrDeleteExistingAuctions(List<Auction> auctionsFromFile, long timestamp)
         {
-            TimeSpan timeSinceLastUpdate = new TimeSpan(timestamp - _lastFileGot);
+            TimeSpan timeSinceLastUpdate = new TimeSpan(timestamp - _lastUpdate);
             var savedAuctions = _repo.GetAll<Auction>();
             List<SoldAuction> probablySoldAuctions = new List<SoldAuction>();
-            List<Auction> playerAuctionProbablySold = new List<Auction>();
             List<Auction> removed = new List<Auction>();
             List<Auction> updated = new List<Auction>();
             foreach (Auction savedAuction in savedAuctions)
             {
-                var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.auc == savedAuction.auc);
+                var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.id == savedAuction.id);
                 if (updatedAuction == null)
                 {
-                    if (savedAuction.timeLeft.ToHoursLeft() > timeSinceLastUpdate.TotalHours)
+                    if (savedAuction.time_left.ToHoursLeft() > timeSinceLastUpdate.TotalHours)
                     {
                         probablySoldAuctions.Add(new SoldAuction(savedAuction, timeSinceLastUpdate, _config.CurrentRealm));
-                        if (_config.PlayerToons.Contains(savedAuction.owner))
-                            playerAuctionProbablySold.Add(savedAuction);
                     }
                     removed.Add(savedAuction);
                 }
@@ -134,27 +117,7 @@ namespace WoA.Lib.Blizzard
             _repo.DeleteAll(removed);
             _repo.UpdateAll(updated);
             _repo.AddAll(probablySoldAuctions);
-
-            if (playerAuctionProbablySold.Any())
-            {
-                _notifier.NotifySomethingNew();
-                _notifier.Toast($"{playerAuctionProbablySold.Count} of your auctions probably sold for a total of {playerAuctionProbablySold.Sum(a => a.buyout).ToGoldString()}.");
-                _console.WriteNotificationLine($"BLI > {playerAuctionProbablySold.Count} of your auctions probably sold (or were cancelled before timing out).");
-                foreach (Auction a in playerAuctionProbablySold)
-                {
-                    WowItem item = GetItem(a.item);
-                    WowQuality quality = (WowQuality)item.quality;
-                    string name = item.name;
-                    _console.WriteNotificationLine(String.Format("{0,46}{1,20} x{2,3}{3,20}{4,15}{5,4}"
-                        , name.WithQuality(quality)
-                        , a.PricePerItem.ToGoldString()
-                        , a.quantity
-                        , a.buyout.ToGoldString()
-                        , a.owner
-                        , a.timeLeft.ToAuctionTimeString()));
-                }
-                _console.WriteNotificationLine($"total duty-free sales : {playerAuctionProbablySold.Sum(a => a.buyout).ToGoldString()}, total sales with ah taxes : {((long)(playerAuctionProbablySold.Sum(a => a.buyout)*0.9)).ToGoldString()}");
-            }
+            _lastUpdate = DateTime.Now.Ticks;
 
             return (updated.Count, removed.Count);
         }
@@ -162,27 +125,15 @@ namespace WoA.Lib.Blizzard
         private int InsertNewAuctions(List<Auction> auctionsFromFile)
         {
             var savedAuctions = _repo.GetAll<Auction>();
-            var newAuctions = auctionsFromFile.Where(a => !savedAuctions.Any(r => r.auc == a.auc)).ToList();
+            var newAuctions = auctionsFromFile.Where(a => !savedAuctions.Any(r => r.id == a.id)).ToList();
             newAuctions.ForEach(a => a.FirstSeenOn = DateTime.Now);
             _repo.AddAll(newAuctions);
             return newAuctions.Count;
         }
 
-        private List<Auction> GetAuctions(string fileUrl)
+        private AuctionApiResponse GetAuctions()
         {
-            var client = new RestClient(fileUrl);
-            var request = new RestRequest(Method.GET);
-            IRestResponse response = client.Execute(request);
-
-            if (!response.IsSuccessful)
-                throw new AuctionFileRetrievalException(response);
-
-            return JsonConvert.DeserializeObject<AuctionFileContents>(response.Content).auctions;
-        }
-
-        private AuctionApiResponse GetAuctionFile()
-        {
-            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/wow/auction/data/{_config.CurrentRealm}");
+            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/data/wow/connected-realm/{_config.ConnectedRealmId}/auctions?namespace=dynamic-{_config.CurrentRegion}&locale=en_US");
 
             var auctionApiResponse = JsonConvert.DeserializeObject<AuctionApiResponse>(response.Content);
             return auctionApiResponse;
@@ -190,6 +141,9 @@ namespace WoA.Lib.Blizzard
 
         private IRestResponse CallBlizzardAPI(string url)
         {
+            if (_token == null)
+                _token = GetAccessToken();
+
             _logger.Debug("Calling POST [" + url + "] with token " + _token);
 
             var client = new RestClient(url);
@@ -199,10 +153,13 @@ namespace WoA.Lib.Blizzard
             request.AddHeader("authorization", $"Bearer {_token}");
             IRestResponse response = client.Execute(request);
 
-            _logger.Debug("Got response : " + Environment.NewLine + JsonConvert.SerializeObject(response));
-
             if (!response.IsSuccessful)
+            {
+                _logger.Debug("Got failure response : " + Environment.NewLine + JsonConvert.SerializeObject(response));
+                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    _token = null;
                 throw new BlizzardApiCallException(response);
+            }
 
             return response;
         }
@@ -241,25 +198,26 @@ namespace WoA.Lib.Blizzard
             return JsonConvert.DeserializeObject<CharacterProfile>(response.Content);
         }
 
-        public WowQuality GetQuality(int itemId)
+        public WowQualityType GetQuality(string itemId)
         {
-            return (WowQuality)GetItem(itemId).quality;
+            return (WowQualityType)GetItem(itemId).quality.AsQualityTypeEnum;
         }
 
-        public WowItem GetItem(int itemId)
+        public WowItem GetItem(string itemId)
         {
             WowItem item = _repo.GetById<WowItem>(itemId.ToString());
             if (item == null)
             {
                 item = GetItemFromAPI(itemId);
+                _repo.Delete(item);
                 _repo.Add(item);
             }
             return item;
         }
 
-        private WowItem GetItemFromAPI(int itemId)
+        private WowItem GetItemFromAPI(string itemId)
         {
-            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/wow/item/{itemId}");
+            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/data/wow/item/{itemId}?namespace=static-{_config.CurrentRegion}");
 
             WowItem item = JsonConvert.DeserializeObject<WowItem>(response.Content);
 
@@ -268,7 +226,29 @@ namespace WoA.Lib.Blizzard
 
         public IEnumerable<WowItem> GetItemsWithNameLike(string partialName)
         {
-            return _repo.GetAll<WowItem>().Where(i => i.name.ToLower().Contains(partialName.ToLower()));
+            return _repo.GetAll<WowItem>().Where(i => i.name.en_US.ToLower().Contains(partialName.ToLower()));
+        }
+
+        public ConnectedRealmSearchData SearchConnectedRealmsForEnglishName(string realmSlug)
+        {
+            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/data/wow/search/connected-realm?namespace=dynamic-{_config.CurrentRegion}&realms.slug={realmSlug}");
+
+            ConnectedRealmSearchResponse searchResponse = JsonConvert.DeserializeObject<ConnectedRealmSearchResponse>(response.Content);
+
+            ConnectedRealmSearchData connectedRealm = searchResponse.results[0].data;
+
+            return connectedRealm;
+        }
+
+        public string GetItemIdFromName(string name)
+        {
+            IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/data/wow/search/item?namespace=static-{_config.CurrentRegion}&name.en_US={name}");
+
+            ItemSearchResponse searchResponse = JsonConvert.DeserializeObject<ItemSearchResponse>(response.Content);
+
+            if (searchResponse.results.Any())
+                return searchResponse.results.First().data.id;
+            return null;
         }
     }
 }

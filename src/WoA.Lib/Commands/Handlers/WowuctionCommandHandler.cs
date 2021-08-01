@@ -1,27 +1,35 @@
 ﻿using MediatR;
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using WoA.Lib.Commands.QueryObjects;
+using WoA.Lib.Items;
 
 namespace WoA.Lib.Commands.Handlers
 {
   public  class WowuctionCommandHandler : INotificationHandler<WowuctionCommand>
     {
-        private readonly IAuctionViewer _auctionViewer;
         private readonly IStylizedConsole _console;
         private readonly IConfiguration _config;
+        private readonly IItemHelper _itemHelper;
 
-        public WowuctionCommandHandler(IAuctionViewer auctionViewer, IStylizedConsole console, IConfiguration config)
+        public WowuctionCommandHandler(IStylizedConsole console, IConfiguration config, IItemHelper itemHelper)
         {
-            _auctionViewer = auctionViewer;
             _console = console;
             _config = config;
+            _itemHelper = itemHelper;
         }
 
         public Task Handle(WowuctionCommand notification, CancellationToken cancellationToken)
         {
-            int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
+            string itemId = _itemHelper.GetItemId(notification.ItemDescription);
+            if (String.IsNullOrEmpty(itemId))
+            {
+                _console.WriteLine("[Error] Can't open wowuction page for item:" +
+                    " No item id was found for name " + notification.ItemDescription);
+                return Task.CompletedTask;
+            }
             _console.WriteLine("Opening wowuction's article on item");
             Process.Start("https://www.wowuction.com/" + _config.CurrentRegion + "/" + _config.CurrentRealm + "/Items/Stats/" + itemId);
             return Task.CompletedTask;

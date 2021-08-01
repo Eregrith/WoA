@@ -13,13 +13,14 @@ namespace WorldOfAuctions
         public string Blizzard_ClientId { get; set; } = ConfigurationManager.AppSettings["Blizzard_ClientId"];
 
         public string Blizzard_ClientSecret { get; set; } = ConfigurationManager.AppSettings["Blizzard_ClientSecret"];
+        public string DbUser { get; set; } = ConfigurationManager.AppSettings["dbuser"];
+        public string DbPassword { get; set; } = ConfigurationManager.AppSettings["dbpassword"];
 
         public string CurrentRegion { get; set; } = ConfigurationManager.AppSettings["DefaultRegion"];
         public string CurrentRealm { get; set; } = ConfigurationManager.AppSettings["DefaultRealm"];
+        public int? ConnectedRealmId { get; set; } = String.IsNullOrEmpty(ConfigurationManager.AppSettings["DefaultRealmId"]) ? (int?)null : int.Parse(ConfigurationManager.AppSettings["DefaultRealmId"]);
 
         public string DatabasePath => ConfigurationManager.AppSettings["DatabasePath"];
-
-        public List<string> PlayerToons { get; set; } = ConfigurationManager.AppSettings ["PlayerToons"].Split(';').ToList();
 
         public void Save()
         {
@@ -29,7 +30,7 @@ namespace WorldOfAuctions
             config.AppSettings.Settings["Blizzard_ClientSecret"].Value = Blizzard_ClientSecret;
             config.AppSettings.Settings["DefaultRegion"].Value = CurrentRegion;
             config.AppSettings.Settings["DefaultRealm"].Value = CurrentRealm;
-            config.AppSettings.Settings["PlayerToons"].Value = String.Join(";", PlayerToons);
+            config.AppSettings.Settings["DefaultRealmId"].Value = ConnectedRealmId.ToString();
             config.Save(ConfigurationSaveMode.Minimal);
         }
     }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WoA.Lib.Auctions
 {
-    public class ItemBundle
+    public class ItemBundle : IIdentifiable
     {
         [PrimaryKey]
         public string Id { get; set; }

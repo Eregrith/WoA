@@ -102,21 +102,21 @@ namespace WoA.Lib
             return item.ToString();
         }
 
-        public static string WithQuality(this string itemName, WowQuality quality)
+        public static string WithQuality(this string itemName, WowQualityType quality)
         {
             switch (quality)
             {
-                case WowQuality.gray:
+                case WowQualityType.gray:
                     return $"---{itemName}---";
-                case WowQuality.white:
+                case WowQualityType.white:
                     return $"==={itemName}===";
-                case WowQuality.green:
+                case WowQualityType.green:
                     return $"[[[{itemName}]]]";
-                case WowQuality.blue:
+                case WowQualityType.blue:
                     return $"{{{{{{{itemName}}}}}}}";
-                case WowQuality.violet:
+                case WowQualityType.violet:
                     return $"+++{itemName}+++";
-                case WowQuality.orange:
+                case WowQualityType.orange:
                     return $"{{++{itemName}++}}";
                 default:
                     return itemName;

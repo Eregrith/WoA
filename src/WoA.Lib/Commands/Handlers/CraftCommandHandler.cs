@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Business;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Items;
+using WoA.Lib.Persistence;
 using WoA.Lib.TSM;
 
 namespace WoA.Lib.Commands.Handlers
@@ -20,20 +21,22 @@ namespace WoA.Lib.Commands.Handlers
         private readonly IGenericRepository _repository;
         private readonly IBlizzardClient _blizzard;
         private readonly ITsmClient _tsm;
+        private readonly IItemHelper _itemHelper;
 
-        public CraftCommandHandler(IStylizedConsole console, IGenericRepository repository, IBlizzardClient blizzard, ITsmClient tsm)
+        public CraftCommandHandler(IStylizedConsole console, IGenericRepository repository, IBlizzardClient blizzard, ITsmClient tsm, IItemHelper itemHelper)
         {
             _console = console;
             _repository = repository;
             _blizzard = blizzard;
             _tsm = tsm;
+            _itemHelper = itemHelper;
         }
 
         public Task Handle(CraftCommand notification, CancellationToken cancellationToken)
         {
-            int id = _tsm.GetItemIdFromName(notification.ItemDesc);
-            TsmItem tsmItem = _tsm.GetItem(id);
-            _console.WriteLine($"Crafting for item {tsmItem}");
+            string id = _itemHelper.GetItemId(notification.ItemDesc);
+            WowItem item = _blizzard.GetItem(id);
+            _console.WriteLine($"Crafting for item {item.name.en_US}");
             _console.WriteLine();
 
             List<Recipe> recipes = _repository.GetAll<Recipe>().Where(r => r.ItemId == id).ToList();
@@ -53,7 +56,7 @@ namespace WoA.Lib.Commands.Handlers
                 {
                     TsmItem tsmReagent = _tsm.GetItem(reagent.ItemId);
                     WowItem wowReagent = _blizzard.GetItem(reagent.ItemId);
-                    _console.WriteLine(String.Format("Sources for : {0,46} (x {1,12})", wowReagent.name.WithQuality((WowQuality)wowReagent.quality), reagent.Quantity));
+                    _console.WriteLine(String.Format("Sources for : {0,46} (x {1,12})", wowReagent.name.en_US.WithQuality(wowReagent.quality.AsQualityTypeEnum), reagent.Quantity));
                     List<ReagentSource> reagentSources = GetBestReagentSource(tsmReagent, reagent.Quantity);
                     int neededQuantity = reagent.Quantity;
                     _console.WriteLine(String.Format("{0,50}{1,10}{2,20}{3,20}", "Source", "Quantity", "Cost per item", "Total cost"));
@@ -94,7 +97,7 @@ namespace WoA.Lib.Commands.Handlers
 
         private void CheckRealAHBuy(TsmItem item, List<ReagentSource> sources, int quantity)
         {
-            List<Auction> auctions = _blizzard.Auctions.Where(a => a.item == item.ItemId).ToList();
+            List<Auction> auctions = _blizzard.Auctions.Where(a => a.item.id == item.ItemId).ToList();
 
             int quantityNeeded = quantity;
             foreach (Auction auction in auctions.OrderBy(a => a.PricePerItem))
@@ -105,8 +108,8 @@ namespace WoA.Lib.Commands.Handlers
                     {
                         Source = "AH Buy",
                         Quantity = auction.quantity,
-                        Cost = auction.buyout / Math.Min(auction.quantity, quantityNeeded),
-                        TotalCost = auction.buyout
+                        Cost = auction.FullPrice / Math.Min(auction.quantity, quantityNeeded),
+                        TotalCost = auction.FullPrice
                     });
                     quantityNeeded -= auction.quantity;
                 }

@@ -23,7 +23,7 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(BidSniperCommand notification, CancellationToken cancellationToken)
         {
-            IEnumerable<Auction> auctionsSoonExpired = _blizzard.Auctions.Where(a => a.timeLeft == "SHORT" && a.bid < (a.buyout / 5));
+            IEnumerable<Auction> auctionsSoonExpired = _blizzard.Auctions.Where(a => a.time_left == "SHORT" && a.bid < (a.buyout / 5));
             _auctions.ShowAuctionsForMultiItems(auctionsSoonExpired);
             return Task.CompletedTask;
         }

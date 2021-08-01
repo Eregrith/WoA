@@ -7,11 +7,12 @@ using System.Text;
 namespace WoA.Lib.Business
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Recipe
+    public class Recipe : IIdentifiable
     {
         [PrimaryKey]
         public string Name { get; set; }
-        public int ItemId { get; set; }
+        public string Id { get => Name; set => Name = value; }
+        public string ItemId { get; set; }
         private string DebuggerDisplay => $"Recipe {Name} creates {ItemId}";
     }
 }

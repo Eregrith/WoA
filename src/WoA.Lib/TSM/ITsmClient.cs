@@ -2,8 +2,8 @@
 {
     public interface ITsmClient
     {
-        TsmItem GetItem(int id);
-        int GetItemIdFromName(string itemName);
+        TsmItem GetItem(string id);
+        string GetItemIdFromName(string itemName);
         void RefreshTsmItemsInRepository();
     }
 }

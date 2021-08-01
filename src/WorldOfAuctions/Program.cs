@@ -10,7 +10,9 @@ using WoA.Lib.Auctions;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Business;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Items;
+using WoA.Lib.Persistence;
+using WoA.Lib.Persistence.MongoDB;
 using WoA.Lib.TSM;
 
 namespace WorldOfAuctions
@@ -38,8 +40,9 @@ namespace WorldOfAuctions
                        (pi, ctx) => ctx.ResolveKeyed<ILog>("application")))
                 .As<IBlizzardClient>()
                 .SingleInstance();
+            builder.RegisterType<ItemHelper>().As<IItemHelper>().SingleInstance();
             builder.RegisterType<AuctionViewer>().As<IAuctionViewer>().SingleInstance();
-            builder.RegisterType<GenericRepository>().As<IGenericRepository>().SingleInstance();
+            builder.RegisterType<MongoWrapper>().As<IGenericRepository>().SingleInstance();
             builder.RegisterType<ItemBundler>().As<IItemsBundler>();
             builder.RegisterType<ClipboardManager>().As<IClipboardManager>();
             builder.RegisterType<FlashingUserNotifier>().As<IUserNotifier>();
@@ -50,7 +53,18 @@ namespace WorldOfAuctions
             builder.Register<ServiceFactory>(context =>
             {
                 var c = context.Resolve<IComponentContext>();
-                return t => c.Resolve(t);
+
+                return (t) =>
+                {
+                    try
+                    {
+                        return c.Resolve(t);
+                    }
+                    catch (Exception e)
+                    {
+                        throw;
+                    }
+                };
             });
             builder.Register(c => LogManager.GetLogger("Commands"))
                     .As<ILog>()

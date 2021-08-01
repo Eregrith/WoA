@@ -37,7 +37,6 @@ namespace WorldOfAuctions
             _stylesheet.AddStyle(" 2h", Color.Red);
             _stylesheet.AddStyle("30m", Color.Red);
 
-            _stylesheet.AddStyle("(" + string.Join("|", _config.PlayerToons) + ")", Color.SteelBlue);
             string itemRegex = @"[a-zA-Z\-0-9 :\(\)\.'" + '"' + "]+";
             _stylesheet.AddStyle($"---{itemRegex}---", Color.Gray, match => match.Substring(3, match.Length - 6));
             _stylesheet.AddStyle($@"==={itemRegex}===", Color.White, match => match.Substring(3, match.Length - 6));

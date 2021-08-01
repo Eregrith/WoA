@@ -19,7 +19,6 @@ Hello fellow goblins ! This is a console application, called World of Auctions, 
   <add key="Blizzard_ClientSecret" value="{The ClientSecret of your blizzard client" />
   <add key="TSM_ApiKey" value="{The TSM API Key located in your TSM 'My Account' page}" />
   <add key="DefaultRealm" value="{Your realm}" />
-  <add key="PlayerToons" value="{Your toon names separated by ;}" />
 </appSettings>
 ```
 
@@ -38,6 +37,8 @@ There is room for improvement on the handling of the TSM API quotas.
 
 #### Blizzard
 The application will query Blizzard API for auctions every time you load it up or every time you change realm (with the `chrealm {realm}` command in the app).
+The application will also refresh auctions every 10 minutes when it's running.
+
 Blizzard allows for 36,000 calls per hour to this API so this should be ok.
 
 ### The code
@@ -52,14 +53,14 @@ The main command, called by the running code, is the `ParseCommand`. Its handler
 #### Example
 
 ```csharp
-[WoACommand(RegexToMatch = @"spy (?<sellerName>.+)", Description = "See all auctions and info for given seller")]
-public class SpySellerCommand : INotification
+[WoACommand(RegexToMatch = "^see (?<itemDesc>.+)", Usage = "see <item>", Description = "See all auctions for given item", DisplayedInHelp = true)]
+public class SeeAuctionsCommand : INotification
 {
-    public string SellerName { get; set; }
+    public string ItemDescription { get; set; }
 
-    public SpySellerCommand(Match match)
+    public SeeAuctionsCommand(Match m)
     {
-        SellerName = match.Groups["sellerName"].Value;
+        ItemDescription = m.Groups["itemDesc"].Value;
     }
 }
 ```

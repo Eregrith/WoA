@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
 
 namespace WoA.Lib.Commands.Handlers
 {
@@ -34,7 +34,6 @@ namespace WoA.Lib.Commands.Handlers
             {
                 sw.WriteLine("Buyout"
                     + separator + "First seen on"
-                    + separator + "Seller"
                     + separator + "Price per item"
                     + separator + "Quantity"
                     + separator + "Item ID"
@@ -45,12 +44,11 @@ namespace WoA.Lib.Commands.Handlers
                 {
                     sw.WriteLine(             auction.buyout
                                 + separator + auction.FirstSeenOn
-                                + separator + auction.owner
                                 + separator + auction.PricePerItem
                                 + separator + auction.quantity
                                 + separator + auction.item
                                 + separator + auction.SaleDetectedOn
-                                + separator + auction.timeLeft
+                                + separator + auction.time_left
                     );
                 }
                 sw.Close();

@@ -77,7 +77,7 @@ namespace WoA.Lib.Blizzard
         Mechagnome = 37
     }
 
-    public enum WowQuality
+    public enum WowQualityType
     {
         gray = 0,
         white = 1,

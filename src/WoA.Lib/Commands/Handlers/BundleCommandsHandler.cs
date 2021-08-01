@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using WoA.Lib.Auctions;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Commands.QueryObjects;
-using WoA.Lib.SQLite;
+using WoA.Lib.Items;
+using WoA.Lib.Persistence;
 using WoA.Lib.TSM;
 
 namespace WoA.Lib.Commands.Handlers
@@ -35,6 +36,7 @@ namespace WoA.Lib.Commands.Handlers
         private readonly IBlizzardClient _blizzard;
         private readonly IGenericRepository _repo;
         private readonly IClipboardManager _clipboard;
+        private readonly IItemHelper _itemHelper;
 
         public BundleCommandsHandler(
             IItemsBundler itemsBundler,
@@ -43,7 +45,8 @@ namespace WoA.Lib.Commands.Handlers
             ITsmClient tsm,
             IBlizzardClient blizzard,
             IGenericRepository repo,
-            IClipboardManager clipboard
+            IClipboardManager clipboard,
+            IItemHelper itemHelper
         )
         {
             _itemsBundler = itemsBundler;
@@ -53,21 +56,22 @@ namespace WoA.Lib.Commands.Handlers
             _blizzard = blizzard;
             _repo = repo;
             _clipboard = clipboard;
+            _itemHelper = itemHelper;
         }
 
         public Task Handle(BundleAddCommand notification, CancellationToken cancellationToken)
         {
-            int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
-            if (itemId > 0)
+            string itemId = _itemHelper.GetItemId(notification.ItemDescription);
+            if (!String.IsNullOrEmpty(itemId))
             {
                 _itemsBundler.Add(itemId, notification.ItemQuantity);
                 WowItem wowItem = _blizzard.GetItem(itemId);
-                WowQuality quality = (WowQuality)wowItem.quality;
-                _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.WithQuality(quality) + " added to bundle");
+                WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
+                _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.en_US.WithQuality(quality) + " added to bundle");
             }
             else
             {
-                _console.WriteLine("No item found called " + notification.ItemDescription);
+                _console.WriteLine("[Error] Can't add item to bundle: No item found called " + notification.ItemDescription);
             }
             return Task.CompletedTask;
         }
@@ -76,12 +80,12 @@ namespace WoA.Lib.Commands.Handlers
         {
             if (IsYourCurrentBundleValid())
             {
-                int itemId = _auctionViewer.GetItemId(notification.ItemDescription);
-                if (itemId > 0)
+                string itemId = _itemHelper.GetItemId(notification.ItemDescription);
+                if (!String.IsNullOrEmpty(itemId))
                 {
                     TsmItem tsmItem = _tsm.GetItem(itemId);
                     WowItem wowItem = _blizzard.GetItem(itemId);
-                    WowQuality quality = (WowQuality)wowItem.quality;
+                    WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
                     if (tsmItem != null)
                         _console.WriteLine("No TSM data for item " + notification.ItemDescription);
 
@@ -89,21 +93,21 @@ namespace WoA.Lib.Commands.Handlers
                     {
                         if (notification.RemoveAllQuantity)
                         {
-                            _console.WriteLine(wowItem.name.WithQuality(quality) + " removed from bundle");
+                            _console.WriteLine(wowItem.name.en_US.WithQuality(quality) + " removed from bundle");
                         }
                         else
                         {
-                            _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.WithQuality(quality) + " removed from bundle");
+                            _console.WriteLine(notification.ItemQuantity + " x " + wowItem.name.en_US.WithQuality(quality) + " removed from bundle");
                         }
                     }
                     else
                     {
-                        _console.WriteLine(wowItem.name.WithQuality(quality) + " doesn't exist in bundle");
+                        _console.WriteLine(wowItem.name.en_US.WithQuality(quality) + " doesn't exist in bundle");
                     }
                 }
                 else
                 {
-                    _console.WriteLine("No item found called " + notification.ItemDescription);
+                    _console.WriteLine("[Error] Can't remove item from bundle: No item found called " + notification.ItemDescription);
                 }
             }
             return Task.CompletedTask;
@@ -121,7 +125,7 @@ namespace WoA.Lib.Commands.Handlers
                     string answer = Console.ReadLine();
                     if (answer.Equals("yes"))
                     {
-                        Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                        Dictionary<string, int> bundle = _itemsBundler.GetItems();
                         itemBundle = new ItemBundle()
                         {
                             BundleName = notification.BundleName,
@@ -134,7 +138,7 @@ namespace WoA.Lib.Commands.Handlers
                 }
                 else
                 {
-                    Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                    Dictionary<string, int> bundle = _itemsBundler.GetItems();
                     itemBundle = new ItemBundle()
                     {
                         BundleName = notification.BundleName,
@@ -158,18 +162,18 @@ namespace WoA.Lib.Commands.Handlers
                 string[] testValue = itemBundle.ItemsValue.Split(',');
                 for (int i = 0; i < test.Length; i++)
                 {
-                    int itemId = int.Parse(test[i]);
+                    string itemId = test[i];
                     int quantity = int.Parse(testValue[i]);
                     _itemsBundler.Add(itemId, quantity);
                     WowItem wowItem = _blizzard.GetItem(itemId);
-                    WowQuality quality = (WowQuality)wowItem.quality;
-                    _console.WriteLine(quantity + " x " + wowItem.name.WithQuality(quality) + " added to bundle");
+                    WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
+                    _console.WriteLine(quantity + " x " + wowItem.name.en_US.WithQuality(quality) + " added to bundle");
                 }
                 _console.WriteLine($"{notification.BundleName} loaded");
             }
             else
             {
-                _console.WriteLine($"No bundle found with name : {notification.BundleName}");
+                _console.WriteLine($"[Error] Can't load bundle: No bundle found with name : {notification.BundleName}");
             }
 
             return Task.CompletedTask;
@@ -185,7 +189,7 @@ namespace WoA.Lib.Commands.Handlers
             }
             else
             {
-                _console.WriteLine($"No bundle found with name : {notification.BundleName}");
+                _console.WriteLine($"[Error] Can't delete bundle: No bundle found with name : {notification.BundleName}");
             }
 
             return Task.CompletedTask;
@@ -215,22 +219,22 @@ namespace WoA.Lib.Commands.Handlers
         {
             if (IsYourCurrentBundleValid())
             {
-                Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                Dictionary<string, int> bundle = _itemsBundler.GetItems();
                 _console.WriteLine("Current bundle contains:");
                 _console.WriteLine(String.Format("{0,7} {1,8} {2,40} {3,40} {4,40}", "ItemId", "Quantity", "Item", "Market Price", "Total"));
                 long bigTotal = 0;
-                foreach (KeyValuePair<int, int> item in bundle)
+                foreach (KeyValuePair<string, int> item in bundle)
                 {
                     TsmItem tsmItem = _tsm.GetItem(item.Key);
                     WowItem wowItem = _blizzard.GetItem(item.Key);
-                    WowQuality quality = (WowQuality)wowItem.quality;
+                    WowQualityType quality = wowItem.quality.AsQualityTypeEnum;
                     if (tsmItem == null)
-                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.WithQuality(quality), "unknown", "unknown"));
+                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.en_US.WithQuality(quality), "unknown", "unknown"));
                     else
                     {
                         long itemPrice = tsmItem.VendorBuy != 0 ? tsmItem.VendorBuy : tsmItem.MarketValue;
                         long itemTotal = (itemPrice * item.Value);
-                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.WithQuality(quality), (itemPrice == tsmItem.VendorBuy ? "(vendor) " + itemPrice.ToGoldString() : itemPrice.ToGoldString()), itemTotal.ToGoldString()));
+                        _console.WriteLine(String.Format("{0,7} {1,8} {2,46} {3,40} {4,40}", item.Key, item.Value + " x", wowItem.name.en_US.WithQuality(quality), (itemPrice == tsmItem.VendorBuy ? "(vendor) " + itemPrice.ToGoldString() : itemPrice.ToGoldString()), itemTotal.ToGoldString()));
                         bigTotal += itemTotal;
                     }
                 }
@@ -253,12 +257,12 @@ namespace WoA.Lib.Commands.Handlers
         {
             if (IsYourCurrentBundleValid())
             {
-                Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                Dictionary<string, int> bundle = _itemsBundler.GetItems();
                 List<ItemFlipResult> itemFlipResults = new List<ItemFlipResult>();
 
                 _console.WriteLine("Flipping current bundle will result:");
                 _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20} {4,20} {5,20}", "Item", "Market Price", "Qty available", "Total buyout", "Net profit", "Percent profit"));
-                foreach (KeyValuePair<int, int> item in bundle)
+                foreach (KeyValuePair<string, int> item in bundle)
                 {
                     itemFlipResults.Add(_auctionViewer.SimulateFlippingItemShortVersion(item.Key));
                 }
@@ -276,12 +280,12 @@ namespace WoA.Lib.Commands.Handlers
         {
             if (IsYourCurrentBundleValid())
             {
-                Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                Dictionary<string, int> bundle = _itemsBundler.GetItems();
                 List<ItemBuyResult> itemFlipResults = new List<ItemBuyResult>();
 
                 _console.WriteLine($"Buying current bundle's items at {notification.PercentMax}% of market value :");
                 _console.WriteLine(String.Format("{0,-35} {1,20} {2,15} {3,20}", "Item", "Market Price", "Qty available", "Total buyout"));
-                foreach (KeyValuePair<int, int> item in bundle)
+                foreach (KeyValuePair<string, int> item in bundle)
                 {
                     itemFlipResults.Add(_auctionViewer.SimulateBuyingItemShortVersion(item.Key, item.Value, notification.PercentMax));
                 }
@@ -309,17 +313,17 @@ namespace WoA.Lib.Commands.Handlers
         {
             if (IsYourCurrentBundleValid())
             {
-                Dictionary<int, int> bundle = _itemsBundler.GetItems();
+                Dictionary<string, int> bundle = _itemsBundler.GetItems();
                 _auctionViewer.ShowAuctionsForMultiItems(new List<Auction>(), true, false);
-                foreach (KeyValuePair<int, int> item in bundle)
+                foreach (KeyValuePair<string, int> item in bundle)
                 {
                     _console.WriteLine($"--------------------------------------------------");
-                    IEnumerable<Auction> auctions = _blizzard.Auctions.Where(a => a.item == item.Key).OrderBy(a => a.PricePerItem).Take(notification.Amount);
+                    IEnumerable<Auction> auctions = _blizzard.Auctions.Where(a => a.item.id == item.Key).OrderBy(a => a.PricePerItem).Take(notification.Amount);
                     WowItem wowItem = _blizzard.GetItem(item.Key);
                     if (auctions.Any())
                         _auctionViewer.ShowAuctionsForMultiItems(auctions, false, false);
                     else
-                        _console.WriteLine($"No {wowItem.name.WithQuality((WowQuality)wowItem.quality)} [{item.Key}] found.");
+                        _console.WriteLine($"No {wowItem.name.en_US.WithQuality(wowItem.quality.AsQualityTypeEnum)} [{item.Key}] found.");
                     _console.WriteLine();
                 }
             }
@@ -331,14 +335,12 @@ namespace WoA.Lib.Commands.Handlers
             _console.WriteLine("Paste TSM import string here");
             _console.WriteLine("============================");
             string line = Console.ReadLine();
-            List<int> items = new List<int>();
+            List<string> items = new List<string>();
             List<string> parts = line.Split(',').ToList();
             foreach (string part in parts)
             {
-                if (int.TryParse(part.Split(':')[1], out int itemId))
-                {
-                    items.Add(itemId);
-                }
+                string itemId = part.Split(':')[1];
+                items.Add(itemId);
             }
             if (items.Any())
             {
@@ -351,7 +353,7 @@ namespace WoA.Lib.Commands.Handlers
 
         private bool IsYourCurrentBundleValid()
         {
-            Dictionary<int, int> bundle = _itemsBundler.GetItems();
+            Dictionary<string, int> bundle = _itemsBundler.GetItems();
             if (bundle == null || !bundle.Any())
             {
                 _console.WriteLine("Your current bundle is empty");

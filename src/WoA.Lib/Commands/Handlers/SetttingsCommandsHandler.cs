@@ -28,14 +28,12 @@ namespace WoA.Lib.Commands.Handlers
         {
             _console.WriteLine("Current settings :");
             _console.WriteLine();
-            _console.WriteLine("CurrentRealm : " + _config.CurrentRealm);
+            _console.WriteLine("ConnectedRealmId : " + _config.ConnectedRealmId);
             _console.WriteLine();
             _console.WriteLine("Blizzard_ClientId : " + _config.Blizzard_ClientId);
             _console.WriteLine("Blizzard_ClientSecret : " + _config.Blizzard_ClientSecret);
             _console.WriteLine();
             _console.WriteLine("TsmApiKey : " + _config.TsmApiKey);
-            _console.WriteLine();
-            _console.WriteLine("Toons : " + String.Join(",", _config.PlayerToons));
             return Task.CompletedTask;
         }
 
@@ -43,8 +41,8 @@ namespace WoA.Lib.Commands.Handlers
         {
             switch (notification.SettingName)
             {
-                case "CurrentRealm":
-                    ChangeRealmCommand command = new ChangeRealmCommand { Realm = notification.SettingValue };
+                case "ConnectedRealmId":
+                    SetConnectedRealmIdCommand command = new SetConnectedRealmIdCommand();
                     await _mediator.Publish(command);
                     _config.Save();
                     break;
@@ -59,11 +57,6 @@ namespace WoA.Lib.Commands.Handlers
                 case "TsmApiKey":
                     _config.TsmApiKey = notification.SettingValue;
                     _config.Save();
-                    break;
-                case "Toons":
-                    _config.PlayerToons = notification.SettingValue.Split(',').ToList();
-                    _config.Save();
-                    _console.InitStyleSheet();
                     break;
                 default:
                     _console.WriteLine("No setting is named " + notification.SettingName);

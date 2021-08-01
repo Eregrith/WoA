@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using log4net;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using WoA.Lib.Blizzard;
-using WoA.Lib.SQLite;
+using WoA.Lib.Persistence;
 
 namespace WoA.Lib.TSM
 {
@@ -17,14 +17,16 @@ namespace WoA.Lib.TSM
         private readonly IStylizedConsole _console;
         private readonly IGenericRepository _repo;
         private readonly IUserNotifier _notifier;
+        private readonly ILog _logger;
         private const int UPDATE_INTERVAL_TIME_PER_SERVER_IN_HOURS = 4;
 
-        public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console, IUserNotifier notifier)
+        public TsmClient(IConfiguration config, IGenericRepository repo, IStylizedConsole console, IUserNotifier notifier, ILog logger)
         {
             _config = config;
             _console = console;
             _repo = repo;
             _notifier = notifier;
+            _logger = logger;
         }
 
         public void RefreshTsmItemsInRepository()
@@ -78,10 +80,10 @@ namespace WoA.Lib.TSM
         private List<TsmItem> GetItemsForRealm()
         {
             string url = getUrlFor("item/" + _config.CurrentRegion + "/" + _config.CurrentRealm);
-            var items = CallTsmApi<List<TsmItem>>(url);
+            var items = CallTsmApi<List<TsmItem>>(url) ?? new List<TsmItem>();
             items.ForEach(i =>
             {
-                i.ItemId = int.Parse(i.Id);
+                i.ItemId = i.Id;
                 i.Realm = _config.CurrentRealm;
                 i.Id = _config.CurrentRegion + '-' + _config.CurrentRealm + "-" + i.Id;
             });
@@ -94,7 +96,7 @@ namespace WoA.Lib.TSM
             _repo.AddAll(items);
         }
 
-        public TsmItem GetItem(int id)
+        public TsmItem GetItem(string id)
         {
             return _repo.GetById<TsmItem>(_config.CurrentRegion + "-" + _config.CurrentRealm + "-" + id);
         }
@@ -108,13 +110,18 @@ namespace WoA.Lib.TSM
             if (!response.IsSuccessful)
             {
                 _console.WriteNotificationLine("TSM > Error > Request to TSM api failed. Check your TSM ApiKey settings.");
-                _console.WriteNotificationLine("TSM > Error > Error: " + JsonConvert.DeserializeObject<TsmError>(response.Content).error);
+                if (!String.IsNullOrEmpty(response.Content))
+                    _console.WriteNotificationLine("TSM > Error > Error: " + JsonConvert.DeserializeObject<TsmError>(response.Content).error);
+                if (!String.IsNullOrEmpty(response.ErrorMessage))
+                    _console.WriteNotificationLine("TSM > Error > Error: " + response.ErrorMessage);
+                _logger.Error($"TSM call error: [{response.StatusCode}] {response.StatusDescription}");
+                _logger.Error("Got response: " + Environment.NewLine + JsonConvert.SerializeObject(response));
             }
 
             return JsonConvert.DeserializeObject<T>(response.Content);
         }
 
-        public int GetItemIdFromName(string itemName)
+        public string GetItemIdFromName(string itemName)
         {
             var potential = _repo.GetAll<TsmItem>()
                                 .Where(i => i.Name.ToLower().Contains(itemName.ToLower()))
@@ -127,14 +134,14 @@ namespace WoA.Lib.TSM
 
             if (potential.Count == 0)
             {
-                _console.WriteLine("No item found called " + itemName);
-                return 0;
+                _console.WriteLine("TSM > No item found called " + itemName);
+                return String.Empty;
             }
             if (potential.Count == 1)
                 return potential.First().Key.ItemId;
             if (potential.Count < 10)
             {
-                _console.WriteLine("Multiple items found with that name. Which one do you want ?");
+                _console.WriteLine("TSM > Multiple items found with that name. Which one do you want ?");
                 int i = 0;
                 _console.StartAlternating();
                 potential.ForEach(p => _console.WriteLineWithAlternatingBackground(String.Format("[ {0} ] : {1}", i++, p.First())));
@@ -142,8 +149,8 @@ namespace WoA.Lib.TSM
                 string line = Console.ReadLine();
                 return potential[int.Parse(line)].Key.ItemId;
             }
-            _console.WriteLine("Too many items (" + potential.Count + ") found with a name like " + itemName + ". Please specify the name further");
-            return 0;
+            _console.WriteLine("TSM > Too many items (" + potential.Count + ") found with a name like " + itemName + ". Please specify the name further");
+            return String.Empty;
         }
     }
 }

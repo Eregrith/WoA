@@ -9,17 +9,14 @@ using WoA.Lib.Commands.QueryObjects;
 namespace WoA.Lib.Commands.Handlers
 {
     public class UsageCommandsHandler
-        : INotificationHandler<ChangeRealmUsageCommand>
-        , INotificationHandler<BundleUsageCommand>
+        : INotificationHandler<BundleUsageCommand>
         , INotificationHandler<FlipUsageCommand>
         , INotificationHandler<ResetUsageCommand>
         , INotificationHandler<SeeAuctionsUsageCommand>
-        , INotificationHandler<SpySellerUsageCommand>
         , INotificationHandler<TsmInfoUsageCommand>
         , INotificationHandler<UndermineJournalUsageCommand>
         , INotificationHandler<WowuctionUsageCommand>
         , INotificationHandler<WhatIsItemUsageCommand>
-        , INotificationHandler<WhoIsUsageCommand>
         , INotificationHandler<SettingsUsageCommand>
         , INotificationHandler<RecipeUsageCommand>
     {
@@ -28,17 +25,6 @@ namespace WoA.Lib.Commands.Handlers
         public UsageCommandsHandler(IStylizedConsole console)
         {
             _console = console;
-        }
-
-        public Task Handle(ChangeRealmUsageCommand notification, CancellationToken cancellationToken)
-        {
-            _console.WriteAscii("chrealm");
-            _console.WriteLine();
-            _console.WriteLine("Usage:");
-            _console.WriteLine();
-            _console.WriteLine(String.Format("{0,-30} : {1}", "chrealm <realm name>", "Changes the current realm to <realm name>."));
-            _console.WriteLine(String.Format("{0,-30}   {1}", "", "If the given realm is the same as the current one, auction data is refreshed"));
-            return Task.CompletedTask;
         }
 
         public Task Handle(BundleUsageCommand notification, CancellationToken cancellationToken)
@@ -104,16 +90,6 @@ namespace WoA.Lib.Commands.Handlers
             return Task.CompletedTask;
         }
 
-        public Task Handle(SpySellerUsageCommand notification, CancellationToken cancellationToken)
-        {
-            _console.WriteAscii("spy");
-            _console.WriteLine();
-            _console.WriteLine("Usage:");
-            _console.WriteLine();
-            _console.WriteLine(String.Format("{0,-30} : {1}", "spy <seller name>", "Shows all auctions of a given seller."));
-            return Task.CompletedTask;
-        }
-
         public Task Handle(TsmInfoUsageCommand notification, CancellationToken cancellationToken)
         {
             _console.WriteAscii("tsm");
@@ -155,16 +131,6 @@ namespace WoA.Lib.Commands.Handlers
             return Task.CompletedTask;
         }
 
-        public Task Handle(WhoIsUsageCommand notification, CancellationToken cancellationToken)
-        {
-            _console.WriteAscii("whois");
-            _console.WriteLine();
-            _console.WriteLine("Usage:");
-            _console.WriteLine();
-            _console.WriteLine(String.Format("{0,-30}", "who is <seller name>"));
-            _console.WriteLine(String.Format("{0,-30} : {1}", "whois <seller name>", "Shows info on given seller's character."));
-            return Task.CompletedTask;
-        }
         public Task Handle(SettingsUsageCommand notification, CancellationToken cancellationToken)
         {
             _console.WriteAscii("settings");

@@ -8,12 +8,12 @@ using WoA.Lib.Blizzard;
 namespace WoA.Lib.Business
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Reagent
+    public class Reagent : IIdentifiable
     {
         [PrimaryKey]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public string Recipe { get; set; }
-        public int ItemId { get; set; }
+        public string ItemId { get; set; }
         public int Quantity { get; set; }
         private string DebuggerDisplay => $"Reagent {ItemId} : {Quantity} used in recipe {Recipe}";
     }

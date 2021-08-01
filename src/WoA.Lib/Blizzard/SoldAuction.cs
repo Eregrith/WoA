@@ -12,14 +12,13 @@ namespace WoA.Lib.Blizzard
 
         public SoldAuction(Auction a, TimeSpan timeSinceLastUpdate, string sourceRealm)
         {
-            auc = a.auc;
+            id = a.id;
             item = a.item;
-            owner = a.owner;
-            ownerRealm = a.ownerRealm;
             bid = a.bid;
             buyout = a.buyout;
             quantity = a.quantity;
-            timeLeft = a.timeLeft;
+            unit_price = a.unit_price;
+            time_left = a.time_left;
             FirstSeenOn = a.FirstSeenOn;
             ElapsedTimeSinceLastUpdate = timeSinceLastUpdate;
             SaleDetectedOn = DateTime.Now;

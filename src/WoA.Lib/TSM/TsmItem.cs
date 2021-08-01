@@ -4,7 +4,7 @@ using WoA.Lib.Blizzard;
 
 namespace WoA.Lib.TSM
 {
-    public class TsmItem
+    public class TsmItem : IIdentifiable
     {
         [PrimaryKey]
         public string Id { get; set; }
@@ -27,7 +27,7 @@ namespace WoA.Lib.TSM
         public long RegionSaleAvg { get; set; }
         public double RegionAvgDailySold { get; set; }
         public double RegionSaleRate { get; set; }
-        public int ItemId { get; set; }
+        public string ItemId { get; set; }
 
         public override string ToString()
         {
