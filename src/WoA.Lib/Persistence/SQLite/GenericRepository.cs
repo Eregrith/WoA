@@ -88,7 +88,7 @@ namespace WoA.Lib.Persistence.SQLite
             return _context.Query<T>(map.GetByPrimaryKeySql, id).FirstOrDefault();
         }
 
-        public T[] GetAll<T>() where T : IIdentifiable, new()
+        public T[] GetAll<T>()
         {
             return new TableQuery<T>(_context).ToArray();
         }

@@ -17,7 +17,20 @@ namespace WoA.Lib.Blizzard
         private readonly IGenericRepository _repo;
         private string _token;
         private long _lastUpdate;
-        public List<Auction> Auctions { get; set; }
+        private List<Auction> _auctions = null;
+        public List<Auction> Auctions
+        {
+            get
+            {
+                if (_auctions == null)
+                    _auctions = _repo.GetAll<Auction>().ToList();
+                return _auctions;
+            }
+            set
+            {
+                _auctions = value;
+            }
+        }
 
         private readonly IUserNotifier _notifier;
         private readonly ILog _logger;
@@ -27,7 +40,6 @@ namespace WoA.Lib.Blizzard
             _config = config;
             _console = console;
             _repo = repo;
-            Auctions = _repo.GetAll<Auction>().ToList();
             _lastUpdate = 0;
             _notifier = notifier;
             _logger = logger;
@@ -58,7 +70,7 @@ namespace WoA.Lib.Blizzard
                 _notifier.Toast("Error while loading auctions. There probably were no auctions loaded as a result");
                 _console.WriteNotificationLine("BLI > Error while loading auctions. There probably were no auctions loaded as a result");
                 _console.WriteNotificationLine(e.Message);
-                _console.WriteNotificationLine(e.StatusResponse?.reason);
+                _console.WriteNotificationLine("Error Message: " + e.Response.ErrorMessage);
             }
             catch (Exception e)
             {
@@ -90,7 +102,7 @@ namespace WoA.Lib.Blizzard
                 var updatedAuction = auctionsFromFile.FirstOrDefault(a => a.id == savedAuction.id);
                 if (updatedAuction == null)
                 {
-                    if (savedAuction.timeLeft.ToHoursLeft() > timeSinceLastUpdate.TotalHours)
+                    if (savedAuction.time_left.ToHoursLeft() > timeSinceLastUpdate.TotalHours)
                     {
                         probablySoldAuctions.Add(new SoldAuction(savedAuction, timeSinceLastUpdate, _config.CurrentRealm));
                     }
@@ -187,12 +199,12 @@ namespace WoA.Lib.Blizzard
             return JsonConvert.DeserializeObject<CharacterProfile>(response.Content);
         }
 
-        public WowQualityType GetQuality(int itemId)
+        public WowQualityType GetQuality(string itemId)
         {
             return (WowQualityType)GetItem(itemId).quality.AsQualityTypeEnum;
         }
 
-        public WowItem GetItem(int itemId)
+        public WowItem GetItem(string itemId)
         {
             WowItem item = _repo.GetById<WowItem>(itemId.ToString());
             if (item == null)
@@ -204,7 +216,7 @@ namespace WoA.Lib.Blizzard
             return item;
         }
 
-        private WowItem GetItemFromAPI(int itemId)
+        private WowItem GetItemFromAPI(string itemId)
         {
             IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/data/wow/item/{itemId}?namespace=static-{_config.CurrentRegion}");
 
@@ -229,7 +241,7 @@ namespace WoA.Lib.Blizzard
             return connectedRealm;
         }
 
-        public int GetItemIdFromName(string name)
+        public string GetItemIdFromName(string name)
         {
             IRestResponse response = CallBlizzardAPI($"https://{_config.CurrentRegion}.api.blizzard.com/data/wow/search/item?namespace=static-{_config.CurrentRegion}&name.en_US={name}");
 

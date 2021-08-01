@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Business;
 using WoA.Lib.Commands.QueryObjects;
+using WoA.Lib.Items;
 using WoA.Lib.Persistence;
 using WoA.Lib.TSM;
 
@@ -21,40 +22,39 @@ namespace WoA.Lib.Commands.Handlers
         private readonly IBlizzardClient _blizzard;
         private readonly IGenericRepository _repository;
         private readonly ITsmClient _tsm;
+        private readonly IItemHelper _itemHelper;
 
-        public FarmablesCommandsHandler(IStylizedConsole console, IBlizzardClient blizzard, IGenericRepository repository, ITsmClient tsm)
+        public FarmablesCommandsHandler(IStylizedConsole console, IBlizzardClient blizzard, IGenericRepository repository, ITsmClient tsm, IItemHelper itemHelper)
         {
             _console = console;
             _blizzard = blizzard;
             _repository = repository;
             _tsm = tsm;
+            _itemHelper = itemHelper;
         }
 
         public Task Handle(FarmablesAddCommand notification, CancellationToken cancellationToken)
         {
-            IEnumerable<WowItem> items = _blizzard.GetItemsWithNameLike(notification.ItemDesc);
-            if (items.Count() == 1)
+            string id = _itemHelper.GetItemId(notification.ItemDesc);
+            WowItem item = _blizzard.GetItem(id);
+            Farmable existingFarmable = _repository.GetById<Farmable>(item.id);
+            if (existingFarmable == null)
             {
-                WowItem item = items.First();
-                Farmable existingFarmable = _repository.GetById<Farmable>(item.id);
-                if (existingFarmable == null)
+                _console.WriteLine($"Creating a farmable for item {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)} at a rate of {notification.Quantity} {(notification.TimeFrame == TimeFrame.PerHour ? "per hour" : "per minute")}");
+                Farmable farmable = new Farmable
                 {
-                    _console.WriteLine($"Creating a farmable for item {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)} at a rate of {notification.Quantity} {(notification.TimeFrame == TimeFrame.PerHour ? "per hour" : "per minute")}");
-                    Farmable farmable = new Farmable
-                    {
-                        Id = item.id.ToString(),
-                        Quantity = notification.Quantity,
-                        TimeFrame = notification.TimeFrame
-                    };
-                    _repository.Add(farmable);
-                }
-                else
-                {
-                    _console.WriteLine($"Updating farmable for item {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)} to a rate of {notification.Quantity} {(notification.TimeFrame == TimeFrame.PerHour ? "per hour" : "per minute")}");
-                    existingFarmable.Quantity = notification.Quantity;
-                    existingFarmable.TimeFrame = notification.TimeFrame;
-                    _repository.Update(existingFarmable);
-                }
+                    Id = item.id.ToString(),
+                    Quantity = notification.Quantity,
+                    TimeFrame = notification.TimeFrame
+                };
+                _repository.Add(farmable);
+            }
+            else
+            {
+                _console.WriteLine($"Updating farmable for item {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)} to a rate of {notification.Quantity} {(notification.TimeFrame == TimeFrame.PerHour ? "per hour" : "per minute")}");
+                existingFarmable.Quantity = notification.Quantity;
+                existingFarmable.TimeFrame = notification.TimeFrame;
+                _repository.Update(existingFarmable);
             }
             return Task.CompletedTask;
         }
@@ -69,8 +69,8 @@ namespace WoA.Lib.Commands.Handlers
 
             foreach (Farmable farmable in farmables)
             {
-                WowItem item = _blizzard.GetItem(int.Parse(farmable.Id));
-                TsmItem tsmItem = _tsm.GetItem(int.Parse(farmable.Id));
+                WowItem item = _blizzard.GetItem(farmable.Id);
+                TsmItem tsmItem = _tsm.GetItem(farmable.Id);
                 double generatedValue = tsmItem.MarketValue * farmable.Quantity;
                 if (farmable.TimeFrame == TimeFrame.PerMinute)
                     generatedValue *= 60;

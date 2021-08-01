@@ -27,6 +27,11 @@ namespace WoA.Lib.Commands.Handlers
         public Task Handle(MultiseeCommand notification, CancellationToken cancellationToken)
         {
             IEnumerable<WowItem> items = _blizzard.GetItemsWithNameLike(notification.PartialItemName);
+            if (!items.Any())
+            {
+                _console.WriteLine("No auctions to show for this partial item name: " + notification.PartialItemName);
+                return Task.CompletedTask;
+            }
             _auctions.ShowAuctionsForMultiItems(new List<Auction>(), true, false);
             foreach (WowItem item in items)
             {

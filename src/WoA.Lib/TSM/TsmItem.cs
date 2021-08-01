@@ -27,7 +27,7 @@ namespace WoA.Lib.TSM
         public long RegionSaleAvg { get; set; }
         public double RegionAvgDailySold { get; set; }
         public double RegionSaleRate { get; set; }
-        public int ItemId { get; set; }
+        public string ItemId { get; set; }
 
         public override string ToString()
         {

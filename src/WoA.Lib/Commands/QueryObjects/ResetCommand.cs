@@ -20,8 +20,14 @@ namespace WoA.Lib.Commands.QueryObjects
         public ResetCommand(Match m)
         {
             ItemDescription = m.Groups["itemDesc"].Value;
-            MaxBuyPercent = int.Parse(m.Groups["maxBuyPercent"].Value);
-            SellPricePercent = int.Parse(m.Groups["sellPricePercent"].Value);
+            if (!String.IsNullOrEmpty(m.Groups["maxBuyPercent"].Value))
+                MaxBuyPercent = int.Parse(m.Groups["maxBuyPercent"].Value);
+            else
+                MaxBuyPercent = 90;
+            if (!String.IsNullOrEmpty(m.Groups["sellPricePercent"].Value))
+                SellPricePercent = int.Parse(m.Groups["sellPricePercent"].Value);
+            else
+                SellPricePercent = 110;
         }
     }
 

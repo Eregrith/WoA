@@ -39,7 +39,7 @@ namespace WoA.Lib.Commands.Handlers
 
         public Task Handle(RecipeAddCommand notification, CancellationToken cancellationToken)
         {
-            int id = _tsm.GetItemIdFromName(notification.ItemDesc);
+            string id = _tsm.GetItemIdFromName(notification.ItemDesc);
             WowItem item = _blizzard.GetItem(id);
             _console.WriteLine($"Started creating a recipe for item {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)}");
             _state.SetState(ApplicationState.RecipeCreation, new RecipeCreationState(id));
@@ -82,7 +82,7 @@ namespace WoA.Lib.Commands.Handlers
                 return Task.CompletedTask;
             }
 
-            int id = _tsm.GetItemIdFromName(notification.ItemDesc);
+            string id = _tsm.GetItemIdFromName(notification.ItemDesc);
             WowItem item = _blizzard.GetItem(id);
             _console.WriteLine($"Adding {notification.Quantity} x {item.name.en_US.WithQuality(item.quality.AsQualityTypeEnum)} to the recipe");
             RecipeCreationState recipe = (_state.StateInfo as RecipeCreationState);

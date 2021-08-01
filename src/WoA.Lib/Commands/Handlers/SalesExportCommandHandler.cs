@@ -48,7 +48,7 @@ namespace WoA.Lib.Commands.Handlers
                                 + separator + auction.quantity
                                 + separator + auction.item
                                 + separator + auction.SaleDetectedOn
-                                + separator + auction.timeLeft
+                                + separator + auction.time_left
                     );
                 }
                 sw.Close();

@@ -19,21 +19,12 @@ namespace WoA.Lib
             _blizzard = blizzard;
         }
 
-        public int GetItemId(string line)
-        {
-            if (int.TryParse(line, out int id))
-            {
-                return id;
-            }
-            return _blizzard.GetItemIdFromName(line);
-        }
-
-        public void SimulateFlippingItem(int itemId)
+        public void SimulateFlippingItem(string itemId)
         {
             SimulateResettingItem(itemId, 80, 100);
         }
 
-        public ItemFlipResult SimulateFlippingItemShortVersion(int itemId)
+        public ItemFlipResult SimulateFlippingItemShortVersion(string itemId)
         {
             TsmItem tsmItem = _tsm.GetItem(itemId);
             IEnumerable<Auction> itemAuctions = _blizzard.Auctions.Where(a => a.item.id == itemId);
@@ -58,7 +49,7 @@ namespace WoA.Lib
             return new ItemFlipResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions, NetProfit = profit, PercentProfit = percentProfit };
         }
 
-        public ItemBuyResult SimulateBuyingItemShortVersion(int itemId, int nbItem, int maxPercentBuyout)
+        public ItemBuyResult SimulateBuyingItemShortVersion(string itemId, int nbItem, int maxPercentBuyout)
         {
             TsmItem tsmItem = _tsm.GetItem(itemId);
             float maxPercentage = (float)maxPercentBuyout / 100;
@@ -83,11 +74,16 @@ namespace WoA.Lib
             return new ItemBuyResult() { Quantity = totalQuantity, TotalBuyout = sumBuyoutCheapAuctions };
         }
 
-        public void SimulateResettingItem(int itemId, int buyingPercentageValue, int sellingPercentageValue)
+        public void SimulateResettingItem(string itemId, int buyingPercentageValue, int sellingPercentageValue)
         {
             float buyingPercentage = (float)buyingPercentageValue / 100;
             float sellingPercentage = (float)sellingPercentageValue / 100;
             TsmItem tsmItem = _tsm.GetItem(itemId);
+            if (tsmItem == null)
+            {
+                _console.WriteLine("[Error] Can't simulate reset for item : No TSM Item found with id " + itemId);
+                return;
+            }
             _console.WriteLine($"Looking at flips for item:");
             _console.WriteAscii(tsmItem.Name);
             var itemAuctions = _blizzard.Auctions.Where(a => a.item.id == itemId);
@@ -116,7 +112,7 @@ namespace WoA.Lib
             }
         }
 
-        public void SeeAuctionsFor(int itemId)
+        public void SeeAuctionsFor(string itemId)
         {
             TsmItem tsmItem = _tsm.GetItem(itemId);
             string name;
@@ -170,7 +166,7 @@ namespace WoA.Lib
         {
             if (showHeader)
                 _console.WriteLine(String.Format("{0,40}{1,20}{2,12}{3,30}{4,15}{5,14}", "Item name", "Price per item", "Quantity", "Time Left (first seen on)", "Buyout total", "% MarketValue"));
-            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.item, a.timeLeft, a.FirstSeenOn }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
+            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.item, a.time_left, a.FirstSeenOn }).OrderBy(a => a.Key.PricePerItem).ThenBy(g => g.Key.item))
             {
                 WowItem item = _blizzard.GetItem(auctionGroup.First().item.id);
                 TsmItem tsmItem = _tsm.GetItem(auctionGroup.First().item.id);
@@ -182,7 +178,7 @@ namespace WoA.Lib
                     , auctionGroup.Key.PricePerItem.ToGoldString()
                     , auctionGroup.Count()
                     , auctionGroup.Key.quantity
-                    , auctionGroup.Key.timeLeft.ToAuctionTimeString() + "      " + auctionGroup.Key.FirstSeenOn.ToString("MM/dd HH:mm") + "  "
+                    , auctionGroup.Key.time_left.ToAuctionTimeString() + "      " + auctionGroup.Key.FirstSeenOn.ToString("MM/dd HH:mm") + "  "
                     , (auctionGroup.Key.buyout * auctionGroup.Count()).Value.ToGoldString()
                     , percentDbMarket));
             }
@@ -213,18 +209,23 @@ namespace WoA.Lib
 
         private void ShowAuctions(TsmItem tsmItem, IEnumerable<Auction> auctions)
         {
-            _console.WriteLine(String.Format("{0,20}{1,12}{2,20}{3,30}{4,14}", "Price per item", "Quantity", "Buyout total", "Time left (first seen on)", "% MarketValue"));
-            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.timeLeft, a.FirstSeenOn }).OrderBy(g => g.Key.PricePerItem))
+            _console.WriteLine(String.Format("{0,20}{1,13}{2,20}{3,30}{4,14}", "Price per item", "Quantity", "Buyout total", "Time left (first seen on)", "% MarketValue"));
+            foreach (var auctionGroup in auctions.GroupBy(a => new { a.PricePerItem, a.quantity, a.buyout, a.time_left, a.FirstSeenOn }).OrderBy(g => g.Key.PricePerItem))
             {
                 string marketRatio = "?";
                 if (tsmItem != null)
                     marketRatio = $"{Math.Round((auctionGroup.Key.PricePerItem * 100.0) / tsmItem.MarketValue)}";
-                _console.WriteLine(String.Format("{0,20}{1,7}x {2,3}{3,20}{4,30}{5,12} %"
-                    , auctionGroup.Key.PricePerItem.ToGoldString()
-                    , auctionGroup.Count()
-                    , auctionGroup.Key.quantity
-                    , (auctionGroup.Key.buyout * auctionGroup.Count()).Value.ToGoldString()
-                    , auctionGroup.Key.timeLeft.ToAuctionTimeString() + "      " + auctionGroup.Key.FirstSeenOn.ToString("MM/dd HH:mm") + "  "
+                string pricePerItem = auctionGroup.Key.PricePerItem.ToGoldString();
+                int auctionCount = auctionGroup.Count();
+                int auctionQuantity = auctionGroup.Key.quantity;
+                string auctionPrice = auctionGroup.Key.buyout.HasValue ? auctionGroup.Key.buyout.Value.ToGoldString() : (auctionGroup.Key.PricePerItem * auctionGroup.Key.quantity).ToGoldString();
+                string timeInfo = $"{auctionGroup.Key.time_left.ToAuctionTimeString()}      {auctionGroup.Key.FirstSeenOn.ToString("MM/dd HH:mm")}  ";
+                _console.WriteLine(string.Format("{0,20}{1,5}x {2,5}{3,20}{4,30}{5,12} %"
+                    , pricePerItem
+                    , auctionCount
+                    , auctionQuantity
+                    , auctionPrice
+                    , timeInfo
                     , marketRatio));
             }
 

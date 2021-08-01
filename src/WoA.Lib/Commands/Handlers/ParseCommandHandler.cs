@@ -33,7 +33,7 @@ namespace WoA.Lib.Commands.Handlers
             {
                 string regex = woaCommand.GetCustomAttribute<WoACommandAttribute>().RegexToMatch;
                 Regex r = new Regex(regex);
-                Match m = r.Match(notification.UserInput);
+                Match m = r.Match(notification.UserInput.Trim());
                 if (m.Success)
                 {
                     object command;

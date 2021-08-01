@@ -9,6 +9,8 @@ namespace WoA.Lib
         string TsmApiKey { get; set; }
         string Blizzard_ClientId { get; set; }
         string Blizzard_ClientSecret { get; set; }
+        string DbUser { get; set; }
+        string DbPassword{ get; set; }
 
         string CurrentRegion { get; set; }
         string CurrentRealm { get; set; }

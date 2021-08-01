@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WoA.Lib.Commands.QueryObjects;
+using WoA.Lib.Items;
 using WoA.Lib.TSM;
 
 namespace WoA.Lib.Commands.Handlers
@@ -12,24 +13,25 @@ namespace WoA.Lib.Commands.Handlers
     public class TsmInfoCommandHandler : INotificationHandler<TsmInfoCommand>
     {
         private readonly ITsmClient _tsm;
-        private readonly IAuctionViewer _auctions;
         private readonly IStylizedConsole _console;
+        private readonly IItemHelper _itemHelper;
 
-        public TsmInfoCommandHandler(ITsmClient tsm, IAuctionViewer auctions, IStylizedConsole console)
+        public TsmInfoCommandHandler(ITsmClient tsm, IStylizedConsole console, IItemHelper itemHelper)
         {
             _tsm = tsm;
-            _auctions = auctions;
             _console = console;
+            _itemHelper = itemHelper;
         }
 
         public Task Handle(TsmInfoCommand notification, CancellationToken cancellationToken)
         {
-            int itemId = _auctions.GetItemId(notification.ItemDescription);
+            string itemId = _itemHelper.GetItemId(notification.ItemDescription);
             TsmItem item = _tsm.GetItem(itemId);
 
             if (item == null)
             {
-                _console.Write("No item matching " + notification.ItemDescription + " was found");
+                _console.WriteLine("[Error] Can't display TSM info about item:" +
+                    " No item matching " + notification.ItemDescription + " was found");
                 return Task.CompletedTask;
             }
 

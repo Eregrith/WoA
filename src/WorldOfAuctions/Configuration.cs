@@ -13,6 +13,8 @@ namespace WorldOfAuctions
         public string Blizzard_ClientId { get; set; } = ConfigurationManager.AppSettings["Blizzard_ClientId"];
 
         public string Blizzard_ClientSecret { get; set; } = ConfigurationManager.AppSettings["Blizzard_ClientSecret"];
+        public string DbUser { get; set; } = ConfigurationManager.AppSettings["dbuser"];
+        public string DbPassword { get; set; } = ConfigurationManager.AppSettings["dbpassword"];
 
         public string CurrentRegion { get; set; } = ConfigurationManager.AppSettings["DefaultRegion"];
         public string CurrentRealm { get; set; } = ConfigurationManager.AppSettings["DefaultRealm"];

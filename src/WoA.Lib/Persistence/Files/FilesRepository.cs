@@ -11,7 +11,7 @@ using WoA.Lib.TSM;
 
 namespace WoA.Lib.Persistence.Files
 {
-    public class FilesRepository : IGenericRepository
+    public class FilesRepository// : IGenericRepository
     {
         private string _databasePath;
 
@@ -94,7 +94,7 @@ namespace WoA.Lib.Persistence.Files
             File.WriteAllLines(filePath, linesToSave);
         }
 
-        public T[] GetAll<T>() where T : IIdentifiable, new()
+        public T[] GetAll<T>()
         {
             string filePath = GetFilePathForClass<T>();
             string[] lines = File.ReadAllLines(filePath);
@@ -146,18 +146,6 @@ namespace WoA.Lib.Persistence.Files
             File.WriteAllLines(filePath, lines);
         }
 
-        private bool disposed = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
         protected virtual bool IsFileLocked(FileInfo file)
         {
             try

@@ -18,7 +18,7 @@ namespace WoA.Lib.Blizzard
             buyout = a.buyout;
             quantity = a.quantity;
             unit_price = a.unit_price;
-            timeLeft = a.timeLeft;
+            time_left = a.time_left;
             FirstSeenOn = a.FirstSeenOn;
             ElapsedTimeSinceLastUpdate = timeSinceLastUpdate;
             SaleDetectedOn = DateTime.Now;

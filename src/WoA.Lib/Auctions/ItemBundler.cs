@@ -6,9 +6,9 @@ namespace WoA.Lib.Auctions
 {
     public class ItemBundler : IItemsBundler
     {
-        private Dictionary<int, int> Items { get; set; } = new Dictionary<int, int>();
+        private Dictionary<string, int> Items { get; set; } = new Dictionary<string, int>();
 
-        public void Add(int itemId, int quantity)
+        public void Add(string itemId, int quantity)
         {
             if (Items.ContainsKey(itemId))
                 Items[itemId] += quantity;
@@ -16,7 +16,7 @@ namespace WoA.Lib.Auctions
                 Items.Add(itemId, quantity);
         }
 
-        public bool Remove(int itemId, int quantity, bool removeItem)
+        public bool Remove(string itemId, int quantity, bool removeItem)
         {
             if (Items.ContainsKey(itemId))
             {
@@ -38,7 +38,7 @@ namespace WoA.Lib.Auctions
             Items.Clear();
         }
 
-        public Dictionary<int, int> GetItems()
+        public Dictionary<string, int> GetItems()
         {
             return Items;
         }

@@ -13,7 +13,7 @@ namespace WoA.Lib.Business
         [PrimaryKey]
         public string Id { get; set; }
         public string Recipe { get; set; }
-        public int ItemId { get; set; }
+        public string ItemId { get; set; }
         public int Quantity { get; set; }
         private string DebuggerDisplay => $"Reagent {ItemId} : {Quantity} used in recipe {Recipe}";
     }

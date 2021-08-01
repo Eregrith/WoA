@@ -11,8 +11,8 @@ namespace WoA.Lib.Blizzard
     public class WowItem : IIdentifiable
     {
         [PrimaryKey]
-        public int id { get; set; }
-        public string Id { get => id.ToString(); set => id = int.Parse(value); }
+        public string id { get; set; }
+        public string Id { get => id; set => id = value; }
         [Ignore]
         public WowLocalizedString name { get; set; }
         [Ignore]

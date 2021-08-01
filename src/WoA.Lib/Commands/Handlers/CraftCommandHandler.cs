@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WoA.Lib.Blizzard;
 using WoA.Lib.Business;
 using WoA.Lib.Commands.QueryObjects;
+using WoA.Lib.Items;
 using WoA.Lib.Persistence;
 using WoA.Lib.TSM;
 
@@ -20,20 +21,22 @@ namespace WoA.Lib.Commands.Handlers
         private readonly IGenericRepository _repository;
         private readonly IBlizzardClient _blizzard;
         private readonly ITsmClient _tsm;
+        private readonly IItemHelper _itemHelper;
 
-        public CraftCommandHandler(IStylizedConsole console, IGenericRepository repository, IBlizzardClient blizzard, ITsmClient tsm)
+        public CraftCommandHandler(IStylizedConsole console, IGenericRepository repository, IBlizzardClient blizzard, ITsmClient tsm, IItemHelper itemHelper)
         {
             _console = console;
             _repository = repository;
             _blizzard = blizzard;
             _tsm = tsm;
+            _itemHelper = itemHelper;
         }
 
         public Task Handle(CraftCommand notification, CancellationToken cancellationToken)
         {
-            int id = _tsm.GetItemIdFromName(notification.ItemDesc);
-            TsmItem tsmItem = _tsm.GetItem(id);
-            _console.WriteLine($"Crafting for item {tsmItem}");
+            string id = _itemHelper.GetItemId(notification.ItemDesc);
+            WowItem item = _blizzard.GetItem(id);
+            _console.WriteLine($"Crafting for item {item.name.en_US}");
             _console.WriteLine();
 
             List<Recipe> recipes = _repository.GetAll<Recipe>().Where(r => r.ItemId == id).ToList();
