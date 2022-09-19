@@ -59,7 +59,7 @@
     <ApplicationIcon>WoA.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>C7556B004B947E482860D4FD3366F2D62BBB32EA</ManifestCertificateThumbprint>

@@ -33,6 +33,12 @@ namespace WoA.Lib.Commands.Handlers
 
                 ConnectedRealmSearchData connectedRealm = _blizzard.SearchConnectedRealmsForEnglishName(realmName.ToLower());
 
+                if (connectedRealm == null)
+                {
+                    _console.WriteLine("Sorry, no connected realm was found with this name");
+                    return Task.CompletedTask;
+                }
+
                 _console.WriteLine("Connected realms found:");
                 _console.WriteLine(connectedRealm.id + " : " + connectedRealm.FullConnectedRealmEnglishNames);
                 _console.WriteLine("Is that correct ? (y / n)");

@@ -235,9 +235,12 @@ namespace WoA.Lib.Blizzard
 
             ConnectedRealmSearchResponse searchResponse = JsonConvert.DeserializeObject<ConnectedRealmSearchResponse>(response.Content);
 
-            ConnectedRealmSearchData connectedRealm = searchResponse.results[0].data;
-
-            return connectedRealm;
+            if (searchResponse.results.Any())
+            {
+                ConnectedRealmSearchData connectedRealm = searchResponse.results[0].data;
+                return connectedRealm;
+            }
+            return null;
         }
 
         public string GetItemIdFromName(string name)
