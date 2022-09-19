@@ -35,18 +35,20 @@ namespace WoA.Lib.Commands.Handlers
 
                 if (connectedRealm == null)
                 {
-                    _console.WriteLine("Sorry, no connected realm was found with this name");
-                    return Task.CompletedTask;
+                    _console.WriteLine($"Sorry, no connected realm was found with the slug {realmName}");
+                    confirm = "";
                 }
-
-                _console.WriteLine("Connected realms found:");
-                _console.WriteLine(connectedRealm.id + " : " + connectedRealm.FullConnectedRealmEnglishNames);
-                _console.WriteLine("Is that correct ? (y / n)");
-                confirm = Console.ReadLine();
-                if (confirm == "y" || confirm == "yes")
+                else
                 {
-                    _config.CurrentRealm = realmName.ToLower();
-                    _config.ConnectedRealmId = connectedRealm.id;
+                    _console.WriteLine("Connected realms found:");
+                    _console.WriteLine(connectedRealm.id + " : " + connectedRealm.FullConnectedRealmEnglishNames);
+                    _console.WriteLine("Is that correct ? (y / n)");
+                    confirm = Console.ReadLine();
+                    if (confirm == "y" || confirm == "yes")
+                    {
+                        _config.CurrentRealm = realmName.ToLower();
+                        _config.ConnectedRealmId = connectedRealm.id;
+                    }
                 }
             } while (confirm != "y" && confirm != "yes");
 
